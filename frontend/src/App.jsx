@@ -92,7 +92,8 @@ const featureListStyle = {
   margin: 0,
   padding: 0,
   display: 'grid',
-  gap: '0.75rem'
+  gap: '0.75rem',
+  justifyItems: 'start'
 }
 
 const heroSectionStyle = {
@@ -103,25 +104,27 @@ const heroSectionStyle = {
 }
 
 const centerLogoStyle = {
-  width: 'min(90vw, 720px)',
+  width: 'min(72vw, 576px)',
   height: 'auto',
-  marginBottom: '1rem'
+  marginBottom: '0.35rem'
 }
 
 const ctaRowStyle = {
   display: 'flex',
   alignItems: 'center',
-  gap: '1rem',
-  flexWrap: 'wrap'
+  justifyContent: 'center',
+  gap: '0.75rem',
+  flexWrap: 'wrap',
+  marginTop: 0
 }
 
 const registerButtonStyle = {
   background: 'linear-gradient(180deg, #1ca35c, #0a7f45)',
   color: '#ffffff',
   border: 'none',
-  borderRadius: '12px',
-  padding: '0.75rem 1.5rem',
-  fontSize: '1.1rem',
+  borderRadius: '10px',
+  padding: '0.55rem 1.05rem',
+  fontSize: '0.95rem',
   fontWeight: 800,
   cursor: 'pointer',
   boxShadow: '0 8px 24px rgba(0,0,0,0.28)'
@@ -149,7 +152,7 @@ const authOverlayStyle = {
   zIndex: 20
 }
 
-function featureItemStyle(borderColor) {
+function featureItemStyle(borderColor, index) {
   return {
     display: 'grid',
     gridTemplateColumns: '54px 1fr',
@@ -159,8 +162,11 @@ function featureItemStyle(borderColor) {
     border: `4px solid ${borderColor}`,
     borderRadius: '999px',
     padding: '0.4rem 1rem 0.4rem 0.4rem',
-    fontWeight: 700,
-    textShadow: '0 1px 3px rgba(0,0,0,0.25)'
+    fontWeight: 500,
+    fontFamily: "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif",
+    letterSpacing: '0.02em',
+    textShadow: '0 1px 3px rgba(0,0,0,0.25)',
+    marginLeft: index % 2 === 0 ? '0' : '18px'
   }
 }
 
@@ -240,8 +246,8 @@ export default function App() {
 
       <div style={contentLayoutStyle}>
         <ul style={featureListStyle}>
-          {featureItems.map((item) => (
-            <li key={item.id} style={featureItemStyle(item.borderColor)}>
+          {featureItems.map((item, index) => (
+            <li key={item.id} style={featureItemStyle(item.borderColor, index)}>
               <span style={numberBubbleStyle}>{item.id}</span>
               <span>{item.text}</span>
             </li>
@@ -249,12 +255,14 @@ export default function App() {
         </ul>
 
         <section style={heroSectionStyle}>
-          <img src={productLogo} alt="InterviewX" style={centerLogoStyle} />
+          <div className="logo-reveal-shell">
+            <img src={productLogo} alt="InterviewX" style={centerLogoStyle} className="logo-reveal-image" />
+          </div>
           <div style={ctaRowStyle}>
             <button type="button" style={registerButtonStyle} onClick={openAuthPanel}>
               Register Now
             </button>
-            <strong style={{ fontSize: '2rem', lineHeight: 1.2 }}>{ctaText}</strong>
+            <strong style={{ fontSize: '1.45rem', lineHeight: 1.15 }}>{ctaText}</strong>
           </div>
         </section>
       </div>
