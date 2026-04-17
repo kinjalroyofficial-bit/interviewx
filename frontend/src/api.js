@@ -1,9 +1,26 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'
 
-export async function fetchHealth() {
-  const response = await fetch(`${API_BASE_URL}/health`)
+async function authRequest(path, payload) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
   if (!response.ok) {
-    throw new Error('Failed to fetch health status')
+    const errorBody = await response.json().catch(() => ({}))
+    throw new Error(errorBody.detail || 'Authentication request failed')
   }
+
   return response.json()
+}
+
+export function signup(payload) {
+  return authRequest('/auth/signup', payload)
+}
+
+export function login(payload) {
+  return authRequest('/auth/login', payload)
 }
