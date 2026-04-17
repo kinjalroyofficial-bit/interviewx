@@ -36,6 +36,13 @@ body,
     gap: 1.2rem !important;
   }
 
+  .auth-layout {
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
   .hero-panel {
     order: 1;
   }

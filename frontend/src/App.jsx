@@ -107,17 +107,31 @@ const authOverlayStyle = {
 
 const authLayoutStyle = {
   width: 'min(980px, 92vw)', height: 'min(620px, 88vh)', borderRadius: '22px', overflow: 'hidden', background: '#f2f2f2',
-  boxShadow: '0 28px 56px rgba(0,0,0,0.36)', display: 'grid', gridTemplateColumns: 'minmax(300px, 40%) 1fr'
+  boxShadow: '0 28px 56px rgba(0,0,0,0.36)', display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 50%))'
 }
 
 const authFormPaneStyle = {
-  background: '#efefef', color: '#232323', padding: '1.75rem 1.5rem 1.25rem', display: 'grid', alignContent: 'start', gap: '0.75rem', position: 'relative'
+  background: '#efefef', color: '#232323', padding: '2rem 1.5rem 1.5rem', display: 'grid', alignContent: 'start', gap: '1rem', position: 'relative'
 }
 
 const authRightPaneStyle = {
   position: 'relative', backgroundImage: `url(${signupBackground})`, backgroundSize: 'cover', backgroundPosition: 'center', padding: '1rem', display: 'grid',
   gridTemplateRows: '1fr auto', gap: '0.75rem', color: '#121212'
 }
+
+const authPaneInnerStyle = { width: '100%', maxWidth: '430px', margin: '0 auto' }
+const authTitleStyle = { fontSize: '2rem', margin: 0, letterSpacing: '0.01em' }
+const authSubtitleStyle = { margin: '0.2rem 0 0', color: '#5b5b5b', fontSize: '0.95rem', lineHeight: 1.45 }
+const authFieldGroupStyle = { display: 'grid', gap: '0.42rem' }
+const authLabelStyle = { fontSize: '0.84rem', color: '#4a4a4a', fontWeight: 700, letterSpacing: '0.01em' }
+const authInputStyle = {
+  width: '100%', maxWidth: '420px', fontSize: '0.97rem', padding: '0.72rem 0.9rem', borderRadius: '10px', outline: 'none'
+}
+const authLeftInfoCardStyle = {
+  marginTop: '0.15rem', background: '#ffffff', borderRadius: '12px', border: '1px solid #d8d8d8', padding: '0.85rem 0.95rem'
+}
+const authLeftInfoTitleStyle = { margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#313131' }
+const authLeftInfoTextStyle = { margin: '0.35rem 0 0', fontSize: '0.82rem', color: '#616161', lineHeight: 1.4 }
 
 function featureItemStyle(borderColor, index) {
   return {
@@ -231,55 +245,71 @@ export default function App() {
 
       {showAuthPanel ? (
         <div style={authOverlayStyle} onClick={() => setShowAuthPanel(false)}>
-          <div style={authLayoutStyle} onClick={(event) => event.stopPropagation()}>
+          <div style={authLayoutStyle} className="auth-layout" onClick={(event) => event.stopPropagation()}>
             <main style={authFormPaneStyle}>
               {!currentUser ? (
                 <>
-                  <h1 style={{ fontSize: '2rem', margin: '0 0 0.6rem' }}>InterviewX</h1>
-                  <input
-                    id="username"
-                    name="username"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
-                    autoComplete="username"
-                    placeholder="Email"
-                    required
-                    style={{ fontSize: '0.95rem', padding: '0.62rem 0.8rem', borderRadius: '10px', border: '2px solid #2a2a2a' }}
-                  />
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'}
-                    placeholder="Password"
-                    required
-                    style={{ fontSize: '0.95rem', padding: '0.62rem 0.8rem', borderRadius: '10px', border: '1px solid #bbc2ce', background: '#dce3ef' }}
-                  />
+                  <div style={authPaneInnerStyle}>
+                    <h1 style={authTitleStyle}>InterviewX</h1>
+                    <p style={authSubtitleStyle}>Share your details so we can personalize your interview journey.</p>
 
-                  <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#666', fontSize: '0.92rem' }}>
-                    <input type="checkbox" defaultChecked /> I agree to the <a href="#">Terms of Service</a>
-                  </label>
+                    <div style={authLeftInfoCardStyle}>
+                      <p style={authLeftInfoTitleStyle}>Profile details we need</p>
+                      <p style={authLeftInfoTextStyle}>Use your email/username and password to sign in. For new users, these details create your account.</p>
+                    </div>
 
-                  <button type="button" onClick={onSubmit} style={{
-                    marginTop: '0.25rem', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '12px',
-                    padding: '0.7rem 0.85rem', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer'
-                  }}>
-                    {authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}
-                  </button>
+                    <div style={{ ...authFieldGroupStyle, marginTop: '0.65rem' }}>
+                      <label htmlFor="username" style={authLabelStyle}>Email or Username</label>
+                      <input
+                        id="username"
+                        name="username"
+                        value={username}
+                        onChange={(event) => setUsername(event.target.value)}
+                        autoComplete="username"
+                        placeholder="you@company.com"
+                        required
+                        style={{ ...authInputStyle, border: '2px solid #2a2a2a' }}
+                      />
+                    </div>
 
-                  <p style={{ marginTop: '0.8rem', fontSize: '0.88rem' }}>
-                    {authMode === 'signup' ? 'Already have an account?' : 'Don’t have an account?'}{' '}
-                    <button
-                      type="button"
-                      style={{ background: 'none', border: 'none', color: '#6b5a99', fontWeight: 700, cursor: 'pointer', fontSize: 'inherit' }}
-                      onClick={() => setAuthMode((prev) => (prev === 'signup' ? 'login' : 'signup'))}
-                    >
-                      {authMode === 'signup' ? 'Sign In' : 'Sign Up'}
+                    <div style={{ ...authFieldGroupStyle, marginTop: '0.55rem' }}>
+                      <label htmlFor="password" style={authLabelStyle}>Password</label>
+                      <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'}
+                        placeholder="Enter your password"
+                        required
+                        style={{ ...authInputStyle, border: '1px solid #bbc2ce', background: '#dce3ef' }}
+                      />
+                    </div>
+
+                    <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#666', fontSize: '0.92rem', marginTop: '0.75rem' }}>
+                      <input type="checkbox" defaultChecked /> I agree to the <a href="#">Terms of Service</a>
+                    </label>
+
+                    <button type="button" onClick={onSubmit} style={{
+                      marginTop: '0.35rem', width: '100%', maxWidth: '420px', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '12px',
+                      padding: '0.7rem 0.85rem', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer'
+                    }}>
+                      {authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}
                     </button>
-                  </p>
-                  {message ? <p>{message}</p> : null}
+
+                    <p style={{ marginTop: '0.8rem', fontSize: '0.88rem' }}>
+                      {authMode === 'signup' ? 'Already have an account?' : 'Don’t have an account?'}{' '}
+                      <button
+                        type="button"
+                        style={{ background: 'none', border: 'none', color: '#6b5a99', fontWeight: 700, cursor: 'pointer', fontSize: 'inherit' }}
+                        onClick={() => setAuthMode((prev) => (prev === 'signup' ? 'login' : 'signup'))}
+                      >
+                        {authMode === 'signup' ? 'Sign In' : 'Sign Up'}
+                      </button>
+                    </p>
+                    {message ? <p>{message}</p> : null}
+                  </div>
                 </>
               ) : (
                 <>
