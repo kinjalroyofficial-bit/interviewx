@@ -90,8 +90,8 @@ const menuLoginButtonStyle = {
   border: '1px solid rgba(255, 255, 255, 0.7)', background: 'rgba(15, 19, 32, 0.35)', color: '#ffffff', fontWeight: 700, cursor: 'pointer'
 }
 
-const contentLayoutStyle = { display: 'grid', gridTemplateColumns: 'minmax(0, 65%) minmax(280px, 35%)', gap: '1.5rem', alignItems: 'start', width: 'calc(100% - 2rem)', maxWidth: '1680px', marginRight: 'auto' }
-const featureListStyle = { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem', width: '100%' }
+const contentLayoutStyle = { display: 'grid', gridTemplateColumns: 'minmax(0, 64%) minmax(280px, 36%)', gap: '0.6rem', alignItems: 'start', width: 'calc(100% - 2rem)', maxWidth: '1680px', marginRight: 'auto' }
+const featureListStyle = { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem', width: '100%', transform: 'translateX(-14px)' }
 const heroSectionStyle = { display: 'grid', placeItems: 'center', marginTop: '3rem', textAlign: 'left' }
 const centerLogoStyle = { width: 'min(72vw, 576px)', height: 'auto', marginBottom: '0.35rem' }
 const ctaRowStyle = { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.85rem', marginTop: 0, flexWrap: 'wrap' }
@@ -130,7 +130,7 @@ const authInputStyle = {
 
 function featureItemStyle(borderColor, index) {
   return {
-    display: 'grid', gridTemplateColumns: '40px 1fr', alignItems: 'center', gap: '0.65rem', background: 'rgba(255,255,255,0.22)',
+    display: 'grid', gridTemplateColumns: '40px 1fr', alignItems: 'center', gap: '0.65rem', background: 'rgba(24, 20, 45, 0.56)',
     border: `3px solid ${borderColor}`, borderRadius: '999px', padding: '0.3rem 0.75rem 0.3rem 0.3rem', fontWeight: 600,
     fontFamily: "'Segoe UI', Arial, sans-serif", letterSpacing: '0.01em', textShadow: '0 1px 2px rgba(0,0,0,0.2)',
     fontSize: '0.82rem', lineHeight: 1.25, width: '84%', justifySelf: 'center', transform: `translateX(${index % 2 === 0 ? '-16px' : '16px'})`
