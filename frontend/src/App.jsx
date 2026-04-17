@@ -106,17 +106,17 @@ const authOverlayStyle = {
 }
 
 const authLayoutStyle = {
-  width: 'min(1220px, 95vw)', height: 'min(760px, 92vh)', borderRadius: '22px', overflow: 'hidden', background: '#f2f2f2',
-  boxShadow: '0 28px 56px rgba(0,0,0,0.36)', display: 'grid', gridTemplateColumns: 'minmax(320px, 42%) 1fr'
+  width: 'min(980px, 92vw)', height: 'min(620px, 88vh)', borderRadius: '22px', overflow: 'hidden', background: '#f2f2f2',
+  boxShadow: '0 28px 56px rgba(0,0,0,0.36)', display: 'grid', gridTemplateColumns: 'minmax(300px, 40%) 1fr'
 }
 
 const authFormPaneStyle = {
-  background: '#efefef', color: '#232323', padding: '3rem 2.2rem 2rem', display: 'grid', alignContent: 'start', gap: '1.2rem', position: 'relative'
+  background: '#efefef', color: '#232323', padding: '1.75rem 1.5rem 1.25rem', display: 'grid', alignContent: 'start', gap: '0.75rem', position: 'relative'
 }
 
 const authRightPaneStyle = {
-  position: 'relative', backgroundImage: `url(${signupBackground})`, backgroundSize: 'cover', backgroundPosition: 'center', padding: '1.75rem', display: 'grid',
-  gridTemplateRows: '1fr auto', gap: '1.2rem', color: '#121212'
+  position: 'relative', backgroundImage: `url(${signupBackground})`, backgroundSize: 'cover', backgroundPosition: 'center', padding: '1rem', display: 'grid',
+  gridTemplateRows: '1fr auto', gap: '0.75rem', color: '#121212'
 }
 
 function featureItemStyle(borderColor, index) {
@@ -218,14 +218,14 @@ export default function App() {
         </section>
 
         <section className="features-panel">
-        <ul style={featureListStyle}>
-          {featureItems.map((item, index) => (
-            <li key={item.id} style={featureItemStyle(item.borderColor, index)}>
-              <span style={numberBubbleStyle}>{item.id}</span>
-              <span>{item.text}</span>
-            </li>
-          ))}
-        </ul>
+          <ul style={featureListStyle}>
+            {featureItems.map((item, index) => (
+              <li key={item.id} style={featureItemStyle(item.borderColor, index)}>
+                <span style={numberBubbleStyle}>{item.id}</span>
+                <span>{item.text}</span>
+              </li>
+            ))}
+          </ul>
         </section>
       </div>
 
@@ -235,7 +235,7 @@ export default function App() {
             <main style={authFormPaneStyle}>
               {!currentUser ? (
                 <>
-                  <h1 style={{ fontSize: '3rem', margin: '0 0 0.6rem' }}>InterviewX</h1>
+                  <h1 style={{ fontSize: '2rem', margin: '0 0 0.6rem' }}>InterviewX</h1>
                   <input
                     id="username"
                     name="username"
@@ -244,7 +244,7 @@ export default function App() {
                     autoComplete="username"
                     placeholder="Email"
                     required
-                    style={{ fontSize: '1.1rem', padding: '0.85rem 1rem', borderRadius: '14px', border: '3px solid #2a2a2a' }}
+                    style={{ fontSize: '0.95rem', padding: '0.62rem 0.8rem', borderRadius: '10px', border: '2px solid #2a2a2a' }}
                   />
                   <input
                     id="password"
@@ -255,21 +255,21 @@ export default function App() {
                     autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'}
                     placeholder="Password"
                     required
-                    style={{ fontSize: '1.1rem', padding: '0.85rem 1rem', borderRadius: '14px', border: '1px solid #bbc2ce', background: '#dce3ef' }}
+                    style={{ fontSize: '0.95rem', padding: '0.62rem 0.8rem', borderRadius: '10px', border: '1px solid #bbc2ce', background: '#dce3ef' }}
                   />
 
-                  <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#666', fontSize: '1.15rem' }}>
+                  <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#666', fontSize: '0.92rem' }}>
                     <input type="checkbox" defaultChecked /> I agree to the <a href="#">Terms of Service</a>
                   </label>
 
                   <button type="button" onClick={onSubmit} style={{
                     marginTop: '0.25rem', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '12px',
-                    padding: '0.9rem 1rem', fontSize: '2rem', fontWeight: 800, cursor: 'pointer'
+                    padding: '0.7rem 0.85rem', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer'
                   }}>
                     {authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}
                   </button>
 
-                  <p style={{ marginTop: '0.8rem', fontSize: '1.9rem' }}>
+                  <p style={{ marginTop: '0.8rem', fontSize: '0.88rem' }}>
                     {authMode === 'signup' ? 'Already have an account?' : 'Don’t have an account?'}{' '}
                     <button
                       type="button"
@@ -293,11 +293,11 @@ export default function App() {
 
             <aside style={authRightPaneStyle}>
               <section style={{
-                background: 'rgba(243,246,255,0.45)', borderRadius: '30px', padding: '1.2rem 1.4rem',
+                background: 'rgba(243,246,255,0.45)', borderRadius: '20px', padding: '0.8rem 0.95rem',
                 backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)'
               }}>
-                <h2 style={{ fontSize: '1.8rem', margin: '0 0 0.6rem' }}>{active.title}</h2>
-                <ul style={{ margin: 0, paddingLeft: '1.35rem', fontSize: '1.18rem', lineHeight: 1.45 }}>
+                <h2 style={{ fontSize: '1.15rem', margin: '0 0 0.6rem' }}>{active.title}</h2>
+                <ul style={{ margin: 0, paddingLeft: '1.35rem', fontSize: '0.9rem', lineHeight: 1.45 }}>
                   {active.points.map((point) => (
                     <li key={point}>{point}</li>
                   ))}
@@ -310,7 +310,7 @@ export default function App() {
                       onClick={() => setActiveSlide(index)}
                       aria-label={`Go to slide ${index + 1}`}
                       style={{
-                        width: 14, height: 14, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                        width: 10, height: 10, borderRadius: '50%', border: 'none', cursor: 'pointer',
                         background: index === activeSlide ? '#7550ff' : 'rgba(255,255,255,0.85)'
                       }}
                     />
@@ -319,16 +319,16 @@ export default function App() {
               </section>
 
               <section style={{
-                background: 'rgba(21,28,42,0.36)', color: '#fff', borderRadius: '26px', padding: '0.95rem 1rem',
-                backdropFilter: 'blur(7px)', WebkitBackdropFilter: 'blur(7px)', minHeight: '150px'
+                background: 'rgba(21,28,42,0.36)', color: '#fff', borderRadius: '18px', padding: '0.7rem 0.8rem',
+                backdropFilter: 'blur(7px)', WebkitBackdropFilter: 'blur(7px)', minHeight: '120px'
               }}>
                 <div style={{ textAlign: 'center', color: '#ffd841', marginBottom: '0.5rem' }}>★★★★★</div>
-                <p style={{ margin: 0, textAlign: 'center', fontSize: '1rem' }}>{testimonialPlaceholders[activeSlide % testimonialPlaceholders.length].quote}</p>
+                <p style={{ margin: 0, textAlign: 'center', fontSize: '0.88rem' }}>{testimonialPlaceholders[activeSlide % testimonialPlaceholders.length].quote}</p>
                 <p style={{ margin: '0.5rem 0 0', textAlign: 'center', fontWeight: 700 }}>{testimonialPlaceholders[activeSlide % testimonialPlaceholders.length].name}</p>
                 <p style={{ margin: '0.2rem 0 0', textAlign: 'center', opacity: 0.9 }}>{testimonialPlaceholders[activeSlide % testimonialPlaceholders.length].role}</p>
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.55rem', marginTop: '0.3rem' }}>
-                  <button type="button" onClick={prevSlide} style={{ borderRadius: '50%', border: '1px solid #fff', width: 34, height: 34, background: 'transparent', color: '#fff', cursor: 'pointer' }}>←</button>
-                  <button type="button" onClick={nextSlide} style={{ borderRadius: '50%', border: '1px solid #fff', width: 34, height: 34, background: 'transparent', color: '#fff', cursor: 'pointer' }}>→</button>
+                  <button type="button" onClick={prevSlide} style={{ borderRadius: '50%', border: '1px solid #fff', width: 28, height: 28, background: 'transparent', color: '#fff', cursor: 'pointer' }}>←</button>
+                  <button type="button" onClick={nextSlide} style={{ borderRadius: '50%', border: '1px solid #fff', width: 28, height: 28, background: 'transparent', color: '#fff', cursor: 'pointer' }}>→</button>
                 </div>
               </section>
             </aside>
