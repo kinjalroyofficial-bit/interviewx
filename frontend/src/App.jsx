@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import loginBackground from './assets/login-bg-v2.webp'
-import productLogo from './assets/interviewx-product-logo.png'
+import productLogo from './assets/interviewx-product-logo.webp'
 import { login, signup } from './api'
 
 const storageKey = 'interviewx-user'
@@ -8,7 +8,7 @@ const storageKey = 'interviewx-user'
 const pageBackgroundStyle = {
   minHeight: '100vh',
   padding: '2rem 1.5rem',
-  backgroundImage: `linear-gradient(rgba(18, 23, 40, 0.45), rgba(18, 23, 40, 0.45)), url(${loginBackground})`,
+  backgroundImage: `url(${loginBackground})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat'
