@@ -86,7 +86,7 @@ const navLinksStyle = { display: 'flex', gap: '1.25rem' }
 const navLinkStyle = { color: '#ffffff', textDecoration: 'none', fontWeight: 700, letterSpacing: '0.02em' }
 
 const menuLoginButtonStyle = {
-  display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0.85rem', borderRadius: '999px',
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '0.48rem 0.95rem', borderRadius: '999px',
   border: '1px solid rgba(255, 255, 255, 0.7)', background: 'rgba(15, 19, 32, 0.35)', color: '#ffffff', fontWeight: 700, cursor: 'pointer'
 }
 
@@ -208,8 +208,7 @@ export default function App() {
         </nav>
 
         <button type="button" style={menuLoginButtonStyle} onClick={() => setShowAuthPanel((prev) => !prev)}>
-          <span aria-hidden="true">☰</span>
-          <span>{showAuthPanel ? 'Close' : currentUser ? 'Account' : 'Login'}</span>
+          {showAuthPanel ? 'Close' : currentUser ? 'Account' : 'Login'}
         </button>
       </header>
 
