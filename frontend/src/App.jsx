@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import landingBg from './assets/landing-bg.webp'
+import landingBg from './assets/login-bg-v2.webp'
 import { login, signup } from './api'
 
 const storageKey = 'interviewx-user'
