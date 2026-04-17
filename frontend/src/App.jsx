@@ -111,7 +111,7 @@ const authLayoutStyle = {
 }
 
 const authFormPaneStyle = {
-  background: '#efefef', color: '#232323', padding: '1.5rem 1.15rem 1.2rem', display: 'grid', alignContent: 'start', gap: '0.8rem', position: 'relative'
+  background: '#efefef', color: '#232323', padding: '1.5rem 1.15rem 1.2rem', display: 'grid', alignContent: 'start', justifyItems: 'center', gap: '0.9rem', position: 'relative'
 }
 
 const authRightPaneStyle = {
@@ -119,13 +119,13 @@ const authRightPaneStyle = {
   gridTemplateRows: '1fr auto', gap: '0.75rem', color: '#121212'
 }
 
-const authPaneInnerStyle = { width: '100%', maxWidth: '320px', marginLeft: '0.35rem' }
-const authTitleStyle = { fontSize: '1.8rem', margin: 0, letterSpacing: '0.01em' }
-const authSubtitleStyle = { margin: '0.15rem 0 0', color: '#5b5b5b', fontSize: '0.9rem', lineHeight: 1.35 }
-const authFieldGroupStyle = { display: 'grid', gap: '0.42rem' }
-const authLabelStyle = { fontSize: '0.84rem', color: '#4a4a4a', fontWeight: 700, letterSpacing: '0.01em' }
+const authPaneInnerStyle = { width: '100%', maxWidth: '410px', display: 'grid', justifyItems: 'center' }
+const authTitleStyle = { width: '70%', maxWidth: '340px', fontSize: '1.6rem', margin: 0, letterSpacing: '0.01em' }
+const authSubtitleStyle = { width: '70%', maxWidth: '340px', margin: '0.2rem 0 0', color: '#5b5b5b', fontSize: '0.84rem', lineHeight: 1.33 }
+const authFieldGroupStyle = { width: '70%', maxWidth: '340px', display: 'grid', gap: '0.35rem' }
+const authLabelStyle = { fontSize: '0.8rem', color: '#4a4a4a', fontWeight: 700, letterSpacing: '0.01em' }
 const authInputStyle = {
-  width: '100%', maxWidth: '285px', fontSize: '0.92rem', padding: '0.62rem 0.72rem', borderRadius: '9px', outline: 'none'
+  width: '100%', fontSize: '0.88rem', padding: '0.56rem 0.7rem', borderRadius: '9px', outline: 'none'
 }
 
 function featureItemStyle(borderColor, index) {
@@ -248,7 +248,7 @@ export default function App() {
                     <h1 style={authTitleStyle}>InterviewX</h1>
                     <p style={authSubtitleStyle}>Share your details so we can personalize your interview journey.</p>
 
-                    <div style={{ ...authFieldGroupStyle, marginTop: '0.45rem' }}>
+                    <div style={{ ...authFieldGroupStyle, marginTop: '0.6rem' }}>
                       <label htmlFor="username" style={authLabelStyle}>Email or Username</label>
                       <input
                         id="username"
@@ -262,7 +262,7 @@ export default function App() {
                       />
                     </div>
 
-                    <div style={{ ...authFieldGroupStyle, marginTop: '0.5rem' }}>
+                    <div style={{ ...authFieldGroupStyle, marginTop: '0.65rem' }}>
                       <label htmlFor="password" style={authLabelStyle}>Password</label>
                       <input
                         id="password"
@@ -277,13 +277,13 @@ export default function App() {
                       />
                     </div>
 
-                    <label style={{ display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.86rem', marginTop: '0.7rem' }}>
+                    <label style={{ width: '70%', maxWidth: '340px', display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.8rem', marginTop: '0.75rem' }}>
                       <input type="checkbox" defaultChecked /> I agree to the <a href="#">Terms of Service</a>
                     </label>
 
                     <button type="button" onClick={onSubmit} style={{
-                      marginTop: '0.3rem', width: '100%', maxWidth: '285px', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '10px',
-                      padding: '0.62rem 0.8rem', fontSize: '1rem', fontWeight: 800, cursor: 'pointer'
+                      marginTop: '0.55rem', width: '70%', maxWidth: '340px', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '10px',
+                      padding: '0.6rem 0.8rem', fontSize: '0.96rem', fontWeight: 800, cursor: 'pointer'
                     }}>
                       {authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}
                     </button>
