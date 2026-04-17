@@ -73,7 +73,7 @@ const testimonialPlaceholders = [
 
 const pageBackgroundStyle = {
   minHeight: '100vh',
-  padding: '2rem 1.5rem 3rem',
+  padding: '2rem 1rem 3rem',
   backgroundImage: `url(${loginBackground})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
@@ -90,7 +90,7 @@ const menuLoginButtonStyle = {
   border: '1px solid rgba(255, 255, 255, 0.7)', background: 'rgba(15, 19, 32, 0.35)', color: '#ffffff', fontWeight: 700, cursor: 'pointer'
 }
 
-const contentLayoutStyle = { display: 'grid', gridTemplateColumns: 'minmax(0, 65%) minmax(280px, 35%)', gap: '1.5rem', alignItems: 'start' }
+const contentLayoutStyle = { display: 'grid', gridTemplateColumns: 'minmax(0, 65%) minmax(280px, 35%)', gap: '1.5rem', alignItems: 'start', width: 'calc(100% - 2rem)', maxWidth: '1680px', marginRight: 'auto' }
 const featureListStyle = { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem', width: '100%' }
 const heroSectionStyle = { display: 'grid', placeItems: 'center', marginTop: '3rem', textAlign: 'left' }
 const centerLogoStyle = { width: 'min(72vw, 576px)', height: 'auto', marginBottom: '0.35rem' }
@@ -122,9 +122,9 @@ const authRightPaneStyle = {
 function featureItemStyle(borderColor, index) {
   return {
     display: 'grid', gridTemplateColumns: '54px 1fr', alignItems: 'center', gap: '0.85rem', background: 'rgba(255,255,255,0.26)',
-    border: `4px solid ${borderColor}`, borderRadius: '999px', padding: '0.4rem 1rem 0.4rem 0.4rem', fontWeight: 700,
+    border: `4px solid ${borderColor}`, borderRadius: '999px', padding: '0.4rem 1rem 0.4rem 0.4rem', fontWeight: 500,
     fontFamily: "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif", letterSpacing: '0.02em', textShadow: '0 1px 3px rgba(0,0,0,0.25)',
-    marginLeft: index % 2 === 0 ? '0' : '46px', width: index % 2 === 0 ? '100%' : 'calc(100% - 46px)'
+    marginLeft: index % 2 === 0 ? '0' : '32px', width: index % 2 === 0 ? '100%' : 'calc(100% - 32px)'
   }
 }
 
