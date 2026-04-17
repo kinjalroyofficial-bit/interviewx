@@ -94,11 +94,11 @@ const contentLayoutStyle = { display: 'grid', gridTemplateColumns: 'minmax(0, 65
 const featureListStyle = { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem', width: '100%' }
 const heroSectionStyle = { display: 'grid', placeItems: 'center', marginTop: '3rem', textAlign: 'left' }
 const centerLogoStyle = { width: 'min(72vw, 576px)', height: 'auto', marginBottom: '0.35rem' }
-const ctaRowStyle = { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: 0 }
+const ctaRowStyle = { display: 'grid', justifyItems: 'center', gap: '0.5rem', marginTop: 0 }
 
 const registerButtonStyle = {
   background: 'linear-gradient(180deg, #1ca35c, #0a7f45)', color: '#ffffff', border: 'none', borderRadius: '10px',
-  padding: '0.55rem 1.05rem', fontSize: '0.95rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 8px 24px rgba(0,0,0,0.28)'
+  padding: '0.4rem 0.85rem', fontSize: '0.82rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 6px 18px rgba(0,0,0,0.24)'
 }
 
 const authOverlayStyle = {
@@ -130,15 +130,15 @@ const authInputStyle = {
 
 function featureItemStyle(borderColor, index) {
   return {
-    display: 'grid', gridTemplateColumns: '54px 1fr', alignItems: 'center', gap: '0.85rem', background: 'rgba(255,255,255,0.26)',
-    border: `4px solid ${borderColor}`, borderRadius: '999px', padding: '0.4rem 1rem 0.4rem 0.4rem', fontWeight: 500,
-    fontFamily: "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif", letterSpacing: '0.02em', textShadow: '0 1px 3px rgba(0,0,0,0.25)',
-    marginLeft: index % 2 === 0 ? '0' : '32px', width: index % 2 === 0 ? '100%' : 'calc(100% - 32px)'
+    display: 'grid', gridTemplateColumns: '40px 1fr', alignItems: 'center', gap: '0.65rem', background: 'rgba(255,255,255,0.22)',
+    border: `3px solid ${borderColor}`, borderRadius: '999px', padding: '0.3rem 0.75rem 0.3rem 0.3rem', fontWeight: 600,
+    fontFamily: "'Segoe UI', Arial, sans-serif", letterSpacing: '0.01em', textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+    fontSize: '0.82rem', lineHeight: 1.25, width: '84%', justifySelf: 'center', transform: `translateX(${index % 2 === 0 ? '-16px' : '16px'})`
   }
 }
 
 const numberBubbleStyle = {
-  width: 48, height: 48, borderRadius: '50%', background: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '2rem', fontWeight: 400, color: '#85a8bc'
+  width: 34, height: 34, borderRadius: '50%', background: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '1.2rem', fontWeight: 700, color: '#85a8bc'
 }
 
 export default function App() {
@@ -221,7 +221,7 @@ export default function App() {
             </div>
             <div style={ctaRowStyle}>
               <button type="button" style={registerButtonStyle} onClick={openAuthPanel}>Register Now</button>
-              <strong style={{ fontSize: '1.45rem', lineHeight: 1.15 }}>{ctaText}</strong>
+              <strong style={{ fontSize: '1rem', lineHeight: 1.2, textAlign: 'center' }}>{ctaText}</strong>
             </div>
           </section>
         </section>
