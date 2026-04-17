@@ -18,6 +18,33 @@ body,
   animation: revealLogoSlide 1.2s ease-out forwards;
 }
 
+.landing-layout {
+  align-items: start;
+}
+
+.hero-panel {
+  min-width: 0;
+}
+
+.features-panel {
+  width: 100%;
+}
+
+@media (max-width: 980px) {
+  .landing-layout {
+    grid-template-columns: 1fr !important;
+    gap: 1.2rem !important;
+  }
+
+  .hero-panel {
+    order: 1;
+  }
+
+  .features-panel {
+    order: 2;
+  }
+}
+
 @keyframes revealLogoWidth {
   from {
     width: 0;

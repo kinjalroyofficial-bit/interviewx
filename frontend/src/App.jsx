@@ -90,8 +90,8 @@ const menuLoginButtonStyle = {
   border: '1px solid rgba(255, 255, 255, 0.7)', background: 'rgba(15, 19, 32, 0.35)', color: '#ffffff', fontWeight: 700, cursor: 'pointer'
 }
 
-const contentLayoutStyle = { display: 'grid', gridTemplateColumns: 'minmax(280px, 560px) 1fr', gap: '2rem', alignItems: 'start' }
-const featureListStyle = { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem', justifyItems: 'start' }
+const contentLayoutStyle = { display: 'grid', gridTemplateColumns: 'minmax(0, 65%) minmax(280px, 35%)', gap: '1.5rem', alignItems: 'start' }
+const featureListStyle = { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem', width: '100%' }
 const heroSectionStyle = { display: 'grid', placeItems: 'center', marginTop: '3rem', textAlign: 'left' }
 const centerLogoStyle = { width: 'min(72vw, 576px)', height: 'auto', marginBottom: '0.35rem' }
 const ctaRowStyle = { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: 0 }
@@ -122,14 +122,14 @@ const authRightPaneStyle = {
 function featureItemStyle(borderColor, index) {
   return {
     display: 'grid', gridTemplateColumns: '54px 1fr', alignItems: 'center', gap: '0.85rem', background: 'rgba(255,255,255,0.26)',
-    border: `4px solid ${borderColor}`, borderRadius: '999px', padding: '0.4rem 1rem 0.4rem 0.4rem', fontWeight: 500,
+    border: `4px solid ${borderColor}`, borderRadius: '999px', padding: '0.4rem 1rem 0.4rem 0.4rem', fontWeight: 700,
     fontFamily: "Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif", letterSpacing: '0.02em', textShadow: '0 1px 3px rgba(0,0,0,0.25)',
-    marginLeft: index % 2 === 0 ? '0' : '18px'
+    marginLeft: index % 2 === 0 ? '0' : '46px', width: index % 2 === 0 ? '100%' : 'calc(100% - 46px)'
   }
 }
 
 const numberBubbleStyle = {
-  width: 48, height: 48, borderRadius: '50%', background: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '2rem', fontWeight: 700, color: '#85a8bc'
+  width: 48, height: 48, borderRadius: '50%', background: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '2rem', fontWeight: 400, color: '#85a8bc'
 }
 
 export default function App() {
@@ -204,7 +204,20 @@ export default function App() {
         </button>
       </header>
 
-      <div style={contentLayoutStyle}>
+      <div style={contentLayoutStyle} className="landing-layout">
+        <section className="hero-panel">
+          <section style={heroSectionStyle}>
+            <div className="logo-reveal-shell">
+              <img src={productLogo} alt="InterviewX" style={centerLogoStyle} className="logo-reveal-image" />
+            </div>
+            <div style={ctaRowStyle}>
+              <button type="button" style={registerButtonStyle} onClick={openAuthPanel}>Register Now</button>
+              <strong style={{ fontSize: '1.45rem', lineHeight: 1.15 }}>{ctaText}</strong>
+            </div>
+          </section>
+        </section>
+
+        <section className="features-panel">
         <ul style={featureListStyle}>
           {featureItems.map((item, index) => (
             <li key={item.id} style={featureItemStyle(item.borderColor, index)}>
@@ -213,15 +226,6 @@ export default function App() {
             </li>
           ))}
         </ul>
-
-        <section style={heroSectionStyle}>
-          <div className="logo-reveal-shell">
-            <img src={productLogo} alt="InterviewX" style={centerLogoStyle} className="logo-reveal-image" />
-          </div>
-          <div style={ctaRowStyle}>
-            <button type="button" style={registerButtonStyle} onClick={openAuthPanel}>Register Now</button>
-            <strong style={{ fontSize: '1.45rem', lineHeight: 1.15 }}>{ctaText}</strong>
-          </div>
         </section>
       </div>
 
