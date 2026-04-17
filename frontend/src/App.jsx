@@ -94,7 +94,7 @@ const contentLayoutStyle = { display: 'grid', gridTemplateColumns: 'minmax(0, 65
 const featureListStyle = { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem', width: '100%' }
 const heroSectionStyle = { display: 'grid', placeItems: 'center', marginTop: '3rem', textAlign: 'left' }
 const centerLogoStyle = { width: 'min(72vw, 576px)', height: 'auto', marginBottom: '0.35rem' }
-const ctaRowStyle = { display: 'grid', justifyItems: 'center', gap: '0.5rem', marginTop: 0 }
+const ctaRowStyle = { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.85rem', marginTop: 0, flexWrap: 'wrap' }
 
 const registerButtonStyle = {
   background: 'linear-gradient(180deg, #1ca35c, #0a7f45)', color: '#ffffff', border: 'none', borderRadius: '10px',
@@ -221,7 +221,7 @@ export default function App() {
             </div>
             <div style={ctaRowStyle}>
               <button type="button" style={registerButtonStyle} onClick={openAuthPanel}>Register Now</button>
-              <strong style={{ fontSize: '1rem', lineHeight: 1.2, textAlign: 'center' }}>{ctaText}</strong>
+              <strong style={{ fontSize: '1rem', lineHeight: 1.2, textAlign: 'left' }}>{ctaText}</strong>
             </div>
           </section>
         </section>
