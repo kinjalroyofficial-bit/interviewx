@@ -1,1 +1,14 @@
-deploy.log
+# Node
+node_modules/
+dist/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Env files
+.env
+
+# OS
+.DS_Store
