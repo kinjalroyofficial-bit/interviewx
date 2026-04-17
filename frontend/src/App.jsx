@@ -106,12 +106,12 @@ const authOverlayStyle = {
 }
 
 const authLayoutStyle = {
-  width: 'min(980px, 92vw)', height: 'min(620px, 88vh)', borderRadius: '22px', overflow: 'hidden', background: '#f2f2f2',
+  width: 'min(700px, 70vw)', height: 'min(560px, 84vh)', borderRadius: '20px', overflow: 'hidden', background: '#f2f2f2',
   boxShadow: '0 28px 56px rgba(0,0,0,0.36)', display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 50%))'
 }
 
 const authFormPaneStyle = {
-  background: '#efefef', color: '#232323', padding: '2rem 1.5rem 1.5rem', display: 'grid', alignContent: 'start', gap: '1rem', position: 'relative'
+  background: '#efefef', color: '#232323', padding: '1.5rem 1.15rem 1.2rem', display: 'grid', alignContent: 'start', gap: '0.8rem', position: 'relative'
 }
 
 const authRightPaneStyle = {
@@ -119,19 +119,14 @@ const authRightPaneStyle = {
   gridTemplateRows: '1fr auto', gap: '0.75rem', color: '#121212'
 }
 
-const authPaneInnerStyle = { width: '100%', maxWidth: '430px', margin: '0 auto' }
-const authTitleStyle = { fontSize: '2rem', margin: 0, letterSpacing: '0.01em' }
-const authSubtitleStyle = { margin: '0.2rem 0 0', color: '#5b5b5b', fontSize: '0.95rem', lineHeight: 1.45 }
+const authPaneInnerStyle = { width: '100%', maxWidth: '320px', marginLeft: '0.35rem' }
+const authTitleStyle = { fontSize: '1.8rem', margin: 0, letterSpacing: '0.01em' }
+const authSubtitleStyle = { margin: '0.15rem 0 0', color: '#5b5b5b', fontSize: '0.9rem', lineHeight: 1.35 }
 const authFieldGroupStyle = { display: 'grid', gap: '0.42rem' }
 const authLabelStyle = { fontSize: '0.84rem', color: '#4a4a4a', fontWeight: 700, letterSpacing: '0.01em' }
 const authInputStyle = {
-  width: '100%', maxWidth: '420px', fontSize: '0.97rem', padding: '0.72rem 0.9rem', borderRadius: '10px', outline: 'none'
+  width: '100%', maxWidth: '285px', fontSize: '0.92rem', padding: '0.62rem 0.72rem', borderRadius: '9px', outline: 'none'
 }
-const authLeftInfoCardStyle = {
-  marginTop: '0.15rem', background: '#ffffff', borderRadius: '12px', border: '1px solid #d8d8d8', padding: '0.85rem 0.95rem'
-}
-const authLeftInfoTitleStyle = { margin: 0, fontSize: '0.92rem', fontWeight: 800, color: '#313131' }
-const authLeftInfoTextStyle = { margin: '0.35rem 0 0', fontSize: '0.82rem', color: '#616161', lineHeight: 1.4 }
 
 function featureItemStyle(borderColor, index) {
   return {
@@ -253,12 +248,7 @@ export default function App() {
                     <h1 style={authTitleStyle}>InterviewX</h1>
                     <p style={authSubtitleStyle}>Share your details so we can personalize your interview journey.</p>
 
-                    <div style={authLeftInfoCardStyle}>
-                      <p style={authLeftInfoTitleStyle}>Profile details we need</p>
-                      <p style={authLeftInfoTextStyle}>Use your email/username and password to sign in. For new users, these details create your account.</p>
-                    </div>
-
-                    <div style={{ ...authFieldGroupStyle, marginTop: '0.65rem' }}>
+                    <div style={{ ...authFieldGroupStyle, marginTop: '0.45rem' }}>
                       <label htmlFor="username" style={authLabelStyle}>Email or Username</label>
                       <input
                         id="username"
@@ -272,7 +262,7 @@ export default function App() {
                       />
                     </div>
 
-                    <div style={{ ...authFieldGroupStyle, marginTop: '0.55rem' }}>
+                    <div style={{ ...authFieldGroupStyle, marginTop: '0.5rem' }}>
                       <label htmlFor="password" style={authLabelStyle}>Password</label>
                       <input
                         id="password"
@@ -287,13 +277,13 @@ export default function App() {
                       />
                     </div>
 
-                    <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', color: '#666', fontSize: '0.92rem', marginTop: '0.75rem' }}>
+                    <label style={{ display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.86rem', marginTop: '0.7rem' }}>
                       <input type="checkbox" defaultChecked /> I agree to the <a href="#">Terms of Service</a>
                     </label>
 
                     <button type="button" onClick={onSubmit} style={{
-                      marginTop: '0.35rem', width: '100%', maxWidth: '420px', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '12px',
-                      padding: '0.7rem 0.85rem', fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer'
+                      marginTop: '0.3rem', width: '100%', maxWidth: '285px', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '10px',
+                      padding: '0.62rem 0.8rem', fontSize: '1rem', fontWeight: 800, cursor: 'pointer'
                     }}>
                       {authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}
                     </button>
