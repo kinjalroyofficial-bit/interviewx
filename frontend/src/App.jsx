@@ -4,7 +4,16 @@ import { login, signup } from './api'
 
 const storageKey = 'interviewx-user'
 
-const baseMainStyle = {
+const pageBackgroundStyle = {
+  minHeight: '100vh',
+  padding: '2rem 1rem',
+  backgroundImage: `linear-gradient(rgba(18, 23, 40, 0.45), rgba(18, 23, 40, 0.45)), url(${landingBg})`,
+  backgroundSize: 'cover',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat'
+}
+
+const cardStyle = {
   fontFamily: 'Arial, sans-serif',
   maxWidth: 460,
   margin: '4rem auto',
@@ -12,16 +21,7 @@ const baseMainStyle = {
   background: 'rgba(255,255,255,0.92)',
   borderRadius: '12px',
   padding: '1.5rem',
-  boxShadow: '0 16px 40px rgba(0,0,0,0.2)'
-}
-
-const loginPageBackground = {
-  minHeight: '100vh',
-  padding: '2rem 1rem',
-  backgroundImage: `linear-gradient(rgba(18, 23, 40, 0.4), rgba(18, 23, 40, 0.4)), url(${landingBg})`,
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  backgroundRepeat: 'no-repeat'
+  boxShadow: '0 16px 40px rgba(0,0,0,0.25)'
 }
 
 export default function App() {
@@ -60,10 +60,10 @@ export default function App() {
     setMessage('Logged out successfully')
   }
 
-  if (!currentUser) {
-    return (
-      <div style={loginPageBackground}>
-        <main style={baseMainStyle}>
+  return (
+    <div style={pageBackgroundStyle}>
+      {!currentUser ? (
+        <main style={cardStyle}>
           <h1>InterviewX User Access</h1>
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
             <button type="button" onClick={() => setAuthMode('login')} disabled={authMode === 'login'}>
@@ -101,18 +101,16 @@ export default function App() {
 
           <p>{message || `Please ${authMode === 'signup' ? 'sign up' : 'log in'} to continue.`}</p>
         </main>
-      </div>
-    )
-  }
-
-  return (
-    <main style={{ ...baseMainStyle, margin: '4rem auto' }}>
-      <h1>Welcome, {currentUser}!</h1>
-      <p>You are now logged in.</p>
-      <button type="button" onClick={onLogout}>
-        Logout
-      </button>
-      {message ? <p>{message}</p> : null}
-    </main>
+      ) : (
+        <main style={cardStyle}>
+          <h1>Welcome, {currentUser}!</h1>
+          <p>You are now logged in.</p>
+          <button type="button" onClick={onLogout}>
+            Logout
+          </button>
+          {message ? <p>{message}</p> : null}
+        </main>
+      )}
+    </div>
   )
 }
