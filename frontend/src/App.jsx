@@ -123,6 +123,7 @@ const authRightPaneStyle = {
 }
 
 const authPaneInnerStyle = { width: '100%', maxWidth: '312px', margin: '0 auto', display: 'grid', gap: '0.65rem', boxSizing: 'border-box' }
+const authControlWrapStyle = { width: '88%', maxWidth: '268px', marginInline: 'auto' }
 const authTitleStyle = { width: '100%', fontSize: '1.6rem', margin: 0, letterSpacing: '0.01em' }
 const authFieldGroupStyle = { width: '100%', display: 'grid', gap: '0.35rem' }
 const authLabelStyle = { fontSize: '0.8rem', color: '#4a4a4a', fontWeight: 700, letterSpacing: '0.01em' }
@@ -322,7 +323,7 @@ export default function App() {
               <div style={authPaneInnerStyle} className="auth-pane-inner">
                     <h1 style={authTitleStyle}>InterviewX</h1>
 
-                    <div style={{ ...authFieldGroupStyle, marginTop: '0.6rem' }}>
+                    <div style={{ ...authFieldGroupStyle, ...authControlWrapStyle, marginTop: '0.6rem' }}>
                       <label htmlFor="username" style={authLabelStyle}>Email or Username</label>
                       <input
                         id="username"
@@ -336,7 +337,7 @@ export default function App() {
                       />
                     </div>
 
-                    <div style={{ ...authFieldGroupStyle, marginTop: '0.65rem' }}>
+                    <div style={{ ...authFieldGroupStyle, ...authControlWrapStyle, marginTop: '0.65rem' }}>
                       <label htmlFor="password" style={authLabelStyle}>Password</label>
                       <input
                         id="password"
@@ -351,20 +352,20 @@ export default function App() {
                       />
                     </div>
 
-                    <div style={{ width: '100%', marginTop: '0.95rem' }} className="auth-partition">
+                    <div style={{ ...authControlWrapStyle, width: '100%', marginTop: '0.95rem' }} className="auth-partition">
                       <span>or</span>
                     </div>
 
-                    <div style={{ width: '100%', marginTop: '0.5rem' }} className="google-official-shell">
+                    <div style={{ ...authControlWrapStyle, width: '100%', marginTop: '0.5rem' }} className="google-official-shell">
                       <div ref={googleButtonRef} style={{ width: '100%' }} />
                     </div>
 
-                    <label style={{ width: '100%', display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.8rem', marginTop: '0.75rem' }}>
+                    <label style={{ ...authControlWrapStyle, width: '100%', display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.8rem', marginTop: '0.75rem' }}>
                       <input type="checkbox" defaultChecked /> I agree to the <a href="#">Terms of Service</a>
                     </label>
 
                     <button type="button" onClick={onSubmit} style={{
-                      marginTop: '0.55rem', width: '100%', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '10px',
+                      ...authControlWrapStyle, marginTop: '0.55rem', width: '100%', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '10px',
                       padding: '0.6rem 0.8rem', fontSize: '0.96rem', fontWeight: 800, cursor: 'pointer'
                     }}>
                       {authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}
