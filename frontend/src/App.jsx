@@ -177,6 +177,7 @@ export default function App() {
       })
 
       googleButtonRef.current.innerHTML = ''
+      const containerWidth = Math.floor(googleButtonRef.current.getBoundingClientRect().width || 320)
       window.google.accounts.id.renderButton(
         googleButtonRef.current,
         {
@@ -185,14 +186,12 @@ export default function App() {
           size: 'large',
           text: 'continue_with',
           shape: 'pill',
-          width: 320
+          width: Math.min(320, containerWidth)
         }
       )
 
       window.google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          setMessage('Please continue using the Google sign-in button below.')
-        }
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) return
       })
     }
 
