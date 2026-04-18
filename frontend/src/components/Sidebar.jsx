@@ -85,7 +85,7 @@ function MenuNode({ item, depth, collapsed, openPaths, selectedPath, onItemClick
   )
 }
 
-export default function Sidebar({ menu }) {
+export default function Sidebar({ menu, greetingText, displayName }) {
   const [collapsed, setCollapsed] = useState(false)
   const [openPaths, setOpenPaths] = useState(() => new Set(['awareness']))
   const [selectedPath, setSelectedPath] = useState('awareness')
@@ -147,6 +147,11 @@ export default function Sidebar({ menu }) {
           ))}
         </ul>
       </nav>
+
+      <footer className="sidebar-profile" title={collapsed ? greetingText : undefined}>
+        <div className="sidebar-avatar" aria-hidden="true">{displayName ? displayName[0].toUpperCase() : 'U'}</div>
+        {!collapsed ? <p className="sidebar-greeting">{greetingText}</p> : null}
+      </footer>
     </aside>
   )
 }

@@ -28,13 +28,13 @@ export default function Dashboard() {
 
   return (
     <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''}`}>
-      <Sidebar menu={sidebarMenu} />
+      <Sidebar menu={sidebarMenu} greetingText={greetingText} displayName={displayName} />
 
       <section className="dashboard-main">
         <header className="dashboard-topbar">
           <div>
             <p className="dashboard-eyebrow">My Workspace</p>
-            <h1 className="dashboard-title">{greetingText}</h1>
+            <h1 className="dashboard-title">Dashboard</h1>
           </div>
           <div className="dashboard-top-actions">
             <button type="button" className="dashboard-theme-button" onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}>
