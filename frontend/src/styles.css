@@ -104,20 +104,22 @@ body,
 }
 
 .google-official-shell {
-  margin-top: 0.35rem;
+  margin: 0 0;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  padding: 0.25rem 0 0;
+  padding: 0;
   min-height: 44px;
   overflow: visible;
 }
 
 .google-official-shell > div,
 .google-official-shell iframe {
-  max-width: 100%;
+  width: 250px !important;
+  max-width: 250px !important;
+  margin: 0 0 !important;
 }
 
 .google-official-shell > div {

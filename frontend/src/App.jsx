@@ -181,7 +181,8 @@ export default function App() {
         googleButtonRef.current,
         {
           theme: 'outline',
-          size: 'large'
+          size: 'large',
+          width: 250
         }
       )
 
