@@ -177,17 +177,11 @@ export default function App() {
       })
 
       googleButtonRef.current.innerHTML = ''
-      const containerWidth = Math.floor(googleButtonRef.current.getBoundingClientRect().width || 320)
-      const buttonWidth = Math.max(180, Math.min(containerWidth - 12, 240))
       window.google.accounts.id.renderButton(
         googleButtonRef.current,
         {
-          type: 'standard',
           theme: 'outline',
-          size: 'medium',
-          text: 'signin_with',
-          shape: 'pill',
-          width: buttonWidth
+          size: 'large'
         }
       )
 
@@ -354,7 +348,7 @@ export default function App() {
                     </div>
 
                     <div style={{ ...authControlWrapStyle, width: '100%', marginTop: '0.5rem' }} className="google-official-shell">
-                      <div ref={googleButtonRef} style={{ width: '100%' }} />
+                      <div ref={googleButtonRef} />
                     </div>
 
                     <label style={{ ...authControlWrapStyle, width: '100%', display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.8rem', marginTop: '0.75rem' }}>

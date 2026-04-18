@@ -120,6 +120,12 @@ body,
   max-width: 100%;
 }
 
+.google-official-shell > div {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
 .auth-pane-inner {
   justify-items: stretch;
   overflow: hidden;
