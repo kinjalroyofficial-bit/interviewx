@@ -178,6 +178,7 @@ export default function App() {
 
       googleButtonRef.current.innerHTML = ''
       const containerWidth = Math.floor(googleButtonRef.current.getBoundingClientRect().width || 320)
+      googleButtonRef.current.style.width = '220px'
       window.google.accounts.id.renderButton(
         googleButtonRef.current,
         {
@@ -186,7 +187,7 @@ export default function App() {
           size: 'large',
           text: 'continue_with',
           shape: 'pill',
-          width: Math.min(320, Math.max(240, containerWidth - 4))
+          width: 320
         }
       )
 
@@ -355,7 +356,7 @@ export default function App() {
                       <span>or</span>
                     </div>
 
-                    <div style={{ width: '100%', maxWidth: '340px' }} className="google-official-shell">
+                    <div style={{ display: 'inline-block', marginTop: '0.5rem' }}>
                       <div ref={googleButtonRef} />
                     </div>
 
