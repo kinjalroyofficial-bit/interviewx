@@ -65,6 +65,23 @@ body,
   min-height: 0;
   overflow-y: auto;
   padding-right: 0.2rem;
+  scrollbar-width: thin;
+  scrollbar-color: #6c7ca9 #0f1526;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 10px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: #0f1526;
+  border-radius: 999px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: #6678ab;
+  border: 2px solid #0f1526;
+  border-radius: 999px;
 }
 
 .sidebar-menu-root,
@@ -118,7 +135,15 @@ body,
 .dashboard-sidebar.is-collapsed .sidebar-item {
   grid-template-columns: 1fr;
   justify-items: center;
-  padding-inline: 0;
+  width: 44px;
+  min-height: 44px;
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+  padding: 0;
+}
+
+.dashboard-sidebar.is-collapsed .sidebar-children {
+  margin-top: 0.15rem;
 }
 
 .dashboard-main {
@@ -179,6 +204,19 @@ body,
   border-right-color: #bbcae6;
 }
 
+.dashboard-theme-light .sidebar-nav {
+  scrollbar-color: #9fb4df #d4e0f7;
+}
+
+.dashboard-theme-light .sidebar-nav::-webkit-scrollbar-track {
+  background: #d4e0f7;
+}
+
+.dashboard-theme-light .sidebar-nav::-webkit-scrollbar-thumb {
+  background: #95abd7;
+  border-color: #d4e0f7;
+}
+
 .dashboard-theme-light .sidebar-item {
   color: #203050;
 }
@@ -199,6 +237,12 @@ body,
   color: #22345b;
   background: #edf2ff;
   border-color: #9eb2e1;
+}
+
+.dashboard-theme-light .sidebar-collapse-toggle {
+  color: #203050;
+  border-color: #93a9d8;
+  background: #edf3ff;
 }
 
 .dashboard-link {

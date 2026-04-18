@@ -55,7 +55,7 @@ function MenuNode({ item, depth, collapsed, openPaths, onToggle }) {
         {!collapsed && hasChildren ? <Icon kind="chevron" /> : null}
       </button>
 
-      {!collapsed && hasChildren && isOpen ? (
+      {hasChildren && isOpen ? (
         <ul className="sidebar-children">
           {item.children.map((child) => (
             <MenuNode
