@@ -20,7 +20,7 @@ body,
 }
 
 .landing-layout {
-  align-items: start;
+  align-items: center;
 }
 
 .hero-panel {
@@ -29,6 +29,11 @@ body,
 
 .features-panel {
   width: 100%;
+}
+
+
+.auth-slide-in {
+  animation: authSlideFromTop 0.45s ease-out;
 }
 
 @media (max-width: 980px) {
@@ -71,6 +76,19 @@ body,
 
   to {
     transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+
+@keyframes authSlideFromTop {
+  from {
+    transform: translateY(-100vh);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
     opacity: 1;
   }
 }
