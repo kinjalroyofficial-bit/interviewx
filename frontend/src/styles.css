@@ -65,11 +65,19 @@ body,
   min-height: 0;
   overflow-y: auto;
   padding-right: 0.15rem;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   scrollbar-color: #6c7ca9 #0f1526;
 }
 
 .sidebar-nav::-webkit-scrollbar {
+  width: 0;
+}
+
+.dashboard-sidebar:not(.is-collapsed):hover .sidebar-nav {
+  scrollbar-width: thin;
+}
+
+.dashboard-sidebar:not(.is-collapsed):hover .sidebar-nav::-webkit-scrollbar {
   width: 10px;
 }
 
