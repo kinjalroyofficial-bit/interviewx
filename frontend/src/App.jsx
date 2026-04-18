@@ -90,8 +90,8 @@ const menuLoginButtonStyle = {
   border: '1px solid rgba(255, 255, 255, 0.7)', background: 'rgba(15, 19, 32, 0.35)', color: '#ffffff', fontWeight: 700, cursor: 'pointer'
 }
 
-const contentLayoutStyle = { display: 'grid', gridTemplateColumns: 'minmax(0, 64%) minmax(280px, 36%)', gap: '0.3rem', alignItems: 'center', width: 'calc(100% - 2rem)', maxWidth: '1680px', marginRight: 'auto', minHeight: 'calc(100vh - 8.5rem)' }
-const featureListStyle = { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem', width: '100%', transform: 'translateX(-14px)' }
+const contentLayoutStyle = { display: 'grid', gridTemplateColumns: 'minmax(0, 64%) minmax(280px, 36%)', gap: '0rem', alignItems: 'center', width: 'calc(100% - 2rem)', maxWidth: '1680px', marginRight: 'auto', minHeight: 'calc(100vh - 8.5rem)' }
+const featureListStyle = { listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: '0.75rem', width: '100%', transform: 'translateX(-32px)' }
 const heroSectionStyle = { display: 'grid', placeItems: 'center', marginTop: '2rem', transform: 'translateY(-2rem)', textAlign: 'left' }
 const centerLogoStyle = { width: 'min(72vw, 576px)', height: 'auto', marginBottom: '0.35rem', marginRight: '-0.75rem' }
 const ctaRowStyle = { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.85rem', marginTop: 0, flexWrap: 'wrap' }
