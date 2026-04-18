@@ -6,6 +6,12 @@ body,
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 .dashboard-shell {
   min-height: 100vh;
   display: grid;
@@ -83,7 +89,7 @@ body,
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  width: fit-content; 
+  width: 100%;
 }
 
 .auth-partition::before,
@@ -100,10 +106,20 @@ body,
 .google-official-shell {
   margin-top: 0.35rem;
   display: grid;
-  justify-items: center;
-  width: fit-content;
+  width: 100%;
   box-sizing: border-box;
-  padding: 0.25rem 10px 0;
+  padding: 0.25rem 0 0;
+  overflow: hidden;
+}
+
+.google-official-shell > div,
+.google-official-shell iframe {
+  max-width: 100%;
+}
+
+.auth-pane-inner {
+  justify-items: stretch;
+  overflow: hidden;
 }
 
 .auth-slide-in {

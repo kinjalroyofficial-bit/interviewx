@@ -113,18 +113,19 @@ const authLayoutStyle = {
 }
 
 const authFormPaneStyle = {
-  background: '#efefef', color: '#232323', padding: '1.5rem 1.15rem 1.2rem', display: 'grid', alignContent: 'start', justifyItems: 'center', gap: '0.9rem', position: 'relative'
+  background: '#efefef', color: '#232323', padding: '1.5rem 1.15rem 1.2rem', display: 'grid', alignContent: 'start', position: 'relative',
+  minWidth: 0, overflow: 'hidden', borderRight: '1px solid #d9d9d9'
 }
 
 const authRightPaneStyle = {
   position: 'relative', backgroundImage: `url(${signupBackground})`, backgroundSize: 'cover', backgroundPosition: 'center', padding: '1rem', display: 'grid',
-  gridTemplateRows: '1fr auto', gap: '0.75rem', color: '#121212'
+  gridTemplateRows: '1fr auto', gap: '0.75rem', color: '#121212', minWidth: 0, overflow: 'hidden'
 }
 
-const authPaneInnerStyle = { width: '100%', maxWidth: '410px', display: 'grid', justifyItems: 'center' }
-const authTitleStyle = { width: '70%', maxWidth: '340px', fontSize: '1.6rem', margin: 0, letterSpacing: '0.01em' }
-const authSubtitleStyle = { width: '70%', maxWidth: '340px', margin: '0.2rem 0 0', color: '#5b5b5b', fontSize: '0.84rem', lineHeight: 1.33 }
-const authFieldGroupStyle = { width: '70%', maxWidth: '340px', display: 'grid', gap: '0.35rem' }
+const authPaneInnerStyle = { width: '100%', maxWidth: '360px', margin: '0 auto', display: 'grid', gap: '0.65rem', boxSizing: 'border-box' }
+const authTitleStyle = { width: '100%', fontSize: '1.6rem', margin: 0, letterSpacing: '0.01em' }
+const authSubtitleStyle = { width: '100%', margin: '0.2rem 0 0', color: '#5b5b5b', fontSize: '0.84rem', lineHeight: 1.33 }
+const authFieldGroupStyle = { width: '100%', display: 'grid', gap: '0.35rem' }
 const authLabelStyle = { fontSize: '0.8rem', color: '#4a4a4a', fontWeight: 700, letterSpacing: '0.01em' }
 const authInputStyle = {
   width: '100%', fontSize: '0.88rem', padding: '0.56rem 0.7rem', borderRadius: '9px', outline: 'none'
@@ -178,7 +179,7 @@ export default function App() {
 
       googleButtonRef.current.innerHTML = ''
       const containerWidth = Math.floor(googleButtonRef.current.getBoundingClientRect().width || 320)
-      googleButtonRef.current.style.width = '220px'
+      const buttonWidth = Math.max(200, Math.min(containerWidth, 360))
       window.google.accounts.id.renderButton(
         googleButtonRef.current,
         {
@@ -187,7 +188,7 @@ export default function App() {
           size: 'large',
           text: 'continue_with',
           shape: 'pill',
-          width: 320
+          width: buttonWidth
         }
       )
 
@@ -319,7 +320,7 @@ export default function App() {
         <div style={authOverlayStyle} onClick={() => setShowAuthPanel(false)}>
           <div style={authLayoutStyle} className="auth-layout auth-slide-in" onClick={(event) => event.stopPropagation()}>
             <main style={authFormPaneStyle}>
-              <div style={authPaneInnerStyle}>
+              <div style={authPaneInnerStyle} className="auth-pane-inner">
                     <h1 style={authTitleStyle}>InterviewX</h1>
                     <p style={authSubtitleStyle}>Share your details so we can personalize your interview journey.</p>
 
@@ -352,20 +353,20 @@ export default function App() {
                       />
                     </div>
 
-                    <div style={{ width: '70%', maxWidth: '340px', marginTop: '0.95rem' }} className="auth-partition">
+                    <div style={{ width: '100%', marginTop: '0.95rem' }} className="auth-partition">
                       <span>or</span>
                     </div>
 
-                    <div style={{ display: 'inline-block', marginTop: '0.5rem' }}>
-                      <div ref={googleButtonRef} />
+                    <div style={{ width: '100%', marginTop: '0.5rem' }} className="google-official-shell">
+                      <div ref={googleButtonRef} style={{ width: '100%' }} />
                     </div>
 
-                    <label style={{ width: '70%', maxWidth: '340px', display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.8rem', marginTop: '0.75rem' }}>
+                    <label style={{ width: '100%', display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.8rem', marginTop: '0.75rem' }}>
                       <input type="checkbox" defaultChecked /> I agree to the <a href="#">Terms of Service</a>
                     </label>
 
                     <button type="button" onClick={onSubmit} style={{
-                      marginTop: '0.55rem', width: '70%', maxWidth: '340px', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '10px',
+                      marginTop: '0.55rem', width: '100%', background: '#6b5a99', color: 'white', border: 'none', borderRadius: '10px',
                       padding: '0.6rem 0.8rem', fontSize: '0.96rem', fontWeight: 800, cursor: 'pointer'
                     }}>
                       {authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}
