@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import loginBackground from './assets/login-bg-v2.webp'
 import productLogo from './assets/interviewx-product-logo.webp'
 import signupBackground from './assets/signup-bg.jpg'
@@ -145,6 +146,7 @@ const numberBubbleStyle = {
 }
 
 export default function App() {
+  const navigate = useNavigate()
   const [authMode, setAuthMode] = useState('login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -197,17 +199,12 @@ export default function App() {
       setCurrentUser(data.username)
       setUsername('')
       setPassword('')
-      setMessage(data.message)
+      setMessage('')
+      setShowAuthPanel(false)
+      navigate('/dashboard')
     } catch (error) {
       setMessage(error.message)
     }
-  }
-
-  function onLogout() {
-    localStorage.removeItem(storageKey)
-    setCurrentUser('')
-    setMessage('Logged out successfully')
-    setAuthMode('login')
   }
 
   function openAuthPanel() {
@@ -233,8 +230,9 @@ export default function App() {
       const data = await googleLogin(idToken)
       localStorage.setItem(storageKey, data.username)
       setCurrentUser(data.username)
-      setMessage(data.message)
+      setMessage('')
       setShowAuthPanel(false)
+      navigate('/dashboard')
     } catch (error) {
       setMessage(error.message)
     }
@@ -270,7 +268,11 @@ export default function App() {
           <a href="#" style={navLinkStyle}>Pricing</a>
         </nav>
 
-        <button type="button" style={menuLoginButtonStyle} onClick={() => setShowAuthPanel((prev) => !prev)}>
+        <button
+          type="button"
+          style={menuLoginButtonStyle}
+          onClick={() => (currentUser ? navigate('/dashboard') : setShowAuthPanel((prev) => !prev))}
+        >
           {showAuthPanel ? 'Close' : currentUser ? 'Account' : 'Login'}
         </button>
       </header>
@@ -304,9 +306,7 @@ export default function App() {
         <div style={authOverlayStyle} onClick={() => setShowAuthPanel(false)}>
           <div style={authLayoutStyle} className="auth-layout auth-slide-in" onClick={(event) => event.stopPropagation()}>
             <main style={authFormPaneStyle}>
-              {!currentUser ? (
-                <>
-                  <div style={authPaneInnerStyle}>
+              <div style={authPaneInnerStyle}>
                     <h1 style={authTitleStyle}>InterviewX</h1>
                     <p style={authSubtitleStyle}>Share your details so we can personalize your interview journey.</p>
 
@@ -374,16 +374,7 @@ export default function App() {
                       </button>
                     </p>
                     {message ? <p>{message}</p> : null}
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h1>Welcome, {currentUser}!</h1>
-                  <p>You are now logged in.</p>
-                  <button type="button" onClick={onLogout}>Logout</button>
-                  {message ? <p>{message}</p> : null}
-                </>
-              )}
+              </div>
             </main>
 
             <aside style={authRightPaneStyle}>

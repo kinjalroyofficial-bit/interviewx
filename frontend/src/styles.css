@@ -6,6 +6,30 @@ body,
   font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
 }
 
+.dashboard-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at top, #30103d 0%, #160620 52%, #0f0418 100%);
+  color: #ffffff;
+  padding: 1.2rem;
+}
+
+.dashboard-card {
+  width: min(560px, 100%);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 1.3rem 1.4rem;
+  backdrop-filter: blur(8px);
+}
+
+.dashboard-link {
+  color: #d4ff5a;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .logo-reveal-shell {
   display: inline-block;
   overflow: hidden;

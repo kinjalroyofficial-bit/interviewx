@@ -51,8 +51,7 @@ VITE_GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID_PLACEHOLDER
 - Sign up: `POST /auth/signup`
 - Login: `POST /auth/login`
 - Google login: `POST /auth/google`
-- Welcome screen rendered in frontend after successful authentication
-- Logout handled in frontend and returns user to login/signup view
+- Redirect to `/dashboard` after successful authentication
 
 ## Google Cloud Console setup checklist
 
