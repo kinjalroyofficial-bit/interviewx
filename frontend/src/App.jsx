@@ -355,7 +355,7 @@ export default function App() {
                       <span>or</span>
                     </div>
 
-                    <div style={{ width: '70%', maxWidth: '340px' }} className="google-official-shell">
+                    <div style={{ width: '100%', maxWidth: '340px' }} className="google-official-shell">
                       <div ref={googleButtonRef} />
                     </div>
 
