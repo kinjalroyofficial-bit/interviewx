@@ -154,6 +154,13 @@ export default function App() {
   const [showAuthPanel, setShowAuthPanel] = useState(false)
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem(storageKey) || '')
   const [activeSlide, setActiveSlide] = useState(0)
+  const [authDebugLogs, setAuthDebugLogs] = useState([])
+
+  function addAuthDebugLog(text) {
+    const entry = `${new Date().toISOString()} - ${text}`
+    console.info(`[GoogleAuthDebug] ${entry}`)
+    setAuthDebugLogs((prev) => [...prev.slice(-5), entry])
+  }
 
   useEffect(() => {
     if (!showAuthPanel || currentUser) {
@@ -168,7 +175,10 @@ export default function App() {
     script.src = 'https://accounts.google.com/gsi/client'
     script.async = true
     script.defer = true
+    script.onload = () => addAuthDebugLog('Google Identity Services script loaded.')
+    script.onerror = () => addAuthDebugLog('Failed to load Google Identity Services script.')
     document.head.appendChild(script)
+    addAuthDebugLog('Injecting Google Identity Services script tag.')
 
     return () => {
       const scriptTag = document.querySelector('script[src="https://accounts.google.com/gsi/client"]')
@@ -221,6 +231,7 @@ export default function App() {
 
   async function handleGoogleCredentialResponse(response) {
     const idToken = response?.credential
+    addAuthDebugLog(`Credential callback fired. Token present: ${Boolean(idToken)}.`)
     if (!idToken) {
       setMessage('Google authentication failed. Please try again.')
       return
@@ -232,29 +243,52 @@ export default function App() {
       setCurrentUser(data.username)
       setMessage('')
       setShowAuthPanel(false)
+      addAuthDebugLog('Google login API call succeeded; redirecting to dashboard.')
       navigate('/dashboard')
     } catch (error) {
+      addAuthDebugLog(`Google login API call failed: ${error.message}`)
       setMessage(error.message)
     }
   }
 
   function handleGoogleSignIn() {
     setMessage('')
+    setAuthDebugLogs([])
+    addAuthDebugLog(`Google button clicked. client_id configured: ${googleClientId !== 'GOOGLE_CLIENT_ID_PLACEHOLDER'}.`)
     if (googleClientId === 'GOOGLE_CLIENT_ID_PLACEHOLDER') {
       setMessage('Google sign-in is not configured yet. Add VITE_GOOGLE_CLIENT_ID.')
+      addAuthDebugLog('Blocked because VITE_GOOGLE_CLIENT_ID is still placeholder.')
       return
     }
 
     if (!window.google?.accounts?.id) {
       setMessage('Google sign-in script is still loading. Please try again.')
+      addAuthDebugLog('window.google.accounts.id is unavailable at click time.')
       return
     }
 
+    addAuthDebugLog(`Current origin: ${window.location.origin}`)
     window.google.accounts.id.initialize({
       client_id: googleClientId,
       callback: handleGoogleCredentialResponse
     })
-    window.google.accounts.id.prompt()
+    addAuthDebugLog('Google accounts initialized successfully.')
+    window.google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed()) {
+        const reason = notification.getNotDisplayedReason()
+        addAuthDebugLog(`Prompt not displayed. Reason: ${reason}`)
+        setMessage(`Google prompt not displayed (${reason}). Check Google Console origin settings.`)
+      } else if (notification.isSkippedMoment()) {
+        const reason = notification.getSkippedReason()
+        addAuthDebugLog(`Prompt skipped. Reason: ${reason}`)
+        setMessage(`Google prompt skipped (${reason}).`)
+      } else if (notification.isDismissedMoment()) {
+        const reason = notification.getDismissedReason()
+        addAuthDebugLog(`Prompt dismissed. Reason: ${reason}`)
+      } else if (notification.isDisplayed()) {
+        addAuthDebugLog('Google prompt displayed to user.')
+      }
+    })
   }
 
   const active = carouselSlides[activeSlide]
@@ -374,6 +408,16 @@ export default function App() {
                       </button>
                     </p>
                     {message ? <p>{message}</p> : null}
+                    {authDebugLogs.length ? (
+                      <div className="auth-debug-box">
+                        <strong>Google Debug Logs</strong>
+                        <ul>
+                          {authDebugLogs.map((log) => (
+                            <li key={log}>{log}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : null}
               </div>
             </main>
 

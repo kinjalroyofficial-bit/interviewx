@@ -67,3 +67,11 @@ VITE_GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID_PLACEHOLDER
    - Frontend `VITE_GOOGLE_CLIENT_ID` in `frontend/.env`
    - Backend `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `backend/.env` / environment
 7. Restart backend and frontend after env updates.
+
+### Google sign-in troubleshooting
+
+- If clicking **Continue with Google** does nothing, check the in-popup **Google Debug Logs** panel and browser console logs with prefix `GoogleAuthDebug`.
+- Common reasons:
+  - `unregistered_origin`: your current frontend origin is missing in Google Authorized JavaScript origins.
+  - `invalid_client`: `VITE_GOOGLE_CLIENT_ID` is wrong or app was not restarted after `.env` change.
+  - script load failure: outbound access to `https://accounts.google.com/gsi/client` is blocked.

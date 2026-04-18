@@ -30,6 +30,16 @@ body,
   text-decoration: none;
 }
 
+.dashboard-logout-button {
+  margin-right: 0.85rem;
+  border: 1px solid #ffffff80;
+  background: #ffffff1a;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+}
+
 .logo-reveal-shell {
   display: inline-block;
   overflow: hidden;
@@ -105,6 +115,26 @@ body,
   transform: translateY(-1px);
   box-shadow: 0 8px 16px rgba(43, 52, 71, 0.16);
   background-color: #f6f8fc;
+}
+
+.auth-debug-box {
+  width: 70%;
+  max-width: 340px;
+  margin-top: 0.7rem;
+  border: 1px dashed #9e9e9e;
+  background: #f8f8f8;
+  color: #333;
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.74rem;
+  text-align: left;
+}
+
+.auth-debug-box ul {
+  margin: 0.4rem 0 0;
+  padding-left: 1rem;
+  max-height: 116px;
+  overflow: auto;
 }
 
 .auth-slide-in {
