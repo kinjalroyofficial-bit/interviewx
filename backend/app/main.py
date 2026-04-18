@@ -1,5 +1,6 @@
 import os
 import secrets
+import logging
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +13,7 @@ from app.models import User
 from app.schemas import AuthRequest, AuthResponse, GoogleAuthRequest
 
 app = FastAPI(title="InterviewX API", version="0.1.0")
+logger = logging.getLogger("interviewx.auth")
 
 app.add_middleware(
     CORSMiddleware,
@@ -21,7 +23,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_ID_PLACEHOLDER")
+GOOGLE_CLIENT_IDS = [
+    value.strip()
+    for value in os.getenv("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_ID_PLACEHOLDER").split(",")
+    if value.strip()
+]
 
 
 def get_db():
@@ -84,20 +90,41 @@ def login(payload: AuthRequest, db: Session = Depends(get_db)) -> AuthResponse:
 
 @app.post("/auth/google", response_model=AuthResponse)
 def google_login(payload: GoogleAuthRequest, db: Session = Depends(get_db)) -> AuthResponse:
-    if GOOGLE_CLIENT_ID == "GOOGLE_CLIENT_ID_PLACEHOLDER":
+    if not GOOGLE_CLIENT_IDS or GOOGLE_CLIENT_IDS == ["GOOGLE_CLIENT_ID_PLACEHOLDER"]:
+        logger.error("Google OAuth attempted but GOOGLE_CLIENT_ID is not configured on backend.")
         raise HTTPException(status_code=500, detail="Google OAuth is not configured on backend")
 
     try:
+        logger.info("Verifying Google ID token on backend.")
         token_info = google_id_token.verify_oauth2_token(
             payload.id_token,
             google_requests.Request(),
-            GOOGLE_CLIENT_ID,
+            None,
         )
     except ValueError as error:
-        raise HTTPException(status_code=401, detail="Invalid Google ID token") from error
+        logger.exception("Google token verification failed: %s", error)
+        raise HTTPException(status_code=401, detail=f"Invalid Google ID token: {error}") from error
 
     email = token_info.get("email")
     google_subject = token_info.get("sub")
+    token_audience = token_info.get("aud")
+    token_issuer = token_info.get("iss")
+
+    if token_audience not in GOOGLE_CLIENT_IDS:
+        logger.error(
+            "Google token audience mismatch. Token aud=%s configured=%s",
+            token_audience,
+            GOOGLE_CLIENT_IDS,
+        )
+        raise HTTPException(
+            status_code=401,
+            detail=f"Google token audience mismatch (aud={token_audience}).",
+        )
+
+    if token_issuer not in {"accounts.google.com", "https://accounts.google.com"}:
+        logger.error("Unexpected Google token issuer: %s", token_issuer)
+        raise HTTPException(status_code=401, detail=f"Invalid token issuer ({token_issuer}).")
+
     if not email or not google_subject:
         raise HTTPException(status_code=400, detail="Google token missing required user details")
 
@@ -127,5 +154,6 @@ def google_login(payload: GoogleAuthRequest, db: Session = Depends(get_db)) -> A
 
     db.commit()
     db.refresh(user)
+    logger.info("Google login successful for email=%s", email)
 
     return AuthResponse(message="Google login successful", username=user.username)

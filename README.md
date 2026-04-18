@@ -74,4 +74,5 @@ VITE_GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID_PLACEHOLDER
 - Common reasons:
   - `unregistered_origin`: your current frontend origin is missing in Google Authorized JavaScript origins.
   - `invalid_client`: `VITE_GOOGLE_CLIENT_ID` is wrong or app was not restarted after `.env` change.
+  - backend audience mismatch: backend `GOOGLE_CLIENT_ID` does not match token `aud` from frontend Google client.
   - script load failure: outbound access to `https://accounts.google.com/gsi/client` is blocked.

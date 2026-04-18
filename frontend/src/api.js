@@ -10,8 +10,17 @@ async function authRequest(path, payload) {
   })
 
   if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({}))
-    throw new Error(errorBody.detail || 'Authentication request failed')
+    const rawBody = await response.text()
+    let detail = ''
+    try {
+      const parsed = rawBody ? JSON.parse(rawBody) : {}
+      detail = parsed.detail || parsed.message || ''
+    } catch {
+      detail = rawBody
+    }
+
+    const fallback = `Authentication request failed (${response.status})`
+    throw new Error(detail ? `${fallback}: ${detail}` : fallback)
   }
 
   return response.json()
