@@ -186,7 +186,7 @@ export default function App() {
           size: 'large',
           text: 'continue_with',
           shape: 'pill',
-          width: Math.min(320, containerWidth)
+          width: Math.min(320, Math.max(240, containerWidth - 4))
         }
       )
 
