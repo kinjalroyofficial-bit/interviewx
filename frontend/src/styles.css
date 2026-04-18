@@ -31,6 +31,16 @@ body,
   width: 100%;
 }
 
+.feature-item {
+  transform: translateX(var(--base-shift));
+  transition: transform 220ms ease, box-shadow 220ms ease;
+  will-change: transform;
+}
+
+.feature-item:hover {
+  transform: translateX(var(--hover-shift));
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
+}
 
 .auth-slide-in {
   animation: authSlideFromTop 0.45s ease-out;

@@ -81,7 +81,7 @@ const pageBackgroundStyle = {
   color: '#ffffff'
 }
 
-const headerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }
+const headerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingLeft: '0.75rem' }
 const navLinksStyle = { display: 'flex', gap: '1.25rem' }
 const navLinkStyle = { color: '#ffffff', textDecoration: 'none', fontWeight: 700, letterSpacing: '0.02em' }
 
@@ -133,7 +133,9 @@ function featureItemStyle(borderColor, index) {
     display: 'grid', gridTemplateColumns: '40px 1fr', alignItems: 'center', gap: '0.65rem', background: 'rgba(24, 20, 45, 0.56)',
     border: `3px solid ${borderColor}`, borderRadius: '999px', padding: '0.3rem 0.75rem 0.3rem 0.3rem', fontWeight: 600,
     fontFamily: "'Segoe UI', Arial, sans-serif", letterSpacing: '0.01em', textShadow: '0 1px 2px rgba(0,0,0,0.2)',
-    fontSize: '0.82rem', lineHeight: 1.25, width: '84%', justifySelf: 'center', transform: `translateX(${index % 2 === 0 ? '-16px' : '16px'})`
+    fontSize: '0.82rem', lineHeight: 1.25, width: '84%', justifySelf: 'center',
+    '--base-shift': index % 2 === 0 ? '-16px' : '16px',
+    '--hover-shift': index % 2 === 0 ? '-24px' : '24px'
   }
 }
 
@@ -228,7 +230,7 @@ export default function App() {
         <section className="features-panel">
           <ul style={featureListStyle}>
             {featureItems.map((item, index) => (
-              <li key={item.id} style={featureItemStyle(item.borderColor, index)}>
+              <li key={item.id} style={featureItemStyle(item.borderColor, index)} className="feature-item">
                 <span style={numberBubbleStyle}>{item.id}</span>
                 <span>{item.text}</span>
               </li>
