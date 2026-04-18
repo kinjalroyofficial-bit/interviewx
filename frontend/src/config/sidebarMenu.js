@@ -20,9 +20,9 @@ export const sidebarMenu = [
         label: 'Speech Betterment',
         icon: 'speech',
         children: [
-          { id: 'sentence', label: 'Sentence', icon: 'bullet' },
-          { id: 'punctuation', label: 'Punctuation', icon: 'bullet' },
-          { id: 'audio', label: 'Audio', icon: 'bullet' }
+          { id: 'sentence', label: 'Sentence', icon: 'sentence' },
+          { id: 'punctuation', label: 'Punctuation', icon: 'punctuation' },
+          { id: 'audio', label: 'Audio', icon: 'audio-leaf' }
         ]
       },
       {
@@ -30,8 +30,8 @@ export const sidebarMenu = [
         label: 'Thought Organization',
         icon: 'thought',
         children: [
-          { id: 'situation', label: 'Situation', icon: 'bullet' },
-          { id: 'topic', label: 'Topic', icon: 'bullet' }
+          { id: 'situation', label: 'Situation', icon: 'situation' },
+          { id: 'topic', label: 'Topic', icon: 'topic' }
         ]
       },
       {
@@ -39,8 +39,8 @@ export const sidebarMenu = [
         label: 'Latency Reduction',
         icon: 'latency',
         children: [
-          { id: 'natural', label: 'Natural', icon: 'bullet' },
-          { id: 'drive', label: 'Drive', icon: 'bullet' }
+          { id: 'natural', label: 'Natural', icon: 'natural' },
+          { id: 'drive', label: 'Drive', icon: 'drive' }
         ]
       },
       {
@@ -48,10 +48,10 @@ export const sidebarMenu = [
         label: 'Vocabulary',
         icon: 'vocabulary',
         children: [
-          { id: 'words', label: 'Words', icon: 'bullet' },
-          { id: 'synonyms', label: 'Synonyms', icon: 'bullet' },
-          { id: 'phrases', label: 'Phrases', icon: 'bullet' },
-          { id: 'grammar', label: 'Grammar', icon: 'bullet' }
+          { id: 'words', label: 'Words', icon: 'words' },
+          { id: 'synonyms', label: 'Synonyms', icon: 'synonyms' },
+          { id: 'phrases', label: 'Phrases', icon: 'phrases' },
+          { id: 'grammar', label: 'Grammar', icon: 'grammar' }
         ]
       }
     ]
