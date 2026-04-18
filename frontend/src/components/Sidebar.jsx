@@ -36,11 +36,10 @@ function Icon({ kind }) {
   )
 }
 
-function MenuNode({ item, depth, collapsed, expandedByParent, onToggle }) {
+function MenuNode({ item, depth, collapsed, openPaths, onToggle }) {
   const hasChildren = Array.isArray(item.children) && item.children.length > 0
-  const parentKey = depth === 0 ? 'root' : item.__parent
   const path = item.__path
-  const isOpen = expandedByParent[parentKey] === path
+  const isOpen = openPaths.has(path)
   const nextDepth = depth + 1
 
   return (
@@ -48,7 +47,7 @@ function MenuNode({ item, depth, collapsed, expandedByParent, onToggle }) {
       <button
         type="button"
         className={`sidebar-item depth-${depth} ${isOpen ? 'is-open' : ''}`}
-        onClick={() => (hasChildren ? onToggle(parentKey, path) : null)}
+        onClick={() => (hasChildren ? onToggle(path) : null)}
         title={collapsed ? item.label : undefined}
       >
         <Icon kind={item.icon} />
@@ -64,7 +63,7 @@ function MenuNode({ item, depth, collapsed, expandedByParent, onToggle }) {
               item={{ ...child, __path: `${path}/${child.id}`, __parent: path }}
               depth={nextDepth}
               collapsed={collapsed}
-              expandedByParent={expandedByParent}
+              openPaths={openPaths}
               onToggle={onToggle}
             />
           ))}
@@ -76,15 +75,23 @@ function MenuNode({ item, depth, collapsed, expandedByParent, onToggle }) {
 
 export default function Sidebar({ menu }) {
   const [collapsed, setCollapsed] = useState(false)
-  const [expandedByParent, setExpandedByParent] = useState({ root: 'awareness' })
+  const [openPaths, setOpenPaths] = useState(() => new Set(['awareness']))
 
   const preparedMenu = useMemo(
     () => menu.map((item) => ({ ...item, __path: item.id, __parent: 'root' })),
     [menu]
   )
 
-  function handleToggle(parentKey, path) {
-    setExpandedByParent((prev) => ({ ...prev, [parentKey]: prev[parentKey] === path ? null : path }))
+  function handleToggle(path) {
+    setOpenPaths((prev) => {
+      const next = new Set(prev)
+      if (next.has(path)) {
+        next.delete(path)
+      } else {
+        next.add(path)
+      }
+      return next
+    })
   }
 
   return (
@@ -104,7 +111,7 @@ export default function Sidebar({ menu }) {
               item={item}
               depth={0}
               collapsed={collapsed}
-              expandedByParent={expandedByParent}
+              openPaths={openPaths}
               onToggle={handleToggle}
             />
           ))}

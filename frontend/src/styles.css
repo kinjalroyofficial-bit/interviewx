@@ -27,6 +27,9 @@ body,
   padding: 0.9rem 0.65rem 0.85rem;
   overflow: hidden;
   transition: width 180ms ease;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .dashboard-sidebar.is-collapsed {
@@ -58,7 +61,8 @@ body,
 }
 
 .sidebar-nav {
-  max-height: calc(100vh - 88px);
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding-right: 0.2rem;
 }
@@ -95,8 +99,8 @@ body,
 }
 
 .sidebar-item .sidebar-icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
 .sidebar-label {
@@ -154,6 +158,47 @@ body,
   border: 1px solid #ffffff21;
   min-height: 260px;
   padding: 1.2rem 1.25rem;
+}
+
+.dashboard-theme-button {
+  border: 1px solid #8ea8ff7d;
+  background: #1a2a5273;
+  color: #eaf0ff;
+  border-radius: 10px;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+}
+
+.dashboard-theme-light {
+  background: #f0f5ff;
+  color: #1d2740;
+}
+
+.dashboard-theme-light .dashboard-sidebar {
+  background: linear-gradient(180deg, #e9efff 0%, #dce8ff 100%);
+  border-right-color: #bbcae6;
+}
+
+.dashboard-theme-light .sidebar-item {
+  color: #203050;
+}
+
+.dashboard-theme-light .sidebar-item:hover,
+.dashboard-theme-light .sidebar-item.is-open {
+  background: #95aee52e;
+}
+
+.dashboard-theme-light .dashboard-content-card {
+  background: #ffffff;
+  border-color: #ccd8f1;
+}
+
+.dashboard-theme-light .dashboard-link,
+.dashboard-theme-light .dashboard-logout-button,
+.dashboard-theme-light .dashboard-theme-button {
+  color: #22345b;
+  background: #edf2ff;
+  border-color: #9eb2e1;
 }
 
 .dashboard-link {

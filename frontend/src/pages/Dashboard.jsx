@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { sidebarMenu } from '../config/sidebarMenu'
 
 export default function Dashboard() {
   const navigate = useNavigate()
+  const [theme, setTheme] = useState('dark')
 
   function handleLogout() {
     localStorage.removeItem('interviewx-user')
@@ -12,7 +14,7 @@ export default function Dashboard() {
   }
 
   return (
-    <main className="dashboard-shell">
+    <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''}`}>
       <Sidebar menu={sidebarMenu} />
 
       <section className="dashboard-main">
@@ -22,6 +24,9 @@ export default function Dashboard() {
             <h1 className="dashboard-title">Good evening, welcome back</h1>
           </div>
           <div className="dashboard-top-actions">
+            <button type="button" className="dashboard-theme-button" onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}>
+              {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
+            </button>
             <button type="button" className="dashboard-logout-button" onClick={handleLogout}>Logout</button>
             <Link to="/" className="dashboard-link">Landing</Link>
           </div>
