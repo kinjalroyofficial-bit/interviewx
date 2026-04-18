@@ -23,7 +23,7 @@ function Icon({ kind }) {
     job: 'M4 8h16v10H4zM9 8V6h6v2',
     'tech-network': 'M5 12h4m6 0h4M12 5v4m0 6v4M8 8l2 2m4 4 2 2m0-8-2 2m-4 4-2 2',
     interview: 'M4 6h16v10H4zM8 20h8M12 16v4',
-    bullet: 'M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0-6 0',
+    bullet: 'M7 12h10m-4-4 4 4-4 4',
     chevron: 'm9 6 6 6-6 6',
     collapse: 'M15 18l-6-6 6-6',
     expand: 'M9 6l6 6-6 6'
@@ -36,7 +36,7 @@ function Icon({ kind }) {
   )
 }
 
-function MenuNode({ item, depth, collapsed, openPaths, onToggle }) {
+function MenuNode({ item, depth, collapsed, openPaths, selectedPath, onItemClick }) {
   const hasChildren = Array.isArray(item.children) && item.children.length > 0
   const path = item.__path
   const isOpen = openPaths.has(path)
@@ -46,8 +46,8 @@ function MenuNode({ item, depth, collapsed, openPaths, onToggle }) {
     <li>
       <button
         type="button"
-        className={`sidebar-item depth-${depth} ${isOpen ? 'is-open' : ''}`}
-        onClick={() => (hasChildren ? onToggle(path) : null)}
+        className={`sidebar-item depth-${depth} ${isOpen ? 'is-open' : ''} ${selectedPath === path ? 'is-selected' : ''}`}
+        onClick={() => onItemClick(path, hasChildren)}
         title={collapsed ? item.label : undefined}
       >
         <Icon kind={item.icon} />
@@ -64,7 +64,8 @@ function MenuNode({ item, depth, collapsed, openPaths, onToggle }) {
               depth={nextDepth}
               collapsed={collapsed}
               openPaths={openPaths}
-              onToggle={onToggle}
+              selectedPath={selectedPath}
+              onItemClick={onItemClick}
             />
           ))}
         </ul>
@@ -76,6 +77,7 @@ function MenuNode({ item, depth, collapsed, openPaths, onToggle }) {
 export default function Sidebar({ menu }) {
   const [collapsed, setCollapsed] = useState(false)
   const [openPaths, setOpenPaths] = useState(() => new Set(['awareness']))
+  const [selectedPath, setSelectedPath] = useState('awareness')
 
   const preparedMenu = useMemo(
     () => menu.map((item) => ({ ...item, __path: item.id, __parent: 'root' })),
@@ -92,6 +94,22 @@ export default function Sidebar({ menu }) {
       }
       return next
     })
+  }
+
+  function handleItemClick(path, hasChildren) {
+    setSelectedPath(path)
+
+    if (collapsed) {
+      setCollapsed(false)
+      if (hasChildren && !openPaths.has(path)) {
+        handleToggle(path)
+      }
+      return
+    }
+
+    if (hasChildren) {
+      handleToggle(path)
+    }
   }
 
   return (
@@ -112,7 +130,8 @@ export default function Sidebar({ menu }) {
               depth={0}
               collapsed={collapsed}
               openPaths={openPaths}
-              onToggle={handleToggle}
+              selectedPath={selectedPath}
+              onItemClick={handleItemClick}
             />
           ))}
         </ul>

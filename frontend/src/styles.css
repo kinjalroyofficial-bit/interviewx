@@ -115,6 +115,10 @@ body,
   background: #2f3d6238;
 }
 
+.sidebar-item.is-selected {
+  background: #5f78be4d;
+}
+
 .sidebar-item .sidebar-icon {
   width: 20px;
   height: 20px;
@@ -144,6 +148,15 @@ body,
 
 .dashboard-sidebar.is-collapsed .sidebar-children {
   margin-top: 0.15rem;
+}
+
+.dashboard-sidebar.is-collapsed .sidebar-nav {
+  scrollbar-width: none;
+}
+
+.dashboard-sidebar.is-collapsed .sidebar-nav::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .dashboard-main {
@@ -224,6 +237,10 @@ body,
 .dashboard-theme-light .sidebar-item:hover,
 .dashboard-theme-light .sidebar-item.is-open {
   background: #95aee52e;
+}
+
+.dashboard-theme-light .sidebar-item.is-selected {
+  background: #8fa6d946;
 }
 
 .dashboard-theme-light .dashboard-content-card {

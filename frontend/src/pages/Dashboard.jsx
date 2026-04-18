@@ -9,6 +9,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const [theme, setTheme] = useState('dark')
   const currentUser = localStorage.getItem('interviewx-user')
+  const displayName = currentUser ? currentUser.split('@')[0] : ''
   const greetingText = useMemo(() => {
     const hour = new Date().getHours()
     let baseGreeting = 'Good night'
@@ -17,8 +18,8 @@ export default function Dashboard() {
     else if (hour >= 12 && hour < 17) baseGreeting = 'Good afternoon'
     else if (hour >= 17 && hour < 21) baseGreeting = 'Good evening'
 
-    return currentUser ? `${baseGreeting}, ${currentUser}` : baseGreeting
-  }, [currentUser])
+    return displayName ? `${baseGreeting}, ${displayName}` : baseGreeting
+  }, [displayName])
 
   function handleLogout() {
     localStorage.removeItem('interviewx-user')
