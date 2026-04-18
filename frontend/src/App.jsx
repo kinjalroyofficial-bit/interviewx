@@ -124,7 +124,6 @@ const authRightPaneStyle = {
 
 const authPaneInnerStyle = { width: '100%', maxWidth: '312px', margin: '0 auto', display: 'grid', gap: '0.65rem', boxSizing: 'border-box' }
 const authControlWrapStyle = { width: '88%', maxWidth: '268px', marginInline: 'auto' }
-const authTitleStyle = { width: '100%', fontSize: '1.6rem', margin: 0, letterSpacing: '0.01em' }
 const authFieldGroupStyle = { width: '100%', display: 'grid', gap: '0.35rem' }
 const authLabelStyle = { fontSize: '0.8rem', color: '#4a4a4a', fontWeight: 700, letterSpacing: '0.01em' }
 const authInputStyle = {
@@ -321,8 +320,6 @@ export default function App() {
           <div style={authLayoutStyle} className="auth-layout auth-slide-in" onClick={(event) => event.stopPropagation()}>
             <main style={authFormPaneStyle}>
               <div style={authPaneInnerStyle} className="auth-pane-inner">
-                    <h1 style={authTitleStyle}>InterviewX</h1>
-
                     <div style={{ ...authFieldGroupStyle, ...authControlWrapStyle, marginTop: '0.6rem' }}>
                       <label htmlFor="username" style={authLabelStyle}>Email or Username</label>
                       <input
@@ -371,7 +368,7 @@ export default function App() {
                       {authMode === 'signup' ? 'SIGN UP' : 'SIGN IN'}
                     </button>
 
-                    <p style={{ marginTop: '0.8rem', fontSize: '0.88rem' }}>
+                    <p style={{ ...authControlWrapStyle, marginTop: '0.8rem', fontSize: '0.88rem' }}>
                       {authMode === 'signup' ? 'Already have an account?' : 'Don’t have an account?'}{' '}
                       <button
                         type="button"
