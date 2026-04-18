@@ -117,6 +117,17 @@ body,
   background-color: #f6f8fc;
 }
 
+.google-fallback-shell {
+  margin-top: 0.6rem;
+  text-align: left;
+}
+
+.google-fallback-shell p {
+  margin: 0 0 0.45rem;
+  font-size: 0.78rem;
+  color: #5b6370;
+}
+
 .auth-debug-box {
   width: 70%;
   max-width: 340px;

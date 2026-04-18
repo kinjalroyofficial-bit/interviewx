@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import loginBackground from './assets/login-bg-v2.webp'
 import productLogo from './assets/interviewx-product-logo.webp'
@@ -155,6 +155,8 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem(storageKey) || '')
   const [activeSlide, setActiveSlide] = useState(0)
   const [authDebugLogs, setAuthDebugLogs] = useState([])
+  const [showGoogleFallbackButton, setShowGoogleFallbackButton] = useState(false)
+  const fallbackGoogleButtonRef = useRef(null)
 
   function addAuthDebugLog(text) {
     const entry = `${new Date().toISOString()} - ${text}`
@@ -187,6 +189,25 @@ export default function App() {
       }
     }
   }, [showAuthPanel, currentUser])
+
+  useEffect(() => {
+    if (!showGoogleFallbackButton || !fallbackGoogleButtonRef.current || !window.google?.accounts?.id) {
+      return
+    }
+
+    fallbackGoogleButtonRef.current.innerHTML = ''
+    window.google.accounts.id.renderButton(
+      fallbackGoogleButtonRef.current,
+      {
+        type: 'standard',
+        theme: 'outline',
+        size: 'large',
+        text: 'continue_with',
+        width: 320
+      }
+    )
+    addAuthDebugLog('Rendered fallback official Google Sign-In button.')
+  }, [showGoogleFallbackButton])
 
   const ctaText = useMemo(
     () => (currentUser ? `Welcome back, ${currentUser}!` : 'Get 100 free credits to start your journey.'),
@@ -254,6 +275,7 @@ export default function App() {
   function handleGoogleSignIn() {
     setMessage('')
     setAuthDebugLogs([])
+    setShowGoogleFallbackButton(false)
     addAuthDebugLog(`Google button clicked. client_id configured: ${googleClientId !== 'GOOGLE_CLIENT_ID_PLACEHOLDER'}.`)
     if (googleClientId === 'GOOGLE_CLIENT_ID_PLACEHOLDER') {
       setMessage('Google sign-in is not configured yet. Add VITE_GOOGLE_CLIENT_ID.')
@@ -273,15 +295,32 @@ export default function App() {
       callback: handleGoogleCredentialResponse
     })
     addAuthDebugLog('Google accounts initialized successfully.')
+
+    function triggerFallbackFlow(reason) {
+      setShowGoogleFallbackButton(true)
+      addAuthDebugLog(`Triggering fallback Google button flow. Reason: ${reason}`)
+      setMessage(`One Tap unavailable (${reason}). Opening Google Sign-In popup fallback.`)
+
+      setTimeout(() => {
+        const clickableElement = fallbackGoogleButtonRef.current?.querySelector('[role="button"]')
+        if (clickableElement) {
+          clickableElement.click()
+          addAuthDebugLog('Auto-clicked fallback Google Sign-In button.')
+        } else {
+          addAuthDebugLog('Fallback Google Sign-In button auto-click not available; waiting for manual click.')
+        }
+      }, 0)
+    }
+
     window.google.accounts.id.prompt((notification) => {
       if (notification.isNotDisplayed()) {
         const reason = notification.getNotDisplayedReason()
         addAuthDebugLog(`Prompt not displayed. Reason: ${reason}`)
-        setMessage(`Google prompt not displayed (${reason}). Check Google Console origin settings.`)
+        triggerFallbackFlow(reason)
       } else if (notification.isSkippedMoment()) {
         const reason = notification.getSkippedReason()
         addAuthDebugLog(`Prompt skipped. Reason: ${reason}`)
-        setMessage(`Google prompt skipped (${reason}).`)
+        triggerFallbackFlow(reason)
       } else if (notification.isDismissedMoment()) {
         const reason = notification.getDismissedReason()
         addAuthDebugLog(`Prompt dismissed. Reason: ${reason}`)
@@ -385,6 +424,12 @@ export default function App() {
                     >
                       Continue with Google
                     </button>
+                    {showGoogleFallbackButton ? (
+                      <div style={{ width: '70%', maxWidth: '340px' }} className="google-fallback-shell">
+                        <p>Fallback Google Sign-In:</p>
+                        <div ref={fallbackGoogleButtonRef} />
+                      </div>
+                    ) : null}
 
                     <label style={{ width: '70%', maxWidth: '340px', display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.8rem', marginTop: '0.75rem' }}>
                       <input type="checkbox" defaultChecked /> I agree to the <a href="#">Terms of Service</a>
