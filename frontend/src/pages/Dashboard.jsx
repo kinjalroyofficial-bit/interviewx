@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -7,6 +8,17 @@ import { sidebarMenu } from '../config/sidebarMenu'
 export default function Dashboard() {
   const navigate = useNavigate()
   const [theme, setTheme] = useState('dark')
+  const currentUser = localStorage.getItem('interviewx-user')
+  const greetingText = useMemo(() => {
+    const hour = new Date().getHours()
+    let baseGreeting = 'Good night'
+
+    if (hour >= 5 && hour < 12) baseGreeting = 'Good morning'
+    else if (hour >= 12 && hour < 17) baseGreeting = 'Good afternoon'
+    else if (hour >= 17 && hour < 21) baseGreeting = 'Good evening'
+
+    return currentUser ? `${baseGreeting}, ${currentUser}` : baseGreeting
+  }, [currentUser])
 
   function handleLogout() {
     localStorage.removeItem('interviewx-user')
@@ -21,7 +33,7 @@ export default function Dashboard() {
         <header className="dashboard-topbar">
           <div>
             <p className="dashboard-eyebrow">My Workspace</p>
-            <h1 className="dashboard-title">Good evening, welcome back</h1>
+            <h1 className="dashboard-title">{greetingText}</h1>
           </div>
           <div className="dashboard-top-actions">
             <button type="button" className="dashboard-theme-button" onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}>
