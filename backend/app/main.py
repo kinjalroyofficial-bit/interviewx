@@ -1,3 +1,13 @@
+from dotenv import load_dotenv
+from pathlib import Path
+
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(dotenv_path=env_path)
+
+import os
+print("ENV PATH:", env_path)
+print("GOOGLE_CLIENT_ID:", os.getenv("GOOGLE_CLIENT_ID"))
+
 import os
 import secrets
 import logging
@@ -23,11 +33,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-GOOGLE_CLIENT_IDS = [
-    value.strip()
-    for value in os.getenv("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_ID_PLACEHOLDER").split(",")
-    if value.strip()
-]
 
 
 def get_db():
@@ -90,7 +95,12 @@ def login(payload: AuthRequest, db: Session = Depends(get_db)) -> AuthResponse:
 
 @app.post("/auth/google", response_model=AuthResponse)
 def google_login(payload: GoogleAuthRequest, db: Session = Depends(get_db)) -> AuthResponse:
-    if not GOOGLE_CLIENT_IDS or GOOGLE_CLIENT_IDS == ["GOOGLE_CLIENT_ID_PLACEHOLDER"]:
+    GOOGLE_CLIENT_IDS = [
+        value.strip()
+        for value in os.getenv("GOOGLE_CLIENT_ID", "").split(",")
+        if value.strip()
+    ]
+    if not GOOGLE_CLIENT_IDS:
         logger.error("Google OAuth attempted but GOOGLE_CLIENT_ID is not configured on backend.")
         raise HTTPException(status_code=500, detail="Google OAuth is not configured on backend")
 
