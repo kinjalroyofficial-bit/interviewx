@@ -179,14 +179,14 @@ export default function App() {
 
       googleButtonRef.current.innerHTML = ''
       const containerWidth = Math.floor(googleButtonRef.current.getBoundingClientRect().width || 320)
-      const buttonWidth = Math.max(200, Math.min(containerWidth, 312))
+      const buttonWidth = Math.max(180, Math.min(containerWidth - 12, 240))
       window.google.accounts.id.renderButton(
         googleButtonRef.current,
         {
           type: 'standard',
           theme: 'outline',
-          size: 'large',
-          text: 'continue_with',
+          size: 'medium',
+          text: 'signin_with',
           shape: 'pill',
           width: buttonWidth
         }
