@@ -96,56 +96,10 @@ body,
   padding: 0 0.55rem;
 }
 
-.google-signin-button {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid #cfd7e6;
-  background: #ffffff;
-  color: #1d2c3e;
-  border-radius: 10px;
-  padding: 0.62rem 0.9rem;
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
-}
-
-.google-signin-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 16px rgba(43, 52, 71, 0.16);
-  background-color: #f6f8fc;
-}
-
-.google-fallback-shell {
-  margin-top: 0.6rem;
-  text-align: left;
-}
-
-.google-fallback-shell p {
-  margin: 0 0 0.45rem;
-  font-size: 0.78rem;
-  color: #5b6370;
-}
-
-.auth-debug-box {
-  width: 70%;
-  max-width: 340px;
-  margin-top: 0.7rem;
-  border: 1px dashed #9e9e9e;
-  background: #f8f8f8;
-  color: #333;
-  border-radius: 8px;
-  padding: 0.5rem 0.6rem;
-  font-size: 0.74rem;
-  text-align: left;
-}
-
-.auth-debug-box ul {
-  margin: 0.4rem 0 0;
-  padding-left: 1rem;
-  max-height: 116px;
-  overflow: auto;
+.google-official-shell {
+  margin-top: 0.2rem;
+  display: grid;
+  justify-items: center;
 }
 
 .auth-slide-in {

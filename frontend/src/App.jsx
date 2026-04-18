@@ -154,60 +154,61 @@ export default function App() {
   const [showAuthPanel, setShowAuthPanel] = useState(false)
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem(storageKey) || '')
   const [activeSlide, setActiveSlide] = useState(0)
-  const [authDebugLogs, setAuthDebugLogs] = useState([])
-  const [showGoogleFallbackButton, setShowGoogleFallbackButton] = useState(false)
-  const fallbackGoogleButtonRef = useRef(null)
-
-  function addAuthDebugLog(text) {
-    const entry = `${new Date().toISOString()} - ${text}`
-    console.info(`[GoogleAuthDebug] ${entry}`)
-    setAuthDebugLogs((prev) => [...prev.slice(-5), entry])
-  }
+  const googleButtonRef = useRef(null)
 
   useEffect(() => {
     if (!showAuthPanel || currentUser) {
       return undefined
     }
 
+    if (googleClientId === 'GOOGLE_CLIENT_ID_PLACEHOLDER') {
+      setMessage('Google sign-in is not configured yet. Add VITE_GOOGLE_CLIENT_ID.')
+      return
+    }
+
+    function initializeGoogleUi() {
+      if (!window.google?.accounts?.id || !googleButtonRef.current) {
+        return
+      }
+
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleCredentialResponse
+      })
+
+      googleButtonRef.current.innerHTML = ''
+      window.google.accounts.id.renderButton(
+        googleButtonRef.current,
+        {
+          type: 'standard',
+          theme: 'outline',
+          size: 'large',
+          text: 'continue_with',
+          shape: 'pill',
+          width: 320
+        }
+      )
+
+      window.google.accounts.id.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          setMessage('Please continue using the Google sign-in button below.')
+        }
+      })
+    }
+
     if (window.google?.accounts?.id) {
-      return undefined
+      initializeGoogleUi()
+      return
     }
 
     const script = document.createElement('script')
     script.src = 'https://accounts.google.com/gsi/client'
     script.async = true
     script.defer = true
-    script.onload = () => addAuthDebugLog('Google Identity Services script loaded.')
-    script.onerror = () => addAuthDebugLog('Failed to load Google Identity Services script.')
+    script.onload = initializeGoogleUi
+    script.onerror = () => setMessage('Unable to load Google sign-in right now. Please try again.')
     document.head.appendChild(script)
-    addAuthDebugLog('Injecting Google Identity Services script tag.')
-
-    return () => {
-      const scriptTag = document.querySelector('script[src="https://accounts.google.com/gsi/client"]')
-      if (scriptTag) {
-        scriptTag.remove()
-      }
-    }
   }, [showAuthPanel, currentUser])
-
-  useEffect(() => {
-    if (!showGoogleFallbackButton || !fallbackGoogleButtonRef.current || !window.google?.accounts?.id) {
-      return
-    }
-
-    fallbackGoogleButtonRef.current.innerHTML = ''
-    window.google.accounts.id.renderButton(
-      fallbackGoogleButtonRef.current,
-      {
-        type: 'standard',
-        theme: 'outline',
-        size: 'large',
-        text: 'continue_with',
-        width: 320
-      }
-    )
-    addAuthDebugLog('Rendered fallback official Google Sign-In button.')
-  }, [showGoogleFallbackButton])
 
   const ctaText = useMemo(
     () => (currentUser ? `Welcome back, ${currentUser}!` : 'Get 100 free credits to start your journey.'),
@@ -252,7 +253,6 @@ export default function App() {
 
   async function handleGoogleCredentialResponse(response) {
     const idToken = response?.credential
-    addAuthDebugLog(`Credential callback fired. Token present: ${Boolean(idToken)}.`)
     if (!idToken) {
       setMessage('Google authentication failed. Please try again.')
       return
@@ -264,70 +264,10 @@ export default function App() {
       setCurrentUser(data.username)
       setMessage('')
       setShowAuthPanel(false)
-      addAuthDebugLog('Google login API call succeeded; redirecting to dashboard.')
       navigate('/dashboard')
     } catch (error) {
-      addAuthDebugLog(`Google login API call failed: ${error.message}`)
       setMessage(error.message)
     }
-  }
-
-  function handleGoogleSignIn() {
-    setMessage('')
-    setAuthDebugLogs([])
-    setShowGoogleFallbackButton(false)
-    addAuthDebugLog(`Google button clicked. client_id configured: ${googleClientId !== 'GOOGLE_CLIENT_ID_PLACEHOLDER'}.`)
-    if (googleClientId === 'GOOGLE_CLIENT_ID_PLACEHOLDER') {
-      setMessage('Google sign-in is not configured yet. Add VITE_GOOGLE_CLIENT_ID.')
-      addAuthDebugLog('Blocked because VITE_GOOGLE_CLIENT_ID is still placeholder.')
-      return
-    }
-
-    if (!window.google?.accounts?.id) {
-      setMessage('Google sign-in script is still loading. Please try again.')
-      addAuthDebugLog('window.google.accounts.id is unavailable at click time.')
-      return
-    }
-
-    addAuthDebugLog(`Current origin: ${window.location.origin}`)
-    window.google.accounts.id.initialize({
-      client_id: googleClientId,
-      callback: handleGoogleCredentialResponse
-    })
-    addAuthDebugLog('Google accounts initialized successfully.')
-
-    function triggerFallbackFlow(reason) {
-      setShowGoogleFallbackButton(true)
-      addAuthDebugLog(`Triggering fallback Google button flow. Reason: ${reason}`)
-      setMessage(`One Tap unavailable (${reason}). Opening Google Sign-In popup fallback.`)
-
-      setTimeout(() => {
-        const clickableElement = fallbackGoogleButtonRef.current?.querySelector('[role="button"]')
-        if (clickableElement) {
-          clickableElement.click()
-          addAuthDebugLog('Auto-clicked fallback Google Sign-In button.')
-        } else {
-          addAuthDebugLog('Fallback Google Sign-In button auto-click not available; waiting for manual click.')
-        }
-      }, 0)
-    }
-
-    window.google.accounts.id.prompt((notification) => {
-      if (notification.isNotDisplayed()) {
-        const reason = notification.getNotDisplayedReason()
-        addAuthDebugLog(`Prompt not displayed. Reason: ${reason}`)
-        triggerFallbackFlow(reason)
-      } else if (notification.isSkippedMoment()) {
-        const reason = notification.getSkippedReason()
-        addAuthDebugLog(`Prompt skipped. Reason: ${reason}`)
-        triggerFallbackFlow(reason)
-      } else if (notification.isDismissedMoment()) {
-        const reason = notification.getDismissedReason()
-        addAuthDebugLog(`Prompt dismissed. Reason: ${reason}`)
-      } else if (notification.isDisplayed()) {
-        addAuthDebugLog('Google prompt displayed to user.')
-      }
-    })
   }
 
   const active = carouselSlides[activeSlide]
@@ -416,20 +356,9 @@ export default function App() {
                       <span>or</span>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={handleGoogleSignIn}
-                      className="google-signin-button"
-                      style={{ width: '70%', maxWidth: '340px' }}
-                    >
-                      Continue with Google
-                    </button>
-                    {showGoogleFallbackButton ? (
-                      <div style={{ width: '70%', maxWidth: '340px' }} className="google-fallback-shell">
-                        <p>Fallback Google Sign-In:</p>
-                        <div ref={fallbackGoogleButtonRef} />
-                      </div>
-                    ) : null}
+                    <div style={{ width: '70%', maxWidth: '340px' }} className="google-official-shell">
+                      <div ref={googleButtonRef} />
+                    </div>
 
                     <label style={{ width: '70%', maxWidth: '340px', display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.8rem', marginTop: '0.75rem' }}>
                       <input type="checkbox" defaultChecked /> I agree to the <a href="#">Terms of Service</a>
@@ -453,16 +382,6 @@ export default function App() {
                       </button>
                     </p>
                     {message ? <p>{message}</p> : null}
-                    {authDebugLogs.length ? (
-                      <div className="auth-debug-box">
-                        <strong>Google Debug Logs</strong>
-                        <ul>
-                          {authDebugLogs.map((log) => (
-                            <li key={log}>{log}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
               </div>
             </main>
 
