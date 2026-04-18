@@ -122,9 +122,8 @@ const authRightPaneStyle = {
   gridTemplateRows: '1fr auto', gap: '0.75rem', color: '#121212', minWidth: 0, overflow: 'hidden'
 }
 
-const authPaneInnerStyle = { width: '100%', maxWidth: '360px', margin: '0 auto', display: 'grid', gap: '0.65rem', boxSizing: 'border-box' }
+const authPaneInnerStyle = { width: '100%', maxWidth: '312px', margin: '0 auto', display: 'grid', gap: '0.65rem', boxSizing: 'border-box' }
 const authTitleStyle = { width: '100%', fontSize: '1.6rem', margin: 0, letterSpacing: '0.01em' }
-const authSubtitleStyle = { width: '100%', margin: '0.2rem 0 0', color: '#5b5b5b', fontSize: '0.84rem', lineHeight: 1.33 }
 const authFieldGroupStyle = { width: '100%', display: 'grid', gap: '0.35rem' }
 const authLabelStyle = { fontSize: '0.8rem', color: '#4a4a4a', fontWeight: 700, letterSpacing: '0.01em' }
 const authInputStyle = {
@@ -179,7 +178,7 @@ export default function App() {
 
       googleButtonRef.current.innerHTML = ''
       const containerWidth = Math.floor(googleButtonRef.current.getBoundingClientRect().width || 320)
-      const buttonWidth = Math.max(200, Math.min(containerWidth, 360))
+      const buttonWidth = Math.max(200, Math.min(containerWidth, 312))
       window.google.accounts.id.renderButton(
         googleButtonRef.current,
         {
@@ -322,7 +321,6 @@ export default function App() {
             <main style={authFormPaneStyle}>
               <div style={authPaneInnerStyle} className="auth-pane-inner">
                     <h1 style={authTitleStyle}>InterviewX</h1>
-                    <p style={authSubtitleStyle}>Share your details so we can personalize your interview journey.</p>
 
                     <div style={{ ...authFieldGroupStyle, marginTop: '0.6rem' }}>
                       <label htmlFor="username" style={authLabelStyle}>Email or Username</label>

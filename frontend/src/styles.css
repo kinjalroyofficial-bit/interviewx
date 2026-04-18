@@ -105,11 +105,14 @@ body,
 
 .google-official-shell {
   margin-top: 0.35rem;
-  display: grid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   box-sizing: border-box;
   padding: 0.25rem 0 0;
-  overflow: hidden;
+  min-height: 44px;
+  overflow: visible;
 }
 
 .google-official-shell > div,
