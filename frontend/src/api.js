@@ -24,3 +24,7 @@ export function signup(payload) {
 export function login(payload) {
   return authRequest('/auth/login', payload)
 }
+
+export function googleLogin(idToken) {
+  return authRequest('/auth/google', { id_token: idToken })
+}

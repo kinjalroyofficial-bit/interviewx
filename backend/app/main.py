@@ -1,10 +1,15 @@
+import os
+import secrets
+
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token as google_id_token
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.models import User
-from app.schemas import AuthRequest, AuthResponse
+from app.schemas import AuthRequest, AuthResponse, GoogleAuthRequest
 
 app = FastAPI(title="InterviewX API", version="0.1.0")
 
@@ -15,6 +20,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_ID_PLACEHOLDER")
 
 
 def get_db():
@@ -37,11 +44,23 @@ def health() -> dict[str, str]:
 
 @app.post("/auth/signup", response_model=AuthResponse)
 def signup(payload: AuthRequest, db: Session = Depends(get_db)) -> AuthResponse:
-    existing_user = db.query(User).filter(User.username == payload.username).first()
+    clean_username = payload.username.strip()
+    existing_user = db.query(User).filter(User.username == clean_username).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Username already exists")
 
-    user = User(username=payload.username.strip(), password=payload.password)
+    user_email = clean_username if "@" in clean_username else None
+    if user_email:
+        email_in_use = db.query(User).filter(User.email == user_email).first()
+        if email_in_use:
+            raise HTTPException(status_code=400, detail="Email already exists")
+
+    user = User(
+        username=clean_username,
+        password=payload.password,
+        email=user_email,
+        auth_provider="local",
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -51,12 +70,62 @@ def signup(payload: AuthRequest, db: Session = Depends(get_db)) -> AuthResponse:
 
 @app.post("/auth/login", response_model=AuthResponse)
 def login(payload: AuthRequest, db: Session = Depends(get_db)) -> AuthResponse:
+    clean_username = payload.username.strip()
     user = (
         db.query(User)
-        .filter(User.username == payload.username.strip(), User.password == payload.password)
+        .filter(User.username == clean_username, User.password == payload.password)
         .first()
     )
     if not user:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     return AuthResponse(message="Login successful", username=user.username)
+
+
+@app.post("/auth/google", response_model=AuthResponse)
+def google_login(payload: GoogleAuthRequest, db: Session = Depends(get_db)) -> AuthResponse:
+    if GOOGLE_CLIENT_ID == "GOOGLE_CLIENT_ID_PLACEHOLDER":
+        raise HTTPException(status_code=500, detail="Google OAuth is not configured on backend")
+
+    try:
+        token_info = google_id_token.verify_oauth2_token(
+            payload.id_token,
+            google_requests.Request(),
+            GOOGLE_CLIENT_ID,
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=401, detail="Invalid Google ID token") from error
+
+    email = token_info.get("email")
+    google_subject = token_info.get("sub")
+    if not email or not google_subject:
+        raise HTTPException(status_code=400, detail="Google token missing required user details")
+
+    user = db.query(User).filter(User.google_id == google_subject).first()
+    if not user:
+        user = (
+            db.query(User)
+            .filter((User.email == email) | (User.username == email))
+            .first()
+        )
+
+    if user:
+        if user.google_id and user.google_id != google_subject:
+            raise HTTPException(status_code=400, detail="Google account conflict for this user")
+        user.google_id = google_subject
+        user.email = user.email or email
+        user.auth_provider = "google" if user.auth_provider != "local" else "local+google"
+    else:
+        user = User(
+            username=email,
+            email=email,
+            google_id=google_subject,
+            password=secrets.token_urlsafe(24),
+            auth_provider="google",
+        )
+        db.add(user)
+
+    db.commit()
+    db.refresh(user)
+
+    return AuthResponse(message="Google login successful", username=user.username)

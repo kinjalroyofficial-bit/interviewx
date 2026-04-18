@@ -9,3 +9,7 @@ class AuthRequest(BaseModel):
 class AuthResponse(BaseModel):
     message: str
     username: str
+
+
+class GoogleAuthRequest(BaseModel):
+    id_token: str

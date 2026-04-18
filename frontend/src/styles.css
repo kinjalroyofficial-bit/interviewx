@@ -42,6 +42,47 @@ body,
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.24);
 }
 
+.auth-partition {
+  display: flex;
+  align-items: center;
+  color: #7a7a7a;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.auth-partition::before,
+.auth-partition::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #c5c9d3;
+}
+
+.auth-partition span {
+  padding: 0 0.55rem;
+}
+
+.google-signin-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #cfd7e6;
+  background: #ffffff;
+  color: #1d2c3e;
+  border-radius: 10px;
+  padding: 0.62rem 0.9rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.google-signin-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(43, 52, 71, 0.16);
+  background-color: #f6f8fc;
+}
+
 .auth-slide-in {
   animation: authSlideFromTop 0.45s ease-out;
 }

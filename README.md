@@ -22,6 +22,14 @@ alembic upgrade head
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+Create `backend/.env` (or export environment variables) with:
+
+```bash
+DATABASE_URL=postgresql://interviewx_user:StrongPassword123@localhost:5432/interviewx
+GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID_PLACEHOLDER
+GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET_PLACEHOLDER
+```
+
 ## Frontend (React)
 
 ```bash
@@ -32,10 +40,31 @@ npm run dev
 ```
 
 Frontend runs on `http://localhost:5173` and reads API URL from `VITE_API_BASE_URL`.
+Set Google OAuth client ID in `frontend/.env`:
+
+```bash
+VITE_GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID_PLACEHOLDER
+```
 
 ## Auth flow implemented
 
 - Sign up: `POST /auth/signup`
 - Login: `POST /auth/login`
+- Google login: `POST /auth/google`
 - Welcome screen rendered in frontend after successful authentication
 - Logout handled in frontend and returns user to login/signup view
+
+## Google Cloud Console setup checklist
+
+1. Open **Google Cloud Console** → **APIs & Services** → **OAuth consent screen** and configure app name, support email, and test users.
+2. Go to **Credentials** → **Create Credentials** → **OAuth client ID**.
+3. Choose **Web application**.
+4. Add Authorized JavaScript origins:
+   - `http://localhost:5173` (frontend dev)
+5. Add Authorized redirect URIs (recommended for future code flow support):
+   - `http://localhost:5173`
+   - `http://localhost:5173/auth/callback` (optional dedicated callback route)
+6. Copy generated Client ID and Client Secret:
+   - Frontend `VITE_GOOGLE_CLIENT_ID` in `frontend/.env`
+   - Backend `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `backend/.env` / environment
+7. Restart backend and frontend after env updates.

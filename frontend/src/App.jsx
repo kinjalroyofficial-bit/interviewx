@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import loginBackground from './assets/login-bg-v2.webp'
 import productLogo from './assets/interviewx-product-logo.webp'
 import signupBackground from './assets/signup-bg.jpg'
-import { login, signup } from './api'
+import { googleLogin, login, signup } from './api'
 
 const storageKey = 'interviewx-user'
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'GOOGLE_CLIENT_ID_PLACEHOLDER'
 
 const featureItems = [
   { id: 1, text: 'Next-Gen Ai-enabled Automation of Interviews for ORGANIZATIONS', borderColor: '#ffc320' },
@@ -152,6 +153,29 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem(storageKey) || '')
   const [activeSlide, setActiveSlide] = useState(0)
 
+  useEffect(() => {
+    if (!showAuthPanel || currentUser) {
+      return undefined
+    }
+
+    if (window.google?.accounts?.id) {
+      return undefined
+    }
+
+    const script = document.createElement('script')
+    script.src = 'https://accounts.google.com/gsi/client'
+    script.async = true
+    script.defer = true
+    document.head.appendChild(script)
+
+    return () => {
+      const scriptTag = document.querySelector('script[src="https://accounts.google.com/gsi/client"]')
+      if (scriptTag) {
+        scriptTag.remove()
+      }
+    }
+  }, [showAuthPanel, currentUser])
+
   const ctaText = useMemo(
     () => (currentUser ? `Welcome back, ${currentUser}!` : 'Get 100 free credits to start your journey.'),
     [currentUser]
@@ -196,6 +220,43 @@ export default function App() {
 
   function prevSlide() {
     setActiveSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length)
+  }
+
+  async function handleGoogleCredentialResponse(response) {
+    const idToken = response?.credential
+    if (!idToken) {
+      setMessage('Google authentication failed. Please try again.')
+      return
+    }
+
+    try {
+      const data = await googleLogin(idToken)
+      localStorage.setItem(storageKey, data.username)
+      setCurrentUser(data.username)
+      setMessage(data.message)
+      setShowAuthPanel(false)
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
+
+  function handleGoogleSignIn() {
+    setMessage('')
+    if (googleClientId === 'GOOGLE_CLIENT_ID_PLACEHOLDER') {
+      setMessage('Google sign-in is not configured yet. Add VITE_GOOGLE_CLIENT_ID.')
+      return
+    }
+
+    if (!window.google?.accounts?.id) {
+      setMessage('Google sign-in script is still loading. Please try again.')
+      return
+    }
+
+    window.google.accounts.id.initialize({
+      client_id: googleClientId,
+      callback: handleGoogleCredentialResponse
+    })
+    window.google.accounts.id.prompt()
   }
 
   const active = carouselSlides[activeSlide]
@@ -277,6 +338,19 @@ export default function App() {
                         style={{ ...authInputStyle, border: '1px solid #bbc2ce', background: '#dce3ef' }}
                       />
                     </div>
+
+                    <div style={{ width: '70%', maxWidth: '340px', marginTop: '0.95rem' }} className="auth-partition">
+                      <span>or</span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleGoogleSignIn}
+                      className="google-signin-button"
+                      style={{ width: '70%', maxWidth: '340px' }}
+                    >
+                      Continue with Google
+                    </button>
 
                     <label style={{ width: '70%', maxWidth: '340px', display: 'flex', gap: '0.45rem', alignItems: 'center', color: '#666', fontSize: '0.8rem', marginTop: '0.75rem' }}>
                       <input type="checkbox" defaultChecked /> I agree to the <a href="#">Terms of Service</a>
