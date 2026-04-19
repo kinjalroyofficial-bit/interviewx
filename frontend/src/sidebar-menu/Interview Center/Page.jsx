@@ -11,6 +11,7 @@ const mockInterviews = [
     id: 'int-005',
     title: 'System Design Simulation',
     difficulty: 'Advanced',
+    mode: 'Mock',
     topics: ['System Design'],
     role: 'Senior Backend Engineer',
     practicedAt: '2026-04-19T09:20:00Z',
@@ -23,6 +24,7 @@ const mockInterviews = [
     id: 'int-004',
     title: 'Behavioral Round',
     difficulty: 'Intermediate',
+    mode: 'Practice',
     topics: ['Leadership'],
     role: 'Engineering Manager',
     practicedAt: '2026-04-18T18:10:00Z',
@@ -35,6 +37,7 @@ const mockInterviews = [
     id: 'int-003',
     title: 'Frontend Coding Round',
     difficulty: 'Intermediate',
+    mode: 'Practice',
     topics: ['React'],
     role: 'React Developer',
     practicedAt: '2026-04-17T15:30:00Z',
@@ -66,6 +69,14 @@ export default function InterviewCenterPage() {
 
   return (
     <main className="ic3-layout">
+      <header className="ic3-workspace-header">
+        <h1>Interview Center</h1>
+        <div className="ic3-header-actions">
+          <button type="button" className="ic3-header-button">Theme</button>
+          <button type="button" className="ic3-header-button">Logout</button>
+        </div>
+      </header>
+
       <InterviewHistoryPanel
         interviews={interviews}
         activeId={activeInterview.id}

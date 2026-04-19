@@ -22,7 +22,8 @@
   height: 100%;
   min-height: 0;
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 240px;
+  grid-template-columns: minmax(220px, 1fr) minmax(320px, 1.5fr) minmax(220px, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   gap: 0.8rem;
 }
 
@@ -43,6 +44,35 @@
   background: var(--ic3-surface);
   color: var(--ic3-text);
   min-height: 0;
+}
+
+.ic3-workspace-header {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0.15rem;
+}
+
+.ic3-workspace-header h1 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.ic3-header-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.ic3-header-button {
+  min-height: 30px;
+  padding: 0 0.7rem;
+  border-radius: 9px;
+  border: 1px solid color-mix(in srgb, var(--ic3-accent-soft) 65%, var(--ic3-border));
+  background: var(--ic3-surface-soft);
+  color: var(--ic3-text);
+  font-size: 0.7rem;
+  font-weight: 700;
 }
 
 .ic3-history-panel {
@@ -124,6 +154,8 @@
   display: grid;
   align-content: start;
   gap: 0.5rem;
+  border-top: 1px solid var(--ic3-border);
+  background: color-mix(in srgb, var(--ic3-surface-soft) 85%, var(--ic3-surface));
 }
 
 .ic3-history-bottom h3 {
@@ -131,10 +163,21 @@
   font-size: 0.76rem;
 }
 
-.ic3-pill-row {
-  display: flex;
-  flex-wrap: wrap;
+.ic3-kv-list {
+  display: grid;
   gap: 0.35rem;
+}
+
+.ic3-kv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ic3-kv-row > span:first-child {
+  font-size: 0.62rem;
+  color: var(--ic3-muted);
 }
 
 .ic3-pill {
@@ -151,6 +194,7 @@
 
 .ic3-browse-button {
   width: fit-content;
+  justify-self: end;
   min-height: 30px;
   padding: 0 0.65rem;
   border-radius: 9px;
@@ -301,16 +345,18 @@
 }
 
 .ic3-placeholder-panel {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+}
+
+.ic3-placeholder-body {
   padding: 0.75rem;
+  overflow-y: auto;
 }
 
-.ic3-placeholder-panel h2 {
+.ic3-placeholder-body p {
   margin: 0;
-  font-size: 0.88rem;
-}
-
-.ic3-placeholder-panel p {
-  margin: 0.4rem 0 0;
   font-size: 0.72rem;
   color: var(--ic3-muted);
   line-height: 1.4;
@@ -318,7 +364,7 @@
 
 @media (max-width: 1150px) {
   .ic3-layout {
-    grid-template-columns: 250px minmax(0, 1fr) 210px;
+    grid-template-columns: minmax(210px, 0.95fr) minmax(280px, 1.3fr) minmax(200px, 0.9fr);
   }
 }
 
