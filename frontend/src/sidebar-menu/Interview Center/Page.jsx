@@ -10,6 +10,8 @@ const mockInterviews = [
   {
     id: 'int-005',
     title: 'System Design Simulation',
+    difficulty: 'Advanced',
+    topics: ['System Design'],
     role: 'Senior Backend Engineer',
     practicedAt: '2026-04-19T09:20:00Z',
     messages: [
@@ -20,6 +22,8 @@ const mockInterviews = [
   {
     id: 'int-004',
     title: 'Behavioral Round',
+    difficulty: 'Intermediate',
+    topics: ['Leadership'],
     role: 'Engineering Manager',
     practicedAt: '2026-04-18T18:10:00Z',
     messages: [
@@ -30,6 +34,8 @@ const mockInterviews = [
   {
     id: 'int-003',
     title: 'Frontend Coding Round',
+    difficulty: 'Intermediate',
+    topics: ['React'],
     role: 'React Developer',
     practicedAt: '2026-04-17T15:30:00Z',
     messages: [
@@ -60,7 +66,12 @@ export default function InterviewCenterPage() {
 
   return (
     <main className="ic3-layout">
-      <InterviewHistoryPanel interviews={interviews} activeId={activeInterview.id} onSelect={setActiveInterviewId} />
+      <InterviewHistoryPanel
+        interviews={interviews}
+        activeId={activeInterview.id}
+        activeInterview={activeInterview}
+        onSelect={setActiveInterviewId}
+      />
 
       <section className="ic3-panel ic3-chat-panel">
         <ChatHeader interview={activeInterview} />
