@@ -121,9 +121,16 @@
 
 .ic3-history-panel {
   display: grid;
-  grid-template-rows: auto minmax(0, 2fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
   position: relative;
+}
+
+.ic3-left-stack {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 2fr) auto;
+  gap: 0.65rem;
 }
 
 .ic3-panel-header {
@@ -153,7 +160,6 @@
 .ic3-history-top {
   min-height: 0;
   padding: 0.2rem 0;
-  border-bottom: 1px solid var(--ic3-border);
 }
 
 .ic3-history-item {
@@ -193,24 +199,21 @@
   background: color-mix(in srgb, var(--ic3-accent-soft) 18%, var(--ic3-surface-soft));
 }
 
-.ic3-history-bottom {
+.ic3-current-interview-panel {
+  position: relative;
   padding: 0.55rem;
-  display: block;
-  border-top: 1px solid var(--ic3-border);
-  background: color-mix(in srgb, var(--ic3-surface-soft) 85%, var(--ic3-surface));
-  min-height: 0;
+  background: color-mix(in srgb, var(--ic3-surface) 90%, var(--ic3-surface-soft));
 }
 
 .ic3-current-card {
   width: 100%;
-  height: 100%;
-  min-height: 0;
+  min-height: 168px;
   border: 1px solid var(--ic3-border);
   border-radius: 12px;
   background: var(--ic3-surface-soft);
   padding: 0.52rem;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto auto auto 1fr auto;
   gap: 0.45rem;
   overflow: hidden;
 }
@@ -221,13 +224,6 @@
 }
 
 .ic3-kv-list {
-  display: grid;
-  align-content: start;
-  gap: 0.32rem;
-  min-height: 0;
-}
-
-.ic3-kv-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -237,6 +233,16 @@
 .ic3-kv-row > span:first-child {
   font-size: 0.62rem;
   color: var(--ic3-muted);
+}
+
+.ic3-kv-row-topic {
+  padding-bottom: 0.1rem;
+}
+
+.ic3-kv-row-double {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
 }
 
 .ic3-pill {

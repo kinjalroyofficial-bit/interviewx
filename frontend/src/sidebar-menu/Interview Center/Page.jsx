@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import ChatComposer from './components/ChatComposer'
 import ChatHeader from './components/ChatHeader'
+import CurrentInterviewCard from './components/CurrentInterviewCard'
 import InterviewHistoryPanel from './components/InterviewHistoryPanel'
 import MessagePane from './components/MessagePane'
 import RightPlaceholderPanel from './components/RightPlaceholderPanel'
@@ -94,12 +95,14 @@ export default function InterviewCenterPage() {
         </div>
       </header>
 
-      <InterviewHistoryPanel
-        interviews={interviews}
-        activeId={activeInterview.id}
-        activeInterview={activeInterview}
-        onSelect={setActiveInterviewId}
-      />
+      <section className="ic3-left-stack">
+        <InterviewHistoryPanel
+          interviews={interviews}
+          activeId={activeInterview.id}
+          onSelect={setActiveInterviewId}
+        />
+        <CurrentInterviewCard activeInterview={activeInterview} />
+      </section>
 
       <section className="ic3-panel ic3-chat-panel">
         <ChatHeader interview={activeInterview} />
