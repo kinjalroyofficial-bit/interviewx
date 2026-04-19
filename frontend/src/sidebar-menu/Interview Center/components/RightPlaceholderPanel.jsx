@@ -333,21 +333,21 @@ export default function RightPlaceholderPanel() {
             </li>
           ))}
         </ul>
-        <div className="ic3-audio-metrics" aria-label="Voice placeholders">
-          <article className="ic3-audio-metric-card">
-            <h4>Voice Speed</h4>
-            <p>Normal</p>
-          </article>
-          <article className="ic3-audio-metric-card">
-            <h4>Input Level</h4>
-            <p>-- dB</p>
-          </article>
-          <article className="ic3-audio-metric-card">
-            <h4>Noise</h4>
-            <p>Low</p>
-          </article>
-        </div>
       </section>
+      <div className="ic3-audio-metrics" aria-label="Voice placeholders">
+        <article className="ic3-audio-metric-card">
+          <h4>Voice Speed</h4>
+          <p>Normal</p>
+        </article>
+        <article className="ic3-audio-metric-card">
+          <h4>Input Level</h4>
+          <p>-- dB</p>
+        </article>
+        <article className="ic3-audio-metric-card">
+          <h4>Noise</h4>
+          <p>Low</p>
+        </article>
+      </div>
     </section>
   )
 }
