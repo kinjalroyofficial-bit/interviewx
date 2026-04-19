@@ -33,14 +33,18 @@ export default function Dashboard() {
 
   return (
     <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''} ${isSidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
-      <Sidebar
-        menu={sidebarMenu}
-        greetingText={greetingText}
-        displayName={displayName}
-        onLeafSelect={setActiveLeafLabel}
-        collapsed={isSidebarCollapsed}
-        onCollapsedChange={setIsSidebarCollapsed}
-      />
+      <div className="dashboard-left-rail">
+        {!isSidebarCollapsed ? (
+          <Sidebar
+            menu={sidebarMenu}
+            greetingText={greetingText}
+            displayName={displayName}
+            onLeafSelect={setActiveLeafLabel}
+            collapsed={isSidebarCollapsed}
+            onCollapsedChange={setIsSidebarCollapsed}
+          />
+        ) : null}
+      </div>
 
       <section className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''}`}>
         {isInterviewCenterActive ? <InterviewCenterPage /> : null}
@@ -74,6 +78,13 @@ export default function Dashboard() {
           </section>
         </div>
       </section>
+
+      <aside className={`dashboard-right-rail ${isSidebarCollapsed ? 'is-visible' : ''}`} aria-label="Response analytics panel">
+        <button type="button" className="dashboard-right-rail-toggle" onClick={() => setIsSidebarCollapsed(false)}>
+          Expand Sidebar
+        </button>
+        <p>Response Analytics</p>
+      </aside>
     </main>
   )
 }
