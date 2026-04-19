@@ -727,6 +727,7 @@
   background: color-mix(in srgb, var(--ic3-surface-soft) 84%, #000 16%);
   min-height: 132px;
   overflow: hidden;
+  padding-top: 4px;
 }
 
 .ic3-emotion-graph {

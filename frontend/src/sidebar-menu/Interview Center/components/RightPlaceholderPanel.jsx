@@ -11,6 +11,8 @@ const EMOTION_COLORS = {
 const GRAPH_WINDOW_MS = 15000
 const DETECTION_INTERVAL_MS = 180
 const MAX_SAMPLES = Math.ceil(GRAPH_WINDOW_MS / DETECTION_INTERVAL_MS) + 2
+const GRAPH_TOP_PADDING_PX = 10
+const GRAPH_BOTTOM_PADDING_PX = 4
 let sharedFaceApi = null
 let sharedModelLoadPromise = null
 
@@ -193,10 +195,12 @@ export default function RightPlaceholderPanel() {
       const points = emotionHistoryRef.current.filter((point) => point.timestamp >= minTime)
 
       if (points.length > 1) {
+        const drawableHeight = Math.max(1, height - GRAPH_TOP_PADDING_PX - GRAPH_BOTTOM_PADDING_PX)
+
         EMOTION_KEYS.forEach((emotion) => {
           const sampled = points.map((point) => ({
             x: ((point.timestamp - minTime) / GRAPH_WINDOW_MS) * width,
-            y: height - Math.max(0, Math.min(1, point[emotion] ?? 0)) * height
+            y: GRAPH_TOP_PADDING_PX + (1 - Math.max(0, Math.min(1, point[emotion] ?? 0))) * drawableHeight
           }))
           context.beginPath()
           context.strokeStyle = EMOTION_COLORS[emotion]
