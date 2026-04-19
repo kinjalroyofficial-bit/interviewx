@@ -10,7 +10,6 @@ export default function InterviewCenterPage() {
         <ChatHeader />
 
         <div className="ic-chat-body">
-          <button type="button" className="ic-start-button">Start Conversation</button>
           <MessagePane />
         </div>
 

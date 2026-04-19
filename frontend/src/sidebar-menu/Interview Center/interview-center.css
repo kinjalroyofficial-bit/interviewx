@@ -83,40 +83,43 @@
 }
 
 .ic-chat-body {
-  padding: 0.8rem;
+  padding: 0;
   display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 1.2rem;
+  min-height: 0;
   background: var(--ic-surface-alt);
 }
 
 .ic-start-button {
-  justify-self: center;
-  width: min(280px, 100%);
+  position: sticky;
+  top: 0.8rem;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  z-index: 2;
+  display: block;
+  width: min(240px, calc(100% - 1.1rem));
   border: 1px solid color-mix(in srgb, var(--ic-accent) 80%, #ffffff 20%);
   border-radius: 999px;
   background: var(--ic-accent);
   color: #fff;
-  font-size: 0.86rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  padding: 0.5rem 0.8rem;
+  padding: 0.42rem 0.65rem;
   cursor: pointer;
 }
 
 .ic-message-pane {
-  border: 1px dashed color-mix(in srgb, var(--ic-border) 80%, transparent);
-  border-radius: 16px;
-  min-height: 240px;
-  padding: 0.8rem;
+  min-height: 0;
+  padding: 0.8rem 0.65rem;
   position: relative;
   overflow: auto;
-  background: color-mix(in srgb, var(--ic-surface-alt) 88%, var(--ic-accent) 12%);
+  background: var(--ic-surface-alt);
 }
 
 .ic-empty-text {
-  margin: 0;
+  margin: 2.55rem 0 0;
   color: var(--ic-muted);
-  max-width: 36ch;
+  max-width: 31ch;
   line-height: 1.4;
   font-size: 0.72rem;
 }
@@ -129,12 +132,26 @@
   writing-mode: vertical-rl;
   text-orientation: mixed;
   transform: rotate(180deg);
-  font-size: clamp(1.8rem, 5vw, 3.6rem);
-  font-weight: 800;
-  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0.2rem;
   color: var(--ic-watermark);
   pointer-events: none;
   user-select: none;
+}
+
+.ic-watermark-powered {
+  font-size: clamp(0.34rem, 0.7vw, 0.52rem);
+  letter-spacing: 0.02em;
+  font-family: 'Arial Narrow', 'Inter', sans-serif;
+}
+
+.ic-watermark-brand {
+  font-size: clamp(2.2rem, 5.8vw, 4.1rem);
+  line-height: 0.9;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 
 .ic-chat-composer {
@@ -194,15 +211,15 @@
   }
 
   .ic-chat-body {
-    padding: 0.75rem;
+    min-height: 0;
   }
 
   .ic-message-pane {
-    min-height: 220px;
+    padding: 0.75rem 0.6rem;
   }
 
-  .ic-watermark {
-    font-size: clamp(1.5rem, 15vw, 3rem);
+  .ic-watermark-brand {
+    font-size: clamp(1.8rem, 11vw, 3rem);
   }
 
   .ic-composer-input-row {
