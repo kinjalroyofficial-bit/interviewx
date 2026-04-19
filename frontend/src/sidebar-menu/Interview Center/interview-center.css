@@ -1,0 +1,209 @@
+.ic-layout {
+  width: 100%;
+  min-height: min(72vh, 760px);
+  display: grid;
+  align-items: stretch;
+}
+
+.ic-chat-shell {
+  --ic-surface: #121a2f;
+  --ic-surface-alt: #1b2642;
+  --ic-border: #3e4f78;
+  --ic-text: #f0f4ff;
+  --ic-muted: #9eaad6;
+  --ic-accent: #66539f;
+  --ic-accent-strong: #59448f;
+  --ic-input-bg: #121a2f;
+  --ic-input-border: #53638f;
+  --ic-watermark: #ffffff0f;
+  width: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  border-radius: 20px;
+  border: 1px solid var(--ic-border);
+  background: linear-gradient(180deg, var(--ic-surface) 0%, #0d1427 100%);
+  color: var(--ic-text);
+  min-height: min(72vh, 760px);
+  overflow: hidden;
+}
+
+.dashboard-theme-light .ic-chat-shell {
+  --ic-surface: #f7f9ff;
+  --ic-surface-alt: #ffffff;
+  --ic-border: #bfcae6;
+  --ic-text: #1e2b4e;
+  --ic-muted: #5f6f95;
+  --ic-accent: #6a58a3;
+  --ic-accent-strong: #5b4a93;
+  --ic-input-bg: #ffffff;
+  --ic-input-border: #bdcae6;
+  --ic-watermark: #2d355114;
+}
+
+.ic-chat-header {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem 1.15rem;
+  background: color-mix(in srgb, var(--ic-accent) 88%, transparent);
+}
+
+.ic-chat-title {
+  margin: 0;
+  font-size: clamp(1.2rem, 1.6vw, 1.8rem);
+}
+
+.ic-chat-timer {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f6f4ff;
+}
+
+.ic-chat-menu {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  display: grid;
+  gap: 5px;
+  place-content: center;
+  cursor: pointer;
+}
+
+.ic-chat-menu span {
+  display: block;
+  width: 18px;
+  height: 2.5px;
+  border-radius: 999px;
+  background: #f6f4ff;
+}
+
+.ic-chat-body {
+  padding: 1.2rem;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 1.2rem;
+  background: var(--ic-surface-alt);
+}
+
+.ic-start-button {
+  justify-self: center;
+  width: min(520px, 100%);
+  border: 1px solid color-mix(in srgb, var(--ic-accent) 80%, #ffffff 20%);
+  border-radius: 999px;
+  background: var(--ic-accent);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 0.68rem 1rem;
+  cursor: pointer;
+}
+
+.ic-message-pane {
+  border: 1px dashed color-mix(in srgb, var(--ic-border) 80%, transparent);
+  border-radius: 16px;
+  min-height: 320px;
+  padding: 1.15rem;
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ic-surface-alt) 88%, var(--ic-accent) 12%);
+}
+
+.ic-empty-text {
+  margin: 0;
+  color: var(--ic-muted);
+  max-width: 36ch;
+  line-height: 1.45;
+}
+
+.ic-watermark {
+  position: absolute;
+  right: 1.1rem;
+  bottom: 0.6rem;
+  margin: 0;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: clamp(2.4rem, 7vw, 5.2rem);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--ic-watermark);
+  pointer-events: none;
+  user-select: none;
+}
+
+.ic-chat-composer {
+  border-top: 1px solid var(--ic-border);
+  padding: 0.95rem 1.1rem 1.15rem;
+  background: var(--ic-surface-alt);
+}
+
+.ic-composer-label {
+  display: block;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ic-muted);
+  margin-bottom: 0.45rem;
+}
+
+.ic-composer-input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.65rem;
+}
+
+.ic-composer-input {
+  width: 100%;
+  border: 1px solid var(--ic-input-border);
+  border-radius: 12px;
+  background: var(--ic-input-bg);
+  color: var(--ic-text);
+  min-height: 44px;
+  padding: 0.65rem 0.8rem;
+  outline: none;
+}
+
+.ic-composer-input::placeholder {
+  color: color-mix(in srgb, var(--ic-muted) 70%, transparent);
+}
+
+.ic-send-button {
+  border: 1px solid color-mix(in srgb, var(--ic-accent-strong) 82%, white 18%);
+  background: var(--ic-accent-strong);
+  color: #fff;
+  border-radius: 12px;
+  min-width: 92px;
+  padding: 0 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .ic-layout,
+  .ic-chat-shell {
+    min-height: min(78vh, 760px);
+  }
+
+  .ic-chat-body {
+    padding: 0.9rem;
+  }
+
+  .ic-message-pane {
+    min-height: 280px;
+  }
+
+  .ic-watermark {
+    font-size: clamp(2rem, 22vw, 4.8rem);
+  }
+
+  .ic-composer-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ic-send-button {
+    min-height: 44px;
+  }
+}

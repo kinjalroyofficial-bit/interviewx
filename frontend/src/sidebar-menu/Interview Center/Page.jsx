@@ -1,7 +1,21 @@
+import ChatComposer from './components/ChatComposer'
+import ChatHeader from './components/ChatHeader'
+import MessagePane from './components/MessagePane'
+import './interview-center.css'
+
 export default function InterviewCenterPage() {
   return (
-    <main>
-      <h1>Welcome to the Interview Center module</h1>
+    <main className="ic-layout">
+      <section className="ic-chat-shell">
+        <ChatHeader />
+
+        <div className="ic-chat-body">
+          <button type="button" className="ic-start-button">Start Conversation</button>
+          <MessagePane />
+        </div>
+
+        <ChatComposer />
+      </section>
     </main>
   )
 }
