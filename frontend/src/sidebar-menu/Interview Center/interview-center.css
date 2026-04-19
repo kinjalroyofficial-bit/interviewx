@@ -615,6 +615,29 @@
   gap: 0.4rem;
 }
 
+.ic3-model-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.64rem;
+  color: var(--ic3-muted);
+}
+
+.ic3-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--ic3-border) 68%, transparent);
+  border-top-color: var(--ic3-accent);
+  animation: ic3-spin 800ms linear infinite;
+}
+
+.ic3-model-error {
+  margin: 0;
+  color: #ffb4b4 !important;
+  font-size: 0.62rem !important;
+}
+
 .ic3-video-header {
   display: flex;
   align-items: center;
@@ -675,9 +698,88 @@
   z-index: 2;
 }
 
+.ic3-emotion-section {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.ic3-emotion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.ic3-emotion-header h3 {
+  margin: 0;
+  font-size: 0.72rem;
+}
+
+.ic3-emotion-header p {
+  margin: 0;
+  font-size: 0.6rem;
+}
+
+.ic3-emotion-graph-shell {
+  position: relative;
+  border: 1px solid var(--ic3-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ic3-surface-soft) 84%, #000 16%);
+  min-height: 132px;
+  overflow: hidden;
+}
+
+.ic3-emotion-graph {
+  width: 100%;
+  height: 132px;
+  display: block;
+}
+
+.ic3-emotion-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 0.65rem;
+  background: #00000047;
+  color: #e2e8ff !important;
+  font-size: 0.61rem !important;
+}
+
+.ic3-emotion-legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.24rem 0.4rem;
+}
+
+.ic3-emotion-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.32rem;
+  font-size: 0.6rem;
+  color: var(--ic3-muted);
+}
+
+.ic3-emotion-legend li > span:first-child {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
 .ic3-future-content {
   border-top: 1px solid var(--ic3-border);
   padding-top: 0.5rem;
+}
+
+@keyframes ic3-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 1150px) {
