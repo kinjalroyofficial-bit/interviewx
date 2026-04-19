@@ -8,6 +8,7 @@ import { sidebarMenu } from '../config/sidebarMenu'
 export default function Dashboard() {
   const navigate = useNavigate()
   const [theme, setTheme] = useState('dark')
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [activeLeafLabel, setActiveLeafLabel] = useState('')
   const currentUser = localStorage.getItem('interviewx-user')
   const displayName = currentUser ? currentUser.split('@')[0] : ''
@@ -28,8 +29,15 @@ export default function Dashboard() {
   }
 
   return (
-    <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''}`}>
-      <Sidebar menu={sidebarMenu} greetingText={greetingText} displayName={displayName} onLeafSelect={setActiveLeafLabel} />
+    <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''} ${isSidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
+      <Sidebar
+        menu={sidebarMenu}
+        greetingText={greetingText}
+        displayName={displayName}
+        onLeafSelect={setActiveLeafLabel}
+        collapsed={isSidebarCollapsed}
+        onCollapsedChange={setIsSidebarCollapsed}
+      />
 
       <section className="dashboard-main">
         <header className="dashboard-topbar">

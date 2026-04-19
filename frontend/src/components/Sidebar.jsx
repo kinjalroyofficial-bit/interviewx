@@ -63,7 +63,7 @@ function MenuNode({ item, depth, collapsed, openPaths, selectedPath, onItemClick
       >
         <Icon kind={item.icon} />
         {!collapsed ? <span className="sidebar-label">{item.label}</span> : null}
-        {!collapsed && hasChildren ? <Icon kind="chevron" /> : null}
+        {!collapsed && hasChildren ? <span className={`sidebar-chevron ${isOpen ? 'is-open' : ''}`}><Icon kind="chevron" /></span> : null}
       </button>
 
       {hasChildren && isOpen ? (
@@ -85,10 +85,20 @@ function MenuNode({ item, depth, collapsed, openPaths, selectedPath, onItemClick
   )
 }
 
-export default function Sidebar({ menu, greetingText, displayName, onLeafSelect }) {
-  const [collapsed, setCollapsed] = useState(false)
+export default function Sidebar({ menu, greetingText, displayName, onLeafSelect, collapsed: controlledCollapsed, onCollapsedChange }) {
+  const [internalCollapsed, setInternalCollapsed] = useState(false)
+  const collapsed = typeof controlledCollapsed === 'boolean' ? controlledCollapsed : internalCollapsed
   const [openPaths, setOpenPaths] = useState(() => new Set(['awareness']))
   const [selectedPath, setSelectedPath] = useState('awareness')
+
+  function setCollapsed(nextValue) {
+    const resolvedValue = typeof nextValue === 'function' ? nextValue(collapsed) : nextValue
+    if (typeof onCollapsedChange === 'function') {
+      onCollapsedChange(resolvedValue)
+      return
+    }
+    setInternalCollapsed(resolvedValue)
+  }
 
   const preparedMenu = useMemo(
     () => menu.map((item) => ({ ...item, __path: item.id, __parent: 'root' })),
