@@ -48,17 +48,24 @@ export default function ChatHeader({ interview }) {
           </div>
 
           <div className="ic3-chat-menu-wrap" ref={menuRef}>
-            <button
-              type="button"
-              className="ic3-chat-menu-button"
+            <div
+              className="ic3-chat-menu-trigger"
+              role="button"
+              tabIndex={0}
               aria-label="Open chat options"
               aria-expanded={isMenuOpen}
               onClick={() => setIsMenuOpen((prev) => !prev)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  setIsMenuOpen((prev) => !prev)
+                }
+              }}
             >
-              <span />
-              <span />
-              <span />
-            </button>
+              <span className="ic3-hamburger-line" />
+              <span className="ic3-hamburger-line" />
+              <span className="ic3-hamburger-line" />
+            </div>
 
             {isMenuOpen ? (
               <div className="ic3-chat-menu-dropdown" role="menu" aria-label="Chat actions">
@@ -72,7 +79,6 @@ export default function ChatHeader({ interview }) {
           </div>
         </div>
       </div>
-      <p>{interview.role}</p>
     </header>
   )
 }

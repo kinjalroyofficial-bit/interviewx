@@ -415,7 +415,7 @@
 
 .ic3-chat-header {
   position: relative;
-  padding: 0.75rem;
+  padding: 0.75rem 0.75rem 0.65rem;
   border-bottom: 1px solid var(--ic3-border);
   background: color-mix(in srgb, var(--ic3-accent) 25%, var(--ic3-surface));
 }
@@ -468,26 +468,26 @@
   position: relative;
 }
 
-.ic3-chat-menu-button {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  border: 1px solid var(--ic3-border);
-  background: var(--ic3-surface-soft);
-  color: var(--ic3-text);
-  display: inline-grid;
-  place-items: center;
-  gap: 3px;
-  padding: 0;
+.ic3-chat-menu-trigger {
+  width: 18px;
+  display: grid;
+  gap: 4px;
+  justify-items: end;
   cursor: pointer;
 }
 
-.ic3-chat-menu-button span {
-  width: 12px;
-  height: 1.5px;
+.ic3-hamburger-line {
+  width: 16px;
+  height: 2px;
   border-radius: 999px;
-  background: currentColor;
+  background: color-mix(in srgb, var(--ic3-text) 92%, transparent);
   display: block;
+}
+
+.ic3-chat-menu-trigger:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--ic3-accent) 62%, #fff);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 .ic3-chat-menu-dropdown {
@@ -518,12 +518,6 @@
 
 .ic3-chat-menu-item:hover {
   background: color-mix(in srgb, var(--ic3-accent-soft) 26%, var(--ic3-surface-soft));
-}
-
-.ic3-chat-header p {
-  margin: 0.2rem 0 0;
-  font-size: 0.7rem;
-  color: var(--ic3-muted);
 }
 
 .ic3-message-pane {
