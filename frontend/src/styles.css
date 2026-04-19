@@ -15,10 +15,12 @@ body,
 .dashboard-shell {
   --sidebar-width: 296px;
   min-height: 100vh;
+  height: 100vh;
   display: grid;
   grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   background: #090d16;
   color: #eef1ff;
+  overflow: hidden;
 }
 
 .dashboard-shell.is-sidebar-collapsed {
@@ -196,6 +198,33 @@ body,
 .dashboard-main {
   min-width: 0;
   padding: 1.15rem 1.3rem;
+  min-height: 100vh;
+  overflow: auto;
+}
+
+.dashboard-workspace-column {
+  min-width: 0;
+}
+
+.dashboard-main.is-interview-center {
+  display: grid;
+  grid-template-columns: minmax(320px, 34%) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.dashboard-main.is-interview-center .dashboard-workspace-column {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dashboard-main.is-interview-center .dashboard-content-card {
+  margin-top: 1rem;
+  min-height: 0;
+  overflow: auto;
 }
 
 .sidebar-profile {
@@ -508,6 +537,11 @@ body,
 
   .features-panel {
     order: 2;
+  }
+
+  .dashboard-main.is-interview-center {
+    grid-template-columns: 1fr;
+    overflow: auto;
   }
 }
 

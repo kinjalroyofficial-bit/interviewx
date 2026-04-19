@@ -42,30 +42,37 @@ export default function Dashboard() {
         onCollapsedChange={setIsSidebarCollapsed}
       />
 
-      <section className="dashboard-main">
-        <header className="dashboard-topbar">
-          <div>
-            <h1 className="dashboard-title">My Workspace</h1>
-          </div>
-          <div className="dashboard-top-actions">
-            <button type="button" className="dashboard-theme-button" onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}>
-              {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
-            </button>
-            <button type="button" className="dashboard-logout-button" onClick={handleLogout}>Logout</button>
-            <Link to="/" className="dashboard-link">Landing</Link>
-          </div>
-        </header>
+      <section className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''}`}>
+        {isInterviewCenterActive ? <InterviewCenterPage /> : null}
 
-        <section className="dashboard-content-card">
-          {isInterviewCenterActive ? (
-            <InterviewCenterPage />
-          ) : (
-            <>
-              <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>
-              <p>{activeLeafLabel ? 'Pick another module from the left menu to switch context.' : 'Select a module from the left menu to begin.'}</p>
-            </>
-          )}
-        </section>
+        <div className="dashboard-workspace-column">
+          <header className="dashboard-topbar">
+            <div>
+              <h1 className="dashboard-title">My Workspace</h1>
+            </div>
+            <div className="dashboard-top-actions">
+              <button type="button" className="dashboard-theme-button" onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}>
+                {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
+              </button>
+              <button type="button" className="dashboard-logout-button" onClick={handleLogout}>Logout</button>
+              <Link to="/" className="dashboard-link">Landing</Link>
+            </div>
+          </header>
+
+          <section className="dashboard-content-card">
+            {isInterviewCenterActive ? (
+              <>
+                <h2>Interview Center Overview</h2>
+                <p>Your interview chat workspace is now docked to the left. Continue your session there.</p>
+              </>
+            ) : (
+              <>
+                <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>
+                <p>{activeLeafLabel ? 'Pick another module from the left menu to switch context.' : 'Select a module from the left menu to begin.'}</p>
+              </>
+            )}
+          </section>
+        </div>
       </section>
     </main>
   )

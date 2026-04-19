@@ -1,6 +1,7 @@
 .ic-layout {
   width: 100%;
-  min-height: min(72vh, 760px);
+  height: 100%;
+  min-height: 0;
   display: grid;
   align-items: stretch;
 }
@@ -23,7 +24,8 @@
   border: 1px solid var(--ic-border);
   background: linear-gradient(180deg, var(--ic-surface) 0%, #0d1427 100%);
   color: var(--ic-text);
-  min-height: min(72vh, 760px);
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -107,7 +109,7 @@
   min-height: 320px;
   padding: 1.15rem;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   background: color-mix(in srgb, var(--ic-surface-alt) 88%, var(--ic-accent) 12%);
 }
 
@@ -184,7 +186,7 @@
 @media (max-width: 760px) {
   .ic-layout,
   .ic-chat-shell {
-    min-height: min(78vh, 760px);
+    height: min(78vh, 760px);
   }
 
   .ic-chat-body {
