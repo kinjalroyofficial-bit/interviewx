@@ -663,8 +663,10 @@
 
 .ic3-video-shell {
   width: 100%;
-  min-height: 0;
-  aspect-ratio: 4 / 3;
+  min-height: 240px;
+  height: 240px;
+  max-height: 240px;
+  aspect-ratio: auto;
   border-radius: 10px;
   border: 1px solid var(--ic3-border);
   overflow: hidden;
