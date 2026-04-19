@@ -294,10 +294,7 @@ export default function RightPlaceholderPanel() {
   }
 
   return (
-    <aside className="ic3-panel ic3-placeholder-panel" aria-label="Future features">
-      <header className="ic3-panel-header">
-        <h2>Future Features</h2>
-      </header>
+    <aside className="ic3-panel ic3-placeholder-panel" aria-label="Interview insights">
       <div className="ic3-placeholder-body">
         <section className="ic3-video-section">
           {modelStatus === 'loading' ? (
@@ -335,10 +332,6 @@ export default function RightPlaceholderPanel() {
               </li>
             ))}
           </ul>
-        </section>
-
-        <section className="ic3-future-content">
-          <p>This area will host insights, analytics, and coaching recommendations.</p>
         </section>
       </div>
     </aside>
