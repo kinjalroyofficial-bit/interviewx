@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ChatComposer from './components/ChatComposer'
 import ChatHeader from './components/ChatHeader'
 import InterviewHistoryPanel from './components/InterviewHistoryPanel'
 import MessagePane from './components/MessagePane'
 import RightPlaceholderPanel from './components/RightPlaceholderPanel'
+import ThemeToggle from './components/ThemeToggle'
 import './interview-center.css'
 
 const mockInterviews = [
@@ -49,6 +50,7 @@ const mockInterviews = [
 ]
 
 export default function InterviewCenterPage() {
+  const [isLightTheme, setIsLightTheme] = useState(false)
   const interviews = useMemo(
     () => [...mockInterviews]
       .sort((a, b) => new Date(b.practicedAt).getTime() - new Date(a.practicedAt).getTime())
@@ -67,12 +69,27 @@ export default function InterviewCenterPage() {
   const [activeInterviewId, setActiveInterviewId] = useState(interviews[0]?.id || '')
   const activeInterview = interviews.find((item) => item.id === activeInterviewId) || interviews[0]
 
+  useEffect(() => {
+    const shell = document.querySelector('.dashboard-shell')
+    if (!shell) return
+    setIsLightTheme(shell.classList.contains('dashboard-theme-light'))
+  }, [])
+
+  function handleThemeToggle() {
+    const shell = document.querySelector('.dashboard-shell')
+    if (!shell) return
+
+    const nextIsLight = !shell.classList.contains('dashboard-theme-light')
+    shell.classList.toggle('dashboard-theme-light', nextIsLight)
+    setIsLightTheme(nextIsLight)
+  }
+
   return (
     <main className="ic3-layout">
       <header className="ic3-workspace-header">
         <h1>Interview Center</h1>
         <div className="ic3-header-actions">
-          <button type="button" className="ic3-header-button">Theme</button>
+          <ThemeToggle checked={isLightTheme} onChange={handleThemeToggle} />
           <button type="button" className="ic3-header-button">Logout</button>
         </div>
       </header>

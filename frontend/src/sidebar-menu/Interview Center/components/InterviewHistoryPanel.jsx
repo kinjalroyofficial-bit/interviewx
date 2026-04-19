@@ -28,22 +28,24 @@ export default function InterviewHistoryPanel({ interviews, activeId, activeInte
       </div>
 
       <div className="ic3-history-bottom" aria-label="Current interview info">
-        <h3>Current Interview</h3>
-        <div className="ic3-kv-list">
-          <div className="ic3-kv-row">
-            <span>Topic</span>
-            <span className="ic3-pill">{activeInterview.topics[0]}</span>
+        <div className="ic3-current-card">
+          <h3>Current Interview</h3>
+          <div className="ic3-kv-list">
+            <div className="ic3-kv-row">
+              <span>Topic</span>
+              <span className="ic3-pill">{activeInterview.topics[0]}</span>
+            </div>
+            <div className="ic3-kv-row">
+              <span>Difficulty</span>
+              <span className="ic3-pill">{activeInterview.difficulty}</span>
+            </div>
+            <div className="ic3-kv-row">
+              <span>Mode</span>
+              <span className="ic3-pill">{activeInterview.mode}</span>
+            </div>
           </div>
-          <div className="ic3-kv-row">
-            <span>Difficulty</span>
-            <span className="ic3-pill">{activeInterview.difficulty}</span>
-          </div>
-          <div className="ic3-kv-row">
-            <span>Mode</span>
-            <span className="ic3-pill">{activeInterview.mode}</span>
-          </div>
+          <button type="button" className="ic3-browse-button" onClick={() => setIsBrowseModalOpen(true)}>Browse Topics</button>
         </div>
-        <button type="button" className="ic3-browse-button" onClick={() => setIsBrowseModalOpen(true)}>Browse Topics</button>
       </div>
 
       {isBrowseModalOpen ? (
