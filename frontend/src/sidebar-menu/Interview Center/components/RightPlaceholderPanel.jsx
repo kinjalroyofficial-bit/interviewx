@@ -10,6 +10,8 @@ const EMOTION_COLORS = {
 }
 const GRAPH_WINDOW_MS = 15000
 const MAX_SAMPLES = 90
+let sharedFaceApi = null
+let sharedModelLoadPromise = null
 
 export default function RightPlaceholderPanel() {
   const videoRef = useRef(null)
@@ -24,7 +26,6 @@ export default function RightPlaceholderPanel() {
   const [cameraError, setCameraError] = useState('')
   const [modelStatus, setModelStatus] = useState('idle')
   const [modelError, setModelError] = useState('')
-  const [emotionHistory, setEmotionHistory] = useState([])
   const [hasDetection, setHasDetection] = useState(false)
 
   const legendItems = useMemo(
@@ -43,7 +44,6 @@ export default function RightPlaceholderPanel() {
     const cutoff = sample.timestamp - GRAPH_WINDOW_MS
     const nextHistory = [...emotionHistoryRef.current, sample].filter((point) => point.timestamp >= cutoff).slice(-MAX_SAMPLES)
     emotionHistoryRef.current = nextHistory
-    setEmotionHistory(nextHistory)
   }, [])
 
   const runDetectionTick = useCallback(async () => {
@@ -88,20 +88,46 @@ export default function RightPlaceholderPanel() {
   }, [runDetectionTick, stopDetectionLoop])
 
   const loadModels = useCallback(async () => {
-    if (modelStatus === 'ready') return true
-    if (modelStatus === 'loading') return false
+    if (sharedFaceApi) {
+      faceApiRef.current = sharedFaceApi
+      setModelStatus('ready')
+      return true
+    }
+
+    if (sharedModelLoadPromise) {
+      setModelStatus('loading')
+      const loadedFaceApi = await sharedModelLoadPromise
+      if (loadedFaceApi) {
+        faceApiRef.current = loadedFaceApi
+        setModelStatus('ready')
+        return true
+      }
+      setModelStatus('error')
+      return false
+    }
 
     setModelStatus('loading')
     setModelError('')
     try {
-      const faceapiModule = await import('face-api.js')
-      const faceapi = faceapiModule.default ?? faceapiModule
-      await Promise.all([
-        faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
-        faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-        faceapi.nets.faceExpressionNet.loadFromUri('/models')
-      ])
-      faceApiRef.current = faceapi
+      sharedModelLoadPromise = (async () => {
+        try {
+          const faceapiModule = await import('face-api.js')
+          const faceapi = faceapiModule.default ?? faceapiModule
+          await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+            faceapi.nets.faceExpressionNet.loadFromUri('/models')
+          ])
+          sharedFaceApi = faceapi
+          return faceapi
+        } catch (error) {
+          sharedModelLoadPromise = null
+          throw error
+        }
+      })()
+
+      const loadedFaceApi = await sharedModelLoadPromise
+      faceApiRef.current = loadedFaceApi
       setModelStatus('ready')
       return true
     } catch (error) {
@@ -110,7 +136,7 @@ export default function RightPlaceholderPanel() {
       setModelStatus('error')
       return false
     }
-  }, [modelStatus])
+  }, [])
 
   useEffect(() => () => {
     stopDetectionLoop()
@@ -161,21 +187,28 @@ export default function RightPlaceholderPanel() {
       const minTime = now - GRAPH_WINDOW_MS
       const points = emotionHistoryRef.current.filter((point) => point.timestamp >= minTime)
 
-      if (points.length > 0) {
+      if (points.length > 1) {
         EMOTION_KEYS.forEach((emotion) => {
+          const sampled = points.map((point) => ({
+            x: ((point.timestamp - minTime) / GRAPH_WINDOW_MS) * width,
+            y: height - Math.max(0, Math.min(1, point[emotion] ?? 0)) * height
+          }))
           context.beginPath()
           context.strokeStyle = EMOTION_COLORS[emotion]
           context.lineWidth = 2
-          points.forEach((point, index) => {
-            const x = ((point.timestamp - minTime) / GRAPH_WINDOW_MS) * width
-            const value = Math.max(0, Math.min(1, point[emotion] ?? 0))
-            const y = height - value * height
-            if (index === 0) {
-              context.moveTo(x, y)
-            } else {
-              context.lineTo(x, y)
-            }
-          })
+          context.lineCap = 'round'
+          context.lineJoin = 'round'
+          context.moveTo(sampled[0].x, sampled[0].y)
+          for (let index = 1; index < sampled.length - 1; index += 1) {
+            const current = sampled[index]
+            const next = sampled[index + 1]
+            const controlX = (current.x + next.x) / 2
+            const controlY = (current.y + next.y) / 2
+            context.quadraticCurveTo(current.x, current.y, controlX, controlY)
+          }
+          const penultimate = sampled[sampled.length - 2]
+          const last = sampled[sampled.length - 1]
+          context.quadraticCurveTo(penultimate.x, penultimate.y, last.x, last.y)
           context.stroke()
         })
       }
@@ -264,7 +297,7 @@ export default function RightPlaceholderPanel() {
 
         <section className="ic3-emotion-section" aria-label="Emotion trends graph">
           <div className="ic3-emotion-header">
-            <h3>Emotion Trends (Last 10–20s)</h3>
+            <h3>Emotion Trends</h3>
             {hasDetection ? null : <p>No emotion detected</p>}
           </div>
           <div className="ic3-emotion-graph-shell">
