@@ -24,20 +24,28 @@ export default function RightPlaceholderPanel() {
       }
       setCameraOn(false)
       setCameraError('')
+      console.log('[InterviewCenter] Camera stopped')
       return
     }
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+      console.log('[InterviewCenter] Stream acquired:', stream)
       streamRef.current = stream
       if (videoRef.current) {
+        console.log('[InterviewCenter] Binding stream to video element')
         videoRef.current.srcObject = stream
+        await videoRef.current.play()
+        console.log('[InterviewCenter] Video playback started')
+      } else {
+        console.log('[InterviewCenter] Video ref is null')
       }
       setCameraOn(true)
       setCameraError('')
     } catch (error) {
       setCameraOn(false)
-      setCameraError('Camera permission denied or unavailable.')
+      setCameraError('Camera not available.')
+      console.log('[InterviewCenter] Camera failed:', error)
     }
   }
 
@@ -54,11 +62,8 @@ export default function RightPlaceholderPanel() {
             <button type="button" className="ic3-camera-button" onClick={toggleCamera}>{cameraOn ? 'Stop Camera' : 'Start Camera'}</button>
           </div>
           <div className="ic3-video-shell">
-            {cameraOn ? (
-              <video ref={videoRef} className="ic3-video" autoPlay playsInline muted />
-            ) : (
-              <p>{cameraError || 'Camera feed is off.'}</p>
-            )}
+            <video ref={videoRef} className={`ic3-video ${cameraOn ? 'is-visible' : ''}`} autoPlay playsInline muted />
+            {!cameraOn ? <p>{cameraError || 'Camera feed is off.'}</p> : null}
           </div>
         </section>
 
