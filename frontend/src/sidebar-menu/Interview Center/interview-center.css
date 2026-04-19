@@ -614,9 +614,9 @@
 .ic3-emotion-panel {
   padding: 0.55rem;
   box-sizing: border-box;
-  width: min(100%, 320px);
-  max-width: min(100%, 320px);
-  justify-self: center;
+  width: 100%;
+  max-width: 100%;
+  justify-self: stretch;
 }
 
 .ic3-video-panel {
@@ -662,7 +662,7 @@
 }
 
 .ic3-video-shell {
-  width: min(100%, 320px);
+  width: 100%;
   min-height: 0;
   aspect-ratio: 4 / 3;
   border-radius: 10px;
@@ -672,7 +672,7 @@
   display: grid;
   place-items: center;
   position: relative;
-  justify-self: center;
+  justify-self: stretch;
 }
 
 .ic3-video-shell p {
@@ -796,9 +796,9 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.4rem;
   margin-top: 0;
-  width: min(100%, 320px);
-  max-width: min(100%, 320px);
-  justify-self: center;
+  width: 100%;
+  max-width: 100%;
+  justify-self: stretch;
 }
 
 .ic3-audio-metric-card {
