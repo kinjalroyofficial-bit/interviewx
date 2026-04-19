@@ -225,7 +225,7 @@
 .ic3-kv-row {
   display: flex;
   align-items: center;
-  gap: 0.62rem;
+  gap: 0.42rem;
   min-width: 0;
 }
 
@@ -233,7 +233,7 @@
   font-size: 0.62rem;
   color: var(--ic3-muted);
   min-width: 58px;
-  padding-right: 0.24rem;
+  padding-right: 0.12rem;
 }
 
 .ic3-kv-row-topic {
@@ -274,15 +274,23 @@
 }
 
 .ic3-kv-row-double {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
+  display: flex;
   align-items: center;
+  gap: 0.5rem;
 }
 
 .ic3-kv-row-double .ic3-kv-row {
-  gap: 0.55rem;
+  flex: 1 1 0;
+  min-width: 0;
+  gap: 0.4rem;
   align-items: center;
+}
+
+.ic3-row-divider {
+  width: 1px;
+  height: 22px;
+  background: color-mix(in srgb, var(--ic3-border) 75%, transparent);
+  flex: 0 0 auto;
 }
 
 .ic3-kv-row-input-type {

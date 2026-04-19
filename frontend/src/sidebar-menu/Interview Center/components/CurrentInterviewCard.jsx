@@ -59,6 +59,7 @@ export default function CurrentInterviewCard({ activeInterview }) {
           <span>Difficulty</span>
           <span className="ic3-pill">{activeInterview.difficulty}</span>
         </div>
+        <span className="ic3-row-divider" aria-hidden="true" />
         <div className="ic3-kv-row">
           <span>Mode</span>
           <span className="ic3-pill">{activeInterview.mode}</span>
