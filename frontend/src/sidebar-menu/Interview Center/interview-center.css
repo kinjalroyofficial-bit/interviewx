@@ -612,7 +612,7 @@
 
 .ic3-video-section {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.45rem;
 }
 
 .ic3-model-status {
@@ -638,32 +638,9 @@
   font-size: 0.62rem !important;
 }
 
-.ic3-video-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
-}
-
-.ic3-video-header h3 {
-  margin: 0;
-  font-size: 0.74rem;
-}
-
-.ic3-camera-button {
-  min-height: 28px;
-  padding: 0 0.55rem;
-  border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--ic3-accent) 60%, var(--ic3-border));
-  background: color-mix(in srgb, var(--ic3-accent) 40%, var(--ic3-surface-soft));
-  color: var(--ic3-text);
-  font-size: 0.62rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 .ic3-video-shell {
-  min-height: 128px;
+  min-height: 188px;
+  aspect-ratio: 16 / 10;
   border-radius: 10px;
   border: 1px solid var(--ic3-border);
   overflow: hidden;
@@ -682,6 +659,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transform: none;
   display: block;
   opacity: 0;
   position: absolute;
@@ -696,6 +674,22 @@
 .ic3-video-shell p {
   position: relative;
   z-index: 2;
+}
+
+.ic3-camera-floating-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  min-height: 28px;
+  padding: 0 0.55rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--ic3-accent) 60%, var(--ic3-border));
+  background: color-mix(in srgb, var(--ic3-accent) 40%, #0d1430 60%);
+  color: var(--ic3-text);
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .ic3-emotion-section {

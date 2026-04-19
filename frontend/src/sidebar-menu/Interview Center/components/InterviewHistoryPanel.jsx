@@ -3,7 +3,6 @@ export default function InterviewHistoryPanel({ interviews, activeId, onSelect }
     <aside className="ic3-panel ic3-history-panel" aria-label="Interview history">
       <header className="ic3-panel-header">
         <h2>Interview History</h2>
-        <p>Recent practice sessions</p>
       </header>
 
       <div className="ic3-history-top">

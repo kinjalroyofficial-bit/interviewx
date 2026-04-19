@@ -9,10 +9,11 @@ const EMOTION_COLORS = {
   surprised: '#34d399'
 }
 const GRAPH_WINDOW_MS = 15000
-const DETECTION_INTERVAL_MS = 180
-const MAX_SAMPLES = Math.ceil(GRAPH_WINDOW_MS / DETECTION_INTERVAL_MS) + 2
-const GRAPH_TOP_PADDING_PX = 10
-const GRAPH_BOTTOM_PADDING_PX = 4
+const DETECTION_INTERVAL_MS = 120
+const MAX_SAMPLES = Math.ceil(GRAPH_WINDOW_MS / DETECTION_INTERVAL_MS) + 1
+const GRAPH_TOP_PADDING_PX = 12
+const GRAPH_BOTTOM_PADDING_PX = 8
+const SMOOTHING_RADIUS = 2
 let sharedFaceApi = null
 let sharedModelLoadPromise = null
 
@@ -24,7 +25,6 @@ export default function RightPlaceholderPanel() {
   const graphCanvasRef = useRef(null)
   const graphAnimationRef = useRef(null)
   const emotionHistoryRef = useRef([])
-  const graphWindowEndRef = useRef(Date.now())
 
   const [cameraOn, setCameraOn] = useState(false)
   const [cameraError, setCameraError] = useState('')
@@ -45,11 +45,18 @@ export default function RightPlaceholderPanel() {
   }, [])
 
   const appendEmotionSample = useCallback((sample) => {
-    graphWindowEndRef.current = sample.timestamp
-    const cutoff = graphWindowEndRef.current - GRAPH_WINDOW_MS
-    const nextHistory = [...emotionHistoryRef.current, sample]
-      .filter((point) => point.timestamp >= cutoff)
-      .slice(-MAX_SAMPLES)
+    const point = {
+      happy: sample.happy ?? 0,
+      sad: sample.sad ?? 0,
+      neutral: sample.neutral ?? 0,
+      angry: sample.angry ?? 0,
+      surprised: sample.surprised ?? 0
+    }
+    if (emotionHistoryRef.current.length === 0) {
+      emotionHistoryRef.current = Array.from({ length: MAX_SAMPLES }, () => ({ ...point }))
+      return
+    }
+    const nextHistory = [...emotionHistoryRef.current, point].slice(-MAX_SAMPLES)
     emotionHistoryRef.current = nextHistory
   }, [])
 
@@ -69,10 +76,8 @@ export default function RightPlaceholderPanel() {
         return
       }
 
-      const timestamp = Date.now()
       const expressions = detection.expressions
       const sample = {
-        timestamp,
         happy: expressions.happy ?? 0,
         sad: expressions.sad ?? 0,
         neutral: expressions.neutral ?? 0,
@@ -190,17 +195,26 @@ export default function RightPlaceholderPanel() {
         context.stroke()
       }
 
-      const windowEnd = graphWindowEndRef.current
-      const minTime = windowEnd - GRAPH_WINDOW_MS
-      const points = emotionHistoryRef.current.filter((point) => point.timestamp >= minTime)
+      const points = emotionHistoryRef.current
 
       if (points.length > 1) {
         const drawableHeight = Math.max(1, height - GRAPH_TOP_PADDING_PX - GRAPH_BOTTOM_PADDING_PX)
 
         EMOTION_KEYS.forEach((emotion) => {
-          const sampled = points.map((point) => ({
-            x: ((point.timestamp - minTime) / GRAPH_WINDOW_MS) * width,
-            y: GRAPH_TOP_PADDING_PX + (1 - Math.max(0, Math.min(1, point[emotion] ?? 0))) * drawableHeight
+          const smoothedValues = points.map((_, index) => {
+            let total = 0
+            let count = 0
+            for (let offset = -SMOOTHING_RADIUS; offset <= SMOOTHING_RADIUS; offset += 1) {
+              const neighbor = points[index + offset]
+              if (!neighbor) continue
+              total += neighbor[emotion] ?? 0
+              count += 1
+            }
+            return count > 0 ? total / count : 0
+          })
+          const sampled = smoothedValues.map((value, index) => ({
+            x: (index / (smoothedValues.length - 1)) * width,
+            y: GRAPH_TOP_PADDING_PX + (1 - Math.max(0, Math.min(1, value))) * drawableHeight
           }))
           context.beginPath()
           context.strokeStyle = EMOTION_COLORS[emotion]
@@ -283,14 +297,9 @@ export default function RightPlaceholderPanel() {
     <aside className="ic3-panel ic3-placeholder-panel" aria-label="Future features">
       <header className="ic3-panel-header">
         <h2>Future Features</h2>
-        <p>Reserved for upcoming capabilities</p>
       </header>
       <div className="ic3-placeholder-body">
         <section className="ic3-video-section">
-          <div className="ic3-video-header">
-            <h3>Video Feed</h3>
-            <button type="button" className="ic3-camera-button" onClick={toggleCamera}>{cameraOn ? 'Stop Camera' : 'Start Camera'}</button>
-          </div>
           {modelStatus === 'loading' ? (
             <div className="ic3-model-status" role="status" aria-live="polite">
               <span className="ic3-spinner" aria-hidden="true" />
@@ -299,6 +308,9 @@ export default function RightPlaceholderPanel() {
           ) : null}
           {modelStatus === 'error' ? <p className="ic3-model-error">{modelError}</p> : null}
           <div className="ic3-video-shell">
+            <button type="button" className="ic3-camera-floating-button" onClick={toggleCamera}>
+              {cameraOn ? 'Stop Camera' : 'Start Camera'}
+            </button>
             <video ref={videoRef} className={`ic3-video ${cameraOn ? 'is-visible' : ''}`} autoPlay playsInline muted />
             {!cameraOn ? <p>{cameraError || 'Camera feed is off.'}</p> : null}
           </div>
