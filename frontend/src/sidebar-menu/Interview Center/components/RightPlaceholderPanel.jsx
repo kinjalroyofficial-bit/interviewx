@@ -9,7 +9,8 @@ const EMOTION_COLORS = {
   surprised: '#34d399'
 }
 const GRAPH_WINDOW_MS = 15000
-const MAX_SAMPLES = 90
+const DETECTION_INTERVAL_MS = 180
+const MAX_SAMPLES = Math.ceil(GRAPH_WINDOW_MS / DETECTION_INTERVAL_MS) + 2
 let sharedFaceApi = null
 let sharedModelLoadPromise = null
 
@@ -21,6 +22,7 @@ export default function RightPlaceholderPanel() {
   const graphCanvasRef = useRef(null)
   const graphAnimationRef = useRef(null)
   const emotionHistoryRef = useRef([])
+  const graphWindowEndRef = useRef(Date.now())
 
   const [cameraOn, setCameraOn] = useState(false)
   const [cameraError, setCameraError] = useState('')
@@ -41,8 +43,11 @@ export default function RightPlaceholderPanel() {
   }, [])
 
   const appendEmotionSample = useCallback((sample) => {
-    const cutoff = sample.timestamp - GRAPH_WINDOW_MS
-    const nextHistory = [...emotionHistoryRef.current, sample].filter((point) => point.timestamp >= cutoff).slice(-MAX_SAMPLES)
+    graphWindowEndRef.current = sample.timestamp
+    const cutoff = graphWindowEndRef.current - GRAPH_WINDOW_MS
+    const nextHistory = [...emotionHistoryRef.current, sample]
+      .filter((point) => point.timestamp >= cutoff)
+      .slice(-MAX_SAMPLES)
     emotionHistoryRef.current = nextHistory
   }, [])
 
@@ -84,7 +89,7 @@ export default function RightPlaceholderPanel() {
     stopDetectionLoop()
     detectionTimerRef.current = window.setInterval(() => {
       runDetectionTick()
-    }, 180)
+    }, DETECTION_INTERVAL_MS)
   }, [runDetectionTick, stopDetectionLoop])
 
   const loadModels = useCallback(async () => {
@@ -183,8 +188,8 @@ export default function RightPlaceholderPanel() {
         context.stroke()
       }
 
-      const now = Date.now()
-      const minTime = now - GRAPH_WINDOW_MS
+      const windowEnd = graphWindowEndRef.current
+      const minTime = windowEnd - GRAPH_WINDOW_MS
       const points = emotionHistoryRef.current.filter((point) => point.timestamp >= minTime)
 
       if (points.length > 1) {
