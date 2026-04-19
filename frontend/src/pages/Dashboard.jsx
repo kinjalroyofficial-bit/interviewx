@@ -33,8 +33,7 @@ export default function Dashboard() {
       <section className="dashboard-main">
         <header className="dashboard-topbar">
           <div>
-            <p className="dashboard-eyebrow">My Workspace</p>
-            <h1 className="dashboard-title">Dashboard</h1>
+            <h1 className="dashboard-title">My Workspace</h1>
           </div>
           <div className="dashboard-top-actions">
             <button type="button" className="dashboard-theme-button" onClick={() => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'))}>
