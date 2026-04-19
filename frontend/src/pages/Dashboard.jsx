@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { sidebarMenu } from '../config/sidebarMenu'
+import InterviewCenterPage from '../sidebar-menu/Interview Center/Page'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -27,6 +28,8 @@ export default function Dashboard() {
     localStorage.removeItem('interviewx-user')
     navigate('/')
   }
+
+  const isInterviewCenterActive = activeLeafLabel === 'Interview Center'
 
   return (
     <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''} ${isSidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
@@ -54,8 +57,14 @@ export default function Dashboard() {
         </header>
 
         <section className="dashboard-content-card">
-          <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>
-          <p>{activeLeafLabel ? 'Pick another module from the left menu to switch context.' : 'Select a module from the left menu to begin.'}</p>
+          {isInterviewCenterActive ? (
+            <InterviewCenterPage />
+          ) : (
+            <>
+              <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>
+              <p>{activeLeafLabel ? 'Pick another module from the left menu to switch context.' : 'Select a module from the left menu to begin.'}</p>
+            </>
+          )}
         </section>
       </section>
     </main>
