@@ -4,28 +4,30 @@ export default function CurrentInterviewCard({ activeInterview }) {
   const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false)
 
   return (
-    <section className="ic3-panel ic3-current-interview-panel" aria-label="Current interview info">
-      <div className="ic3-current-card">
-        <h3>Current Interview</h3>
+    <section className="ic3-panel ic3-current-card" aria-label="Current interview info">
+      <h3>Current Interview</h3>
 
-        <div className="ic3-kv-row ic3-kv-row-topic">
-          <span>Topic</span>
-          <span className="ic3-pill">{activeInterview.topics[0]}</span>
+      <div className="ic3-kv-row ic3-kv-row-topic">
+        <span>Topic</span>
+        <div className="ic3-topic-values" aria-label="Topics">
+          {activeInterview.topics.map((topic) => (
+            <span key={topic} className="ic3-pill">{topic}</span>
+          ))}
         </div>
-
-        <div className="ic3-kv-row-double">
-          <div className="ic3-kv-row">
-            <span>Difficulty</span>
-            <span className="ic3-pill">{activeInterview.difficulty}</span>
-          </div>
-          <div className="ic3-kv-row">
-            <span>Mode</span>
-            <span className="ic3-pill">{activeInterview.mode}</span>
-          </div>
-        </div>
-
-        <button type="button" className="ic3-browse-button" onClick={() => setIsBrowseModalOpen(true)}>Browse Topics</button>
       </div>
+
+      <div className="ic3-kv-row-double">
+        <div className="ic3-kv-row">
+          <span>Difficulty</span>
+          <span className="ic3-pill">{activeInterview.difficulty}</span>
+        </div>
+        <div className="ic3-kv-row">
+          <span>Mode</span>
+          <span className="ic3-pill">{activeInterview.mode}</span>
+        </div>
+      </div>
+
+      <button type="button" className="ic3-browse-button" onClick={() => setIsBrowseModalOpen(true)}>Browse Topics</button>
 
       {isBrowseModalOpen ? (
         <div className="ic3-modal-backdrop" role="presentation" onClick={() => setIsBrowseModalOpen(false)}>

@@ -199,22 +199,14 @@
   background: color-mix(in srgb, var(--ic3-accent-soft) 18%, var(--ic3-surface-soft));
 }
 
-.ic3-current-interview-panel {
-  position: relative;
-  padding: 0.55rem;
-  background: color-mix(in srgb, var(--ic3-surface) 90%, var(--ic3-surface-soft));
-}
-
 .ic3-current-card {
+  position: relative;
   width: 100%;
-  min-height: 168px;
-  border: 1px solid var(--ic3-border);
-  border-radius: 12px;
-  background: var(--ic3-surface-soft);
-  padding: 0.52rem;
+  min-height: 154px;
+  padding: 0.58rem;
   display: grid;
   grid-template-rows: auto auto auto 1fr auto;
-  gap: 0.45rem;
+  gap: 0.52rem;
   overflow: hidden;
 }
 
@@ -239,10 +231,23 @@
   padding-bottom: 0.1rem;
 }
 
+.ic3-topic-values {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  overflow-x: auto;
+  max-width: 100%;
+  padding-bottom: 0.1rem;
+}
+
+.ic3-topic-values .ic3-pill {
+  flex: 0 0 auto;
+}
+
 .ic3-kv-row-double {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.45rem;
+  gap: 0.62rem;
 }
 
 .ic3-pill {

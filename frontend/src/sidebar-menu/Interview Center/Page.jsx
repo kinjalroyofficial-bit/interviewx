@@ -14,7 +14,7 @@ const mockInterviews = [
     title: 'System Design Simulation',
     difficulty: 'Advanced',
     mode: 'Mock',
-    topics: ['System Design'],
+    topics: ['System Design', 'Caching', 'Scalability', 'Load Balancing'],
     role: 'Senior Backend Engineer',
     practicedAt: '2026-04-19T09:20:00Z',
     messages: [
