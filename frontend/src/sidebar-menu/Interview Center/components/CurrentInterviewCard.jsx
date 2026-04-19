@@ -1,7 +1,37 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 export default function CurrentInterviewCard({ activeInterview }) {
   const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false)
+  const [inputType, setInputType] = useState('text')
+  const topicScrollerRef = useRef(null)
+  const isDraggingRef = useRef(false)
+  const dragStartXRef = useRef(0)
+  const startScrollLeftRef = useRef(0)
+
+  const handleTopicMouseDown = (event) => {
+    const scroller = topicScrollerRef.current
+    if (!scroller) return
+    isDraggingRef.current = true
+    dragStartXRef.current = event.pageX - scroller.offsetLeft
+    startScrollLeftRef.current = scroller.scrollLeft
+    scroller.classList.add('is-dragging')
+  }
+
+  const handleTopicMouseMove = (event) => {
+    if (!isDraggingRef.current) return
+    const scroller = topicScrollerRef.current
+    if (!scroller) return
+    event.preventDefault()
+    const x = event.pageX - scroller.offsetLeft
+    const walk = x - dragStartXRef.current
+    scroller.scrollLeft = startScrollLeftRef.current - walk
+  }
+
+  const handleTopicMouseUp = () => {
+    const scroller = topicScrollerRef.current
+    isDraggingRef.current = false
+    if (scroller) scroller.classList.remove('is-dragging')
+  }
 
   return (
     <section className="ic3-panel ic3-current-card" aria-label="Current interview info">
@@ -9,7 +39,15 @@ export default function CurrentInterviewCard({ activeInterview }) {
 
       <div className="ic3-kv-row ic3-kv-row-topic">
         <span>Topic</span>
-        <div className="ic3-topic-values" aria-label="Topics">
+        <div
+          ref={topicScrollerRef}
+          className="ic3-topic-values"
+          aria-label="Topics"
+          onMouseDown={handleTopicMouseDown}
+          onMouseMove={handleTopicMouseMove}
+          onMouseUp={handleTopicMouseUp}
+          onMouseLeave={handleTopicMouseUp}
+        >
           {activeInterview.topics.map((topic) => (
             <span key={topic} className="ic3-pill">{topic}</span>
           ))}
@@ -24,6 +62,26 @@ export default function CurrentInterviewCard({ activeInterview }) {
         <div className="ic3-kv-row">
           <span>Mode</span>
           <span className="ic3-pill">{activeInterview.mode}</span>
+        </div>
+      </div>
+
+      <div className="ic3-kv-row ic3-kv-row-input-type">
+        <span>Input Type</span>
+        <div className="ic3-input-toggle" role="group" aria-label="Input type">
+          <button
+            type="button"
+            className={`ic3-input-option ${inputType === 'text' ? 'is-active' : ''}`}
+            onClick={() => setInputType('text')}
+          >
+            Text
+          </button>
+          <button
+            type="button"
+            className={`ic3-input-option ${inputType === 'voice' ? 'is-active' : ''}`}
+            onClick={() => setInputType('voice')}
+          >
+            Voice
+          </button>
         </div>
       </div>
 
