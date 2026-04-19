@@ -46,25 +46,25 @@
   display: grid;
   grid-template-columns: 1fr auto auto;
   align-items: center;
-  gap: 0.8rem;
-  padding: 1rem 1.15rem;
+  gap: 0.55rem;
+  padding: 0.7rem 0.8rem;
   background: color-mix(in srgb, var(--ic-accent) 88%, transparent);
 }
 
 .ic-chat-title {
   margin: 0;
-  font-size: clamp(1.2rem, 1.6vw, 1.8rem);
+  font-size: clamp(0.98rem, 1.2vw, 1.2rem);
 }
 
 .ic-chat-timer {
-  font-size: 0.95rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: #f6f4ff;
 }
 
 .ic-chat-menu {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border: 0;
   border-radius: 10px;
   background: transparent;
@@ -76,14 +76,14 @@
 
 .ic-chat-menu span {
   display: block;
-  width: 18px;
-  height: 2.5px;
+  width: 14px;
+  height: 2px;
   border-radius: 999px;
   background: #f6f4ff;
 }
 
 .ic-chat-body {
-  padding: 1.2rem;
+  padding: 0.8rem;
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 1.2rem;
@@ -92,22 +92,22 @@
 
 .ic-start-button {
   justify-self: center;
-  width: min(520px, 100%);
+  width: min(280px, 100%);
   border: 1px solid color-mix(in srgb, var(--ic-accent) 80%, #ffffff 20%);
   border-radius: 999px;
   background: var(--ic-accent);
   color: #fff;
-  font-size: 1.05rem;
+  font-size: 0.86rem;
   font-weight: 700;
-  padding: 0.68rem 1rem;
+  padding: 0.5rem 0.8rem;
   cursor: pointer;
 }
 
 .ic-message-pane {
   border: 1px dashed color-mix(in srgb, var(--ic-border) 80%, transparent);
   border-radius: 16px;
-  min-height: 320px;
-  padding: 1.15rem;
+  min-height: 240px;
+  padding: 0.8rem;
   position: relative;
   overflow: auto;
   background: color-mix(in srgb, var(--ic-surface-alt) 88%, var(--ic-accent) 12%);
@@ -117,7 +117,8 @@
   margin: 0;
   color: var(--ic-muted);
   max-width: 36ch;
-  line-height: 1.45;
+  line-height: 1.4;
+  font-size: 0.72rem;
 }
 
 .ic-watermark {
@@ -128,7 +129,7 @@
   writing-mode: vertical-rl;
   text-orientation: mixed;
   transform: rotate(180deg);
-  font-size: clamp(2.4rem, 7vw, 5.2rem);
+  font-size: clamp(1.8rem, 5vw, 3.6rem);
   font-weight: 800;
   letter-spacing: 0.06em;
   color: var(--ic-watermark);
@@ -138,13 +139,13 @@
 
 .ic-chat-composer {
   border-top: 1px solid var(--ic-border);
-  padding: 0.95rem 1.1rem 1.15rem;
+  padding: 0.55rem 0.8rem 0.7rem;
   background: var(--ic-surface-alt);
 }
 
 .ic-composer-label {
   display: block;
-  font-size: 0.76rem;
+  font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--ic-muted);
@@ -163,8 +164,9 @@
   border-radius: 12px;
   background: var(--ic-input-bg);
   color: var(--ic-text);
-  min-height: 44px;
-  padding: 0.65rem 0.8rem;
+  min-height: 34px;
+  padding: 0.45rem 0.62rem;
+  font-size: 0.8rem;
   outline: none;
 }
 
@@ -176,10 +178,12 @@
   border: 1px solid color-mix(in srgb, var(--ic-accent-strong) 82%, white 18%);
   background: var(--ic-accent-strong);
   color: #fff;
-  border-radius: 12px;
-  min-width: 92px;
-  padding: 0 1rem;
+  border-radius: 10px;
+  min-width: 64px;
+  min-height: 34px;
+  padding: 0 0.7rem;
   font-weight: 700;
+  font-size: 0.76rem;
   cursor: pointer;
 }
 
@@ -190,15 +194,15 @@
   }
 
   .ic-chat-body {
-    padding: 0.9rem;
+    padding: 0.75rem;
   }
 
   .ic-message-pane {
-    min-height: 280px;
+    min-height: 220px;
   }
 
   .ic-watermark {
-    font-size: clamp(2rem, 22vw, 4.8rem);
+    font-size: clamp(1.5rem, 15vw, 3rem);
   }
 
   .ic-composer-input-row {
