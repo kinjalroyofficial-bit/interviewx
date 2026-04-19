@@ -126,31 +126,40 @@
 
 .ic-watermark {
   position: absolute;
-  right: 1.1rem;
-  bottom: 0.6rem;
+  top: 0.55rem;
+  right: 0.6rem;
+  bottom: 0.55rem;
   margin: 0;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  display: inline-flex;
-  align-items: flex-end;
-  gap: 0.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.12rem;
   color: var(--ic-watermark);
   pointer-events: none;
   user-select: none;
 }
 
 .ic-watermark-powered {
-  font-size: clamp(0.34rem, 0.7vw, 0.52rem);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: clamp(0.38rem, 0.75vw, 0.56rem);
   letter-spacing: 0.02em;
   font-family: 'Arial Narrow', 'Inter', sans-serif;
 }
 
 .ic-watermark-brand {
-  font-size: clamp(2.2rem, 5.8vw, 4.1rem);
-  line-height: 0.9;
-  letter-spacing: 0.1em;
-  font-weight: 800;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: clamp(4.1rem, 10.4vh, 6.8rem);
+  line-height: 0.84;
+  letter-spacing: 0.06em;
+  font-weight: 700;
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 
@@ -219,7 +228,7 @@
   }
 
   .ic-watermark-brand {
-    font-size: clamp(1.8rem, 11vw, 3rem);
+    font-size: clamp(3rem, 11.5vw, 4.4rem);
   }
 
   .ic-composer-input-row {
