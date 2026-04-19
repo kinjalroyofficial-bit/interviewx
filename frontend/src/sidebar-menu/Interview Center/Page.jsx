@@ -50,7 +50,7 @@ const mockInterviews = [
   }
 ]
 
-export default function InterviewCenterPage() {
+export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [isLightTheme, setIsLightTheme] = useState(false)
   const interviews = useMemo(
     () => [...mockInterviews]
@@ -86,7 +86,7 @@ export default function InterviewCenterPage() {
   }
 
   return (
-    <main className="ic3-layout">
+    <main className={`ic3-layout ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
       <header className="ic3-workspace-header">
         <h1>Interview Center</h1>
         <div className="ic3-header-actions">
@@ -111,6 +111,10 @@ export default function InterviewCenterPage() {
       </section>
 
       <RightPlaceholderPanel />
+
+      <aside className={`ic3-panel ic3-response-rail ${sidebarCollapsed ? 'is-visible' : ''}`} aria-label="Response analytics">
+        <p>Response Analytics</p>
+      </aside>
     </main>
   )
 }

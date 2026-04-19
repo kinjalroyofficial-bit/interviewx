@@ -33,21 +33,17 @@ export default function Dashboard() {
 
   return (
     <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''} ${isSidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
-      <div className="dashboard-left-rail">
-        {!isSidebarCollapsed ? (
-          <Sidebar
-            menu={sidebarMenu}
-            greetingText={greetingText}
-            displayName={displayName}
-            onLeafSelect={setActiveLeafLabel}
-            collapsed={isSidebarCollapsed}
-            onCollapsedChange={setIsSidebarCollapsed}
-          />
-        ) : null}
-      </div>
+      <Sidebar
+        menu={sidebarMenu}
+        greetingText={greetingText}
+        displayName={displayName}
+        onLeafSelect={setActiveLeafLabel}
+        collapsed={isSidebarCollapsed}
+        onCollapsedChange={setIsSidebarCollapsed}
+      />
 
       <section className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''}`}>
-        {isInterviewCenterActive ? <InterviewCenterPage /> : null}
+        {isInterviewCenterActive ? <InterviewCenterPage sidebarCollapsed={isSidebarCollapsed} /> : null}
 
         <div className="dashboard-workspace-column">
           <header className="dashboard-topbar">
@@ -78,13 +74,6 @@ export default function Dashboard() {
           </section>
         </div>
       </section>
-
-      <aside className={`dashboard-right-rail ${isSidebarCollapsed ? 'is-visible' : ''}`} aria-label="Response analytics panel">
-        <button type="button" className="dashboard-right-rail-toggle" onClick={() => setIsSidebarCollapsed(false)}>
-          Expand Sidebar
-        </button>
-        <p>Response Analytics</p>
-      </aside>
     </main>
   )
 }
