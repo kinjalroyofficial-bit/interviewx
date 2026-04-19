@@ -1,8 +1,12 @@
-export default function MessagePane() {
+export default function MessagePane({ messages }) {
   return (
-    <section className="ic-message-pane" aria-label="Chat messages">
-      <button type="button" className="ic-start-button">Start Conversation</button>
-      <p className="ic-empty-text">Start a conversation to begin your mock interview session.</p>
+    <section className="ic3-message-pane" aria-label="Conversation">
+      {messages.map((message) => (
+        <article key={message.id} className={`ic3-message ${message.author === 'assistant' ? 'from-assistant' : 'from-user'}`}>
+          <p>{message.text}</p>
+          <time>{message.time}</time>
+        </article>
+      ))}
     </section>
   )
 }

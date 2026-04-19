@@ -1,13 +1,8 @@
-export default function ChatHeader() {
+export default function ChatHeader({ interview }) {
   return (
-    <header className="ic-chat-header">
-      <h2 className="ic-chat-title">Interview Kraft</h2>
-      <span className="ic-chat-timer" aria-label="Session timer">00:00</span>
-      <button type="button" className="ic-chat-menu" aria-label="Open chat options">
-        <span />
-        <span />
-        <span />
-      </button>
+    <header className="ic3-chat-header">
+      <h2>{interview.title}</h2>
+      <p>{interview.role}</p>
     </header>
   )
 }
