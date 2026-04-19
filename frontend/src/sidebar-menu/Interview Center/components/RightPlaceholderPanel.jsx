@@ -294,8 +294,8 @@ export default function RightPlaceholderPanel() {
   }
 
   return (
-    <aside className="ic3-panel ic3-placeholder-panel" aria-label="Interview insights">
-      <div className="ic3-placeholder-body">
+    <section className="ic3-right-stack" aria-label="Interview insights">
+      <section className="ic3-panel ic3-video-panel">
         <section className="ic3-video-section">
           {modelStatus === 'loading' ? (
             <div className="ic3-model-status" role="status" aria-live="polite">
@@ -312,28 +312,28 @@ export default function RightPlaceholderPanel() {
             {!cameraOn ? <p>{cameraError || 'Camera feed is off.'}</p> : null}
           </div>
         </section>
+      </section>
 
-        <section className="ic3-emotion-section" aria-label="Emotion trends graph">
-          <div className="ic3-emotion-header">
-            <h3>Emotion Trends</h3>
-            {hasDetection ? null : <p>No emotion detected</p>}
-          </div>
-          <div className="ic3-emotion-graph-shell">
-            {modelStatus !== 'ready' ? (
-              <p className="ic3-emotion-overlay">Graph will appear after local models are ready.</p>
-            ) : null}
-            <canvas ref={graphCanvasRef} className="ic3-emotion-graph" />
-          </div>
-          <ul className="ic3-emotion-legend">
-            {legendItems.map((item) => (
-              <li key={item.key}>
-                <span style={{ backgroundColor: item.color }} />
-                <span>{item.label}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-    </aside>
+      <section className="ic3-panel ic3-emotion-panel" aria-label="Emotion trends graph">
+        <div className="ic3-emotion-header">
+          <h3>Emotion Trends</h3>
+          {hasDetection ? null : <p>No emotion detected</p>}
+        </div>
+        <div className="ic3-emotion-graph-shell">
+          {modelStatus !== 'ready' ? (
+            <p className="ic3-emotion-overlay">Graph will appear after local models are ready.</p>
+          ) : null}
+          <canvas ref={graphCanvasRef} className="ic3-emotion-graph" />
+        </div>
+        <ul className="ic3-emotion-legend">
+          {legendItems.map((item) => (
+            <li key={item.key}>
+              <span style={{ backgroundColor: item.color }} />
+              <span>{item.label}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    </section>
   )
 }
