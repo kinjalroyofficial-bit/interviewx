@@ -1,8 +1,7 @@
 export default function CommunicationSpeechBettermentPunctuationPage() {
   return (
     <main>
-      <h1>Punctuation</h1>
-      <p>Punctuation page placeholder.</p>
+      <h1>Welcome to the Punctuation module</h1>
     </main>
   )
 }

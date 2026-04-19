@@ -1,8 +1,7 @@
 export default function CommunicationSpeechBettermentSentencePage() {
   return (
     <main>
-      <h1>Sentence</h1>
-      <p>Sentence page placeholder.</p>
+      <h1>Welcome to the Sentence module</h1>
     </main>
   )
 }

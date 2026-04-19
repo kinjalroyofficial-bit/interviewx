@@ -1,8 +1,7 @@
 export default function NetworkingCompanyProcessPage() {
   return (
     <main>
-      <h1>Company Process</h1>
-      <p>Company Process page placeholder.</p>
+      <h1>Welcome to the Company Process module</h1>
     </main>
   )
 }

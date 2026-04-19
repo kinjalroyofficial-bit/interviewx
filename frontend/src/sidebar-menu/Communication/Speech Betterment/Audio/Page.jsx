@@ -1,8 +1,7 @@
 export default function CommunicationSpeechBettermentAudioPage() {
   return (
     <main>
-      <h1>Audio</h1>
-      <p>Audio page placeholder.</p>
+      <h1>Welcome to the Audio module</h1>
     </main>
   )
 }

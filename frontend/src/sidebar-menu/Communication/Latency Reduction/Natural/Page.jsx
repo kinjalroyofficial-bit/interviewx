@@ -1,8 +1,7 @@
 export default function CommunicationLatencyReductionNaturalPage() {
   return (
     <main>
-      <h1>Natural</h1>
-      <p>Natural page placeholder.</p>
+      <h1>Welcome to the Natural module</h1>
     </main>
   )
 }

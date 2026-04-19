@@ -1,8 +1,7 @@
 export default function AwarenessTechnologyMapPage() {
   return (
     <main>
-      <h1>Technology Map</h1>
-      <p>Technology Map page placeholder.</p>
+      <h1>Welcome to the Technology Map module</h1>
     </main>
   )
 }

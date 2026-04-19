@@ -1,8 +1,7 @@
 export default function AwarenessJobAnalyticsPage() {
   return (
     <main>
-      <h1>Job Analytics</h1>
-      <p>Job Analytics page placeholder.</p>
+      <h1>Welcome to the Job Analytics module</h1>
     </main>
   )
 }

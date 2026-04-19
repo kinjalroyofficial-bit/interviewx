@@ -1,8 +1,7 @@
 export default function NetworkingTechNetworkPage() {
   return (
     <main>
-      <h1>Tech Network</h1>
-      <p>Tech Network page placeholder.</p>
+      <h1>Welcome to the Tech Network module</h1>
     </main>
   )
 }

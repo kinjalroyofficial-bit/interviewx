@@ -1,8 +1,7 @@
 export default function StudyCenterCodeRepoPage() {
   return (
     <main>
-      <h1>Code Repo</h1>
-      <p>Code Repo page placeholder.</p>
+      <h1>Welcome to the Code Repo module</h1>
     </main>
   )
 }

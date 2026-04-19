@@ -1,8 +1,7 @@
 export default function CommunicationThoughtOrganizationTopicPage() {
   return (
     <main>
-      <h1>Topic</h1>
-      <p>Topic page placeholder.</p>
+      <h1>Welcome to the Topic module</h1>
     </main>
   )
 }

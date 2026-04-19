@@ -1,8 +1,7 @@
 export default function CommunicationVocabularySynonymsPage() {
   return (
     <main>
-      <h1>Synonyms</h1>
-      <p>Synonyms page placeholder.</p>
+      <h1>Welcome to the Synonyms module</h1>
     </main>
   )
 }

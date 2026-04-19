@@ -58,7 +58,7 @@ function MenuNode({ item, depth, collapsed, openPaths, selectedPath, onItemClick
       <button
         type="button"
         className={`sidebar-item depth-${depth} ${isOpen ? 'is-open' : ''} ${selectedPath === path ? 'is-selected' : ''}`}
-        onClick={() => onItemClick(path, hasChildren)}
+        onClick={() => onItemClick(path, hasChildren, item)}
         title={collapsed ? item.label : undefined}
       >
         <Icon kind={item.icon} />
@@ -85,7 +85,7 @@ function MenuNode({ item, depth, collapsed, openPaths, selectedPath, onItemClick
   )
 }
 
-export default function Sidebar({ menu, greetingText, displayName }) {
+export default function Sidebar({ menu, greetingText, displayName, onLeafSelect }) {
   const [collapsed, setCollapsed] = useState(false)
   const [openPaths, setOpenPaths] = useState(() => new Set(['awareness']))
   const [selectedPath, setSelectedPath] = useState('awareness')
@@ -107,7 +107,7 @@ export default function Sidebar({ menu, greetingText, displayName }) {
     })
   }
 
-  function handleItemClick(path, hasChildren) {
+  function handleItemClick(path, hasChildren, item) {
     setSelectedPath(path)
 
     if (collapsed) {
@@ -120,6 +120,10 @@ export default function Sidebar({ menu, greetingText, displayName }) {
 
     if (hasChildren) {
       handleToggle(path)
+    }
+
+    if (!hasChildren && typeof onLeafSelect === 'function') {
+      onLeafSelect(item.label)
     }
   }
 

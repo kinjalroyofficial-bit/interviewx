@@ -8,6 +8,7 @@ import { sidebarMenu } from '../config/sidebarMenu'
 export default function Dashboard() {
   const navigate = useNavigate()
   const [theme, setTheme] = useState('dark')
+  const [activeLeafLabel, setActiveLeafLabel] = useState('')
   const currentUser = localStorage.getItem('interviewx-user')
   const displayName = currentUser ? currentUser.split('@')[0] : ''
   const greetingText = useMemo(() => {
@@ -28,7 +29,7 @@ export default function Dashboard() {
 
   return (
     <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''}`}>
-      <Sidebar menu={sidebarMenu} greetingText={greetingText} displayName={displayName} />
+      <Sidebar menu={sidebarMenu} greetingText={greetingText} displayName={displayName} onLeafSelect={setActiveLeafLabel} />
 
       <section className="dashboard-main">
         <header className="dashboard-topbar">
@@ -45,8 +46,8 @@ export default function Dashboard() {
         </header>
 
         <section className="dashboard-content-card">
-          <h2>Interview Center Overview</h2>
-          <p>Select a module from the left menu to begin.</p>
+          <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>
+          <p>{activeLeafLabel ? 'Pick another module from the left menu to switch context.' : 'Select a module from the left menu to begin.'}</p>
         </section>
       </section>
     </main>

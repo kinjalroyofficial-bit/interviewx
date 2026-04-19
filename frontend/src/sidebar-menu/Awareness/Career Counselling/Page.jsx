@@ -1,8 +1,7 @@
 export default function AwarenessCareerCounsellingPage() {
   return (
     <main>
-      <h1>Career Counselling</h1>
-      <p>Career Counselling page placeholder.</p>
+      <h1>Welcome to the Career Counselling module</h1>
     </main>
   )
 }

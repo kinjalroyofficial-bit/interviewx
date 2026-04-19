@@ -1,8 +1,7 @@
 export default function CommunicationLatencyReductionDrivePage() {
   return (
     <main>
-      <h1>Drive</h1>
-      <p>Drive page placeholder.</p>
+      <h1>Welcome to the Drive module</h1>
     </main>
   )
 }

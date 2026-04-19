@@ -1,8 +1,7 @@
 export default function CommunicationThoughtOrganizationSituationPage() {
   return (
     <main>
-      <h1>Situation</h1>
-      <p>Situation page placeholder.</p>
+      <h1>Welcome to the Situation module</h1>
     </main>
   )
 }
