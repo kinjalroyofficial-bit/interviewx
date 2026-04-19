@@ -295,7 +295,7 @@ export default function RightPlaceholderPanel() {
 
   return (
     <section className="ic3-right-stack" aria-label="Interview insights">
-      <section className="ic3-panel ic3-video-panel">
+      <section className="ic3-video-panel">
         <section className="ic3-video-section">
           {modelStatus === 'loading' ? (
             <div className="ic3-model-status" role="status" aria-live="polite">
