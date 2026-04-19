@@ -661,8 +661,9 @@
 }
 
 .ic3-video-shell {
-  min-height: 220px;
-  aspect-ratio: 16 / 10;
+  width: min(100%, 320px);
+  min-height: 0;
+  aspect-ratio: 4 / 3;
   border-radius: 10px;
   border: 1px solid var(--ic3-border);
   overflow: hidden;
@@ -670,6 +671,7 @@
   display: grid;
   place-items: center;
   position: relative;
+  justify-self: center;
 }
 
 .ic3-video-shell p {
@@ -786,6 +788,33 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
+}
+
+.ic3-audio-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+  margin-top: 0.15rem;
+}
+
+.ic3-audio-metric-card {
+  border: 1px solid var(--ic3-border);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--ic3-accent-soft) 12%, var(--ic3-surface-soft));
+  padding: 0.36rem 0.42rem;
+}
+
+.ic3-audio-metric-card h4 {
+  margin: 0;
+  font-size: 0.58rem;
+  color: var(--ic3-muted);
+  font-weight: 700;
+}
+
+.ic3-audio-metric-card p {
+  margin: 0.2rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .ic3-response-rail {
