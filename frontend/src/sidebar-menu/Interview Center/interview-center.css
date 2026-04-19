@@ -112,7 +112,8 @@
   min-height: 0;
   padding: 0.8rem 0.65rem;
   position: relative;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: var(--ic-surface-alt);
 }
 
@@ -124,44 +125,6 @@
   font-size: 0.72rem;
 }
 
-.ic-watermark {
-  position: absolute;
-  top: 0.55rem;
-  right: 0.6rem;
-  bottom: 0.55rem;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.12rem;
-  color: var(--ic-watermark);
-  pointer-events: none;
-  user-select: none;
-}
-
-.ic-watermark-powered {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  font-size: clamp(0.38rem, 0.75vw, 0.56rem);
-  letter-spacing: 0.02em;
-  font-family: 'Arial Narrow', 'Inter', sans-serif;
-}
-
-.ic-watermark-brand {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  font-size: clamp(4.1rem, 10.4vh, 6.8rem);
-  line-height: 0.84;
-  letter-spacing: 0.06em;
-  font-weight: 700;
-  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
-}
 
 .ic-chat-composer {
   border-top: 1px solid var(--ic-border);
@@ -225,10 +188,6 @@
 
   .ic-message-pane {
     padding: 0.75rem 0.6rem;
-  }
-
-  .ic-watermark-brand {
-    font-size: clamp(3rem, 11.5vw, 4.4rem);
   }
 
   .ic-composer-input-row {
