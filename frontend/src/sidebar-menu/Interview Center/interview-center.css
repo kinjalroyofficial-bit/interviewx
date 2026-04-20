@@ -749,7 +749,7 @@
   border: 1px solid var(--ic3-border);
   border-radius: 10px;
   background: color-mix(in srgb, var(--ic3-surface-soft) 84%, #000 16%);
-  min-height: 190px;
+  min-height: 170px;
   height: 100%;
   overflow: hidden;
   padding-top: 4px;
@@ -808,6 +808,7 @@
 }
 
 .ic3-audio-metric-card {
+  min-height: 62px;
   border: 1px solid var(--ic3-border);
   border-radius: 9px;
   background: color-mix(in srgb, var(--ic3-accent-soft) 12%, var(--ic3-surface-soft));
