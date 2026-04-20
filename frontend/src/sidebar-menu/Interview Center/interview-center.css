@@ -346,13 +346,13 @@
 }
 
 .ic3-modal.ic3-mode-modal {
-  width: min(1040px, calc(100vw - 80px));
+  width: min(900px, calc(100vw - 120px));
 }
 
 .ic3-mode-head {
   margin-top: 0.55rem;
   display: grid;
-  grid-template-columns: 230px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 180px minmax(0, 1fr) minmax(0, 1fr);
   gap: 0.55rem;
   padding: 0 0.6rem;
   font-size: 0.66rem;
@@ -368,9 +368,9 @@
 
 .ic3-mode-item {
   display: grid;
-  grid-template-columns: 22px 200px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: 24px 148px minmax(0, 1fr) minmax(0, 1fr);
   gap: 0.55rem;
-  align-items: start;
+  align-items: center;
   border: 1px solid var(--ic3-border);
   border-radius: 10px;
   background: var(--ic3-surface-soft);
@@ -379,13 +379,16 @@
 }
 
 .ic3-mode-item input {
-  margin-top: 0.2rem;
+  margin: 0;
+  justify-self: center;
   accent-color: var(--ic3-accent-soft);
 }
 
 .ic3-mode-item strong {
   font-size: 0.7rem;
   line-height: 1.25;
+  justify-self: center;
+  text-align: center;
 }
 
 .ic3-mode-item p {
