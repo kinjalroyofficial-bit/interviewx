@@ -11,6 +11,8 @@ print("GOOGLE_CLIENT_ID:", os.getenv("GOOGLE_CLIENT_ID"))
 import os
 import secrets
 import logging
+import json
+import random
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -34,6 +36,7 @@ from app.schemas import (
 
 app = FastAPI(title="InterviewX API", version="0.1.0")
 logger = logging.getLogger("interviewx.auth")
+QUESTION_REPOSITORY_PATH = Path(__file__).resolve().parent / "knowledge_repository" / "tech_questions.json"
 
 app.add_middleware(
     CORSMiddleware,
@@ -82,6 +85,12 @@ def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
         if payload.selected_topics
         else "- No topics selected"
     )
+    selected_seed_questions = select_seed_questions(payload.selected_topics)
+    seed_questions_section = (
+        "\n".join(f"- {question}" for question in selected_seed_questions)
+        if selected_seed_questions
+        else "- No seed questions found for the selected topic/difficulty pairs."
+    )
 
     return f"""You are InterviewX AI Interviewer.
 
@@ -97,15 +106,76 @@ Current Interview Setup (from active current panel only):
 - Topic/Difficulty Selections:
 {selected_topics}
 
+Curated Question Seeds (from knowledge repository):
+{seed_questions_section}
+
 Instructions:
 1) Tailor interview questions to the candidate's profile and selected topics only.
-2) Keep the flow progressive: start with warm-up, then technical depth, then applied problem-solving.
-3) Match difficulty to each topic's selected level.
-4) Ask one question at a time.
-5) Ask concise follow-up questions when answers are vague or shallow.
-6) Maintain professional but encouraging tone.
-7) At the end, prepare the conversation for downstream performance analysis.
+2) Use the curated seed questions as base references and enrich/rephrase them according to candidate profile context.
+3) Keep the flow progressive: start with warm-up, then technical depth, then applied problem-solving.
+4) Match difficulty to each topic's selected level.
+5) Ask one question at a time.
+6) Ask concise follow-up questions when answers are vague or shallow.
+7) Maintain professional but encouraging tone.
+8) At the end, prepare the conversation for downstream performance analysis.
 """
+
+
+def load_question_repository() -> dict:
+    if not QUESTION_REPOSITORY_PATH.exists():
+        logger.warning("Question repository file not found at %s", QUESTION_REPOSITORY_PATH)
+        return {}
+
+    try:
+        with QUESTION_REPOSITORY_PATH.open("r", encoding="utf-8") as repository_file:
+            data = json.load(repository_file)
+            return data if isinstance(data, dict) else {}
+    except (json.JSONDecodeError, OSError) as error:
+        logger.exception("Unable to read question repository: %s", error)
+        return {}
+
+
+def find_case_insensitive_key(mapping: dict, target: str) -> str | None:
+    if target in mapping:
+        return target
+    target_lower = target.lower()
+    for key in mapping.keys():
+        if key.lower() == target_lower:
+            return key
+    return None
+
+
+def select_seed_questions(selected_topics: list) -> list[str]:
+    repository = load_question_repository()
+    if not repository:
+        return []
+
+    selected_questions: list[str] = []
+    for topic_entry in selected_topics:
+        topic_key = find_case_insensitive_key(repository, topic_entry.topic.strip())
+        if not topic_key:
+            continue
+
+        difficulty_map = repository.get(topic_key, {})
+        if not isinstance(difficulty_map, dict):
+            continue
+
+        difficulty_key = find_case_insensitive_key(difficulty_map, topic_entry.difficulty.strip())
+        if not difficulty_key:
+            continue
+
+        questions = difficulty_map.get(difficulty_key, [])
+        if not isinstance(questions, list):
+            continue
+
+        clean_questions = [question for question in questions if isinstance(question, str) and question.strip()]
+        if not clean_questions:
+            continue
+
+        picked_questions = random.sample(clean_questions, k=min(2, len(clean_questions)))
+        selected_questions.extend(picked_questions)
+
+    return selected_questions
 
 
 @app.post("/auth/signup", response_model=AuthResponse)
