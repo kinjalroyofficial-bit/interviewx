@@ -45,3 +45,10 @@ class PromptPreviewRequest(BaseModel):
 class PromptPreviewResponse(BaseModel):
     prompt: str
     prompt_file_path: str
+
+class InterviewTurnRequest(BaseModel):
+    interview_id: str
+    answer: str
+
+class InterviewTurnResponse(BaseModel):
+    next_question: str

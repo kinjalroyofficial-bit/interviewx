@@ -5,12 +5,22 @@ env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
 
 import os
-print("ENV PATH:", env_path)
-print("GOOGLE_CLIENT_ID:", os.getenv("GOOGLE_CLIENT_ID"))
+
+
+
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+logging.info(f"OPENAI_MODEL = {os.getenv('OPENAI_MODEL')}")
+logging.info(f"GOOGLE_CLIENT_ID = {os.getenv('GOOGLE_CLIENT_ID')}")
+
+
+from openai import OpenAI
 
 import os
 import secrets
-import logging
+
 import json
 import random
 from datetime import datetime, timezone
@@ -32,8 +42,11 @@ from app.schemas import (
     PromptPreviewResponse,
     UserProfileResponse,
     UserProfileUpdateRequest,
+    InterviewTurnRequest,
+    InterviewTurnResponse
 )
 
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 app = FastAPI(title="InterviewX API", version="0.1.0")
 logger = logging.getLogger("interviewx.auth")
 QUESTION_REPOSITORY_PATH = Path(__file__).resolve().parent / "knowledge_repository" / "tech_questions.json"
@@ -449,3 +462,35 @@ def preview_interview_prompt(payload: PromptPreviewRequest, db: Session = Depend
     prompt_file.write_text(f"[Generated at {timestamp}]\n\n{prompt}\n", encoding="utf-8")
 
     return PromptPreviewResponse(prompt=prompt, prompt_file_path=str(prompt_file))
+
+@app.post("/interview/next-question", response_model=InterviewTurnResponse)
+def get_next_question(payload: InterviewTurnRequest):
+    try:
+        prompt = f"""
+        You are InterviewX AI interviewer.
+
+        The candidate just answered:
+        "{payload.answer}"
+
+        Ask the next interview question.
+
+        Rules:
+        - Ask ONLY one question
+        - Make it relevant to the answer
+        - Keep it concise
+        - Prefer follow-up if possible
+        """
+
+        response = client.responses.create(
+            model=os.getenv("OPENAI_MODEL"),
+            input=prompt,
+            max_output_tokens=int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800))
+        )
+
+        return InterviewTurnResponse(
+            next_question=response.output_text
+        )
+
+    except Exception as e:
+        logger.error(f"INTERVIEW ERROR = {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate question")
