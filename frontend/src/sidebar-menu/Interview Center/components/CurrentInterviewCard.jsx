@@ -1,8 +1,13 @@
 import { useRef, useState } from 'react'
 
+const BROWSE_TOPICS = ['SQL', 'Python', 'Java']
+const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
+
 export default function CurrentInterviewCard({ activeInterview }) {
   const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false)
   const [inputType, setInputType] = useState('text')
+  const [selectedTopics, setSelectedTopics] = useState(BROWSE_TOPICS)
+  const [selectedDifficulty, setSelectedDifficulty] = useState('Intermediate')
   const topicScrollerRef = useRef(null)
   const isDraggingRef = useRef(false)
   const dragStartXRef = useRef(0)
@@ -31,6 +36,14 @@ export default function CurrentInterviewCard({ activeInterview }) {
     const scroller = topicScrollerRef.current
     isDraggingRef.current = false
     if (scroller) scroller.classList.remove('is-dragging')
+  }
+
+  const handleTopicToggle = (topic) => {
+    setSelectedTopics((currentTopics) => (
+      currentTopics.includes(topic)
+        ? currentTopics.filter((currentTopic) => currentTopic !== topic)
+        : [...currentTopics, topic]
+    ))
   }
 
   return (
@@ -92,7 +105,32 @@ export default function CurrentInterviewCard({ activeInterview }) {
         <div className="ic3-modal-backdrop" role="presentation" onClick={() => setIsBrowseModalOpen(false)}>
           <section className="ic3-modal" role="dialog" aria-modal="true" aria-label="Browse topics" onClick={(event) => event.stopPropagation()}>
             <h4>Browse Topics</h4>
-            <p>Placeholder modal body.</p>
+            <div className="ic3-modal-fieldset" role="group" aria-label="Interview topics">
+              {BROWSE_TOPICS.map((topic) => (
+                <label key={topic} className="ic3-modal-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={selectedTopics.includes(topic)}
+                    onChange={() => handleTopicToggle(topic)}
+                  />
+                  <span>{topic}</span>
+                </label>
+              ))}
+            </div>
+
+            <label className="ic3-modal-label" htmlFor="ic3-browse-difficulty">Difficulty</label>
+            <select
+              id="ic3-browse-difficulty"
+              className="ic3-modal-select"
+              value={selectedDifficulty}
+              onChange={(event) => setSelectedDifficulty(event.target.value)}
+            >
+              {DIFFICULTY_OPTIONS.map((difficultyOption) => (
+                <option key={difficultyOption} value={difficultyOption}>
+                  {difficultyOption}
+                </option>
+              ))}
+            </select>
             <button type="button" className="ic3-modal-close" onClick={() => setIsBrowseModalOpen(false)}>Close</button>
           </section>
         </div>

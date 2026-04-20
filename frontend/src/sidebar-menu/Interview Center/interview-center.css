@@ -407,6 +407,46 @@
   color: var(--ic3-muted);
 }
 
+.ic3-modal-fieldset {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.42rem;
+}
+
+.ic3-modal-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.68rem;
+  color: var(--ic3-text);
+}
+
+.ic3-modal-checkbox input {
+  inline-size: 14px;
+  block-size: 14px;
+  accent-color: var(--ic3-accent-soft);
+}
+
+.ic3-modal-label {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--ic3-muted);
+}
+
+.ic3-modal-select {
+  margin-top: 0.28rem;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--ic3-border);
+  background: var(--ic3-surface-soft);
+  color: var(--ic3-text);
+  font-size: 0.68rem;
+}
+
 .ic3-modal-close {
   margin-top: 0.6rem;
   min-height: 30px;
