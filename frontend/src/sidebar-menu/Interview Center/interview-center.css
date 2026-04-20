@@ -493,6 +493,29 @@
   overflow: hidden;
 }
 
+.ic3-chat-empty-state {
+  display: grid;
+  place-items: center;
+  background: var(--ic3-surface-soft);
+  min-height: 0;
+}
+
+.ic3-start-interview-button {
+  min-height: 34px;
+  padding: 0 0.9rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--ic3-accent) 65%, white 35%);
+  background: color-mix(in srgb, var(--ic3-accent) 65%, var(--ic3-surface-soft));
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dashboard-theme-light .ic3-start-interview-button {
+  color: #1f2f55;
+}
+
 .ic3-chat-header {
   position: relative;
   padding: 0.75rem 0.75rem 0.65rem;
