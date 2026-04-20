@@ -522,10 +522,12 @@
 }
 
 .ic3-chat-empty-state {
+  position: relative;
   display: grid;
   place-items: center;
   background: var(--ic3-surface-soft);
   min-height: 0;
+  padding: 0.8rem;
 }
 
 .ic3-start-interview-button {
@@ -538,6 +540,7 @@
   font-size: 0.72rem;
   font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 8px 22px #00000038;
 }
 
 .dashboard-theme-light .ic3-start-interview-button {

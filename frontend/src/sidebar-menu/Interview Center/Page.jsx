@@ -71,6 +71,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [activeInterviewId, setActiveInterviewId] = useState('')
   const fallbackInterview = interviews[0]
   const activeInterview = interviews.find((item) => item.id === activeInterviewId) || null
+  const defaultChatInterview = { title: 'My Interview' }
 
   useEffect(() => {
     const shell = document.querySelector('.dashboard-shell')
@@ -107,9 +108,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       </section>
 
       <section className="ic3-panel ic3-chat-panel">
+        <ChatHeader interview={activeInterview || defaultChatInterview} />
         {activeInterview ? (
           <>
-            <ChatHeader interview={activeInterview} />
             <MessagePane messages={activeInterview.messages} />
             <ChatComposer />
           </>
@@ -120,7 +121,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
               className="ic3-start-interview-button"
               onClick={() => setActiveInterviewId(fallbackInterview?.id || '')}
             >
-              Start Interview
+              Start My Interview
             </button>
           </div>
         )}
