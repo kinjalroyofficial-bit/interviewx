@@ -32,25 +32,24 @@ const MODE_OPTIONS = [
 ]
 
 export default function CurrentInterviewCard({ activeInterview, username, onSetupChange }) {
+  const storageKey = `interviewx-setup-${username || 'guest'}`
   const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false)
   const [isModeModalOpen, setIsModeModalOpen] = useState(false)
   const [inputType, setInputType] = useState('text')
   const [selectedMode, setSelectedMode] = useState(MODE_OPTIONS[0].value)
   const [pendingMode, setPendingMode] = useState(MODE_OPTIONS[0].value)
-  const defaultDifficulty = activeInterview.difficulty || 'Intermediate'
+  const activeTopics = Array.isArray(activeInterview?.topics) ? activeInterview.topics : []
+  const defaultDifficulty = activeInterview?.difficulty || 'Intermediate'
   const [topicSelections, setTopicSelections] = useState(() => (
     Object.fromEntries(
       BROWSE_TOPICS.map((topic) => [topic, {
-        selected: activeInterview.topics.includes(topic),
+        selected: activeTopics.includes(topic),
         difficulty: defaultDifficulty
       }])
     )
   ))
   const [appliedTopics, setAppliedTopics] = useState(() => (
-    activeInterview.topics.map((topic) => ({
-      topic,
-      difficulty: defaultDifficulty
-    }))
+    []
   ))
   const topicScrollerRef = useRef(null)
   const [isPromptPreviewOpen, setIsPromptPreviewOpen] = useState(false)
@@ -170,6 +169,38 @@ export default function CurrentInterviewCard({ activeInterview, username, onSetu
   }
 
   useEffect(() => {
+    try {
+      const savedValue = localStorage.getItem(storageKey)
+      if (!savedValue) return
+      const parsed = JSON.parse(savedValue)
+      if (typeof parsed?.selectedMode === 'string') {
+        setSelectedMode(parsed.selectedMode)
+        setPendingMode(parsed.selectedMode)
+      }
+      if (Array.isArray(parsed?.selectedTopics)) {
+        const nextTopics = parsed.selectedTopics
+          .filter((entry) => entry && typeof entry.topic === 'string' && typeof entry.difficulty === 'string')
+          .map((entry) => ({ topic: entry.topic, difficulty: entry.difficulty }))
+        setAppliedTopics(nextTopics)
+        setTopicSelections((currentSelections) => ({
+          ...currentSelections,
+          ...Object.fromEntries(
+            BROWSE_TOPICS.map((topic) => {
+              const matched = nextTopics.find((entry) => entry.topic === topic)
+              return [topic, {
+                selected: Boolean(matched),
+                difficulty: matched?.difficulty || currentSelections[topic]?.difficulty || defaultDifficulty
+              }]
+            })
+          )
+        }))
+      }
+    } catch {
+      // Ignore malformed local storage values and continue with defaults.
+    }
+  }, [storageKey, defaultDifficulty])
+
+  useEffect(() => {
     if (!onSetupChange) return
     onSetupChange({
       selectedMode,
@@ -178,7 +209,14 @@ export default function CurrentInterviewCard({ activeInterview, username, onSetu
         difficulty: topicConfig.difficulty
       }))
     })
-  }, [selectedMode, appliedTopics, onSetupChange])
+    localStorage.setItem(
+      storageKey,
+      JSON.stringify({
+        selectedMode,
+        selectedTopics: appliedTopics
+      })
+    )
+  }, [selectedMode, appliedTopics, onSetupChange, storageKey])
 
   return (
     <section className="ic3-panel ic3-current-card" aria-label="Current interview info">
@@ -195,11 +233,15 @@ export default function CurrentInterviewCard({ activeInterview, username, onSetu
           onMouseUp={handleTopicMouseUp}
           onMouseLeave={handleTopicMouseUp}
         >
-          {appliedTopics.map((topicConfig) => (
-            <span key={topicConfig.topic} className="ic3-pill">
-              {topicConfig.topic} · {topicConfig.difficulty}
-            </span>
-          ))}
+          {appliedTopics.length > 0 ? (
+            appliedTopics.map((topicConfig) => (
+              <span key={topicConfig.topic} className="ic3-pill">
+                {topicConfig.topic} · {topicConfig.difficulty}
+              </span>
+            ))
+          ) : (
+            <span className="ic3-pill">Click “Browse Topics” to choose your interview topics.</span>
+          )}
         </div>
       </div>
 
