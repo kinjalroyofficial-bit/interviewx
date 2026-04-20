@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { startInterview } from '../../api'
 import ChatComposer from './components/ChatComposer'
 import ChatHeader from './components/ChatHeader'
 import CurrentInterviewCard from './components/CurrentInterviewCard'
@@ -69,6 +70,13 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   )
 
   const [activeInterviewId, setActiveInterviewId] = useState('')
+  const [liveInterview, setLiveInterview] = useState(null)
+  const [isStartingInterview, setIsStartingInterview] = useState(false)
+  const [startInterviewError, setStartInterviewError] = useState('')
+  const [currentSetup, setCurrentSetup] = useState({
+    selectedMode: 'Free-Flowing - Conversational',
+    selectedTopics: []
+  })
   const fallbackInterview = interviews[0]
   const activeInterview = interviews.find((item) => item.id === activeInterviewId) || null
   const defaultChatInterview = { title: 'My Interview' }
@@ -88,6 +96,40 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setIsLightTheme(nextIsLight)
   }
 
+  async function handleStartInterview() {
+    if (!currentUsername) {
+      setStartInterviewError('Please log in again before starting the interview.')
+      return
+    }
+
+    setIsStartingInterview(true)
+    setStartInterviewError('')
+    try {
+      const data = await startInterview({
+        username: currentUsername,
+        selected_mode: currentSetup.selectedMode,
+        selected_topics: currentSetup.selectedTopics
+      })
+      const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      setLiveInterview({
+        id: data.interview_id,
+        title: 'Live Interview',
+        messages: [
+          {
+            id: `${data.interview_id}-q1`,
+            author: 'assistant',
+            text: data.first_question,
+            time: nowTime
+          }
+        ]
+      })
+    } catch (error) {
+      setStartInterviewError(error.message || 'Unable to start interview.')
+    } finally {
+      setIsStartingInterview(false)
+    }
+  }
+
   return (
     <main className={`ic3-layout ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
       <header className="ic3-workspace-header">
@@ -104,12 +146,21 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           activeId={activeInterview?.id || ''}
           onSelect={setActiveInterviewId}
         />
-        <CurrentInterviewCard activeInterview={activeInterview || fallbackInterview} username={currentUsername} />
+        <CurrentInterviewCard
+          activeInterview={activeInterview || fallbackInterview}
+          username={currentUsername}
+          onSetupChange={setCurrentSetup}
+        />
       </section>
 
       <section className="ic3-panel ic3-chat-panel">
-        <ChatHeader interview={activeInterview || defaultChatInterview} />
-        {activeInterview ? (
+        <ChatHeader interview={liveInterview || activeInterview || defaultChatInterview} />
+        {liveInterview ? (
+          <>
+            <MessagePane messages={liveInterview.messages} />
+            <ChatComposer />
+          </>
+        ) : activeInterview ? (
           <>
             <MessagePane messages={activeInterview.messages} />
             <ChatComposer />
@@ -119,10 +170,12 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
             <button
               type="button"
               className="ic3-start-interview-button"
-              onClick={() => setActiveInterviewId(fallbackInterview?.id || '')}
+              onClick={handleStartInterview}
+              disabled={isStartingInterview}
             >
-              Start My Interview
+              {isStartingInterview ? 'Starting Interview...' : 'Start My Interview'}
             </button>
+            {startInterviewError ? <p>{startInterviewError}</p> : null}
           </div>
         )}
       </section>

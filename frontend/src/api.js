@@ -83,3 +83,20 @@ export async function previewInterviewPrompt(payload) {
 
   return response.json()
 }
+
+export async function startInterview(payload) {
+  const response = await fetch(`${API_BASE_URL}/interview/start`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to start interview (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}

@@ -46,6 +46,18 @@ class PromptPreviewResponse(BaseModel):
     prompt: str
     prompt_file_path: str
 
+
+class StartInterviewRequest(BaseModel):
+    username: str
+    selected_mode: str | None = None
+    selected_topics: list[TopicDifficultyInput] = Field(default_factory=list)
+
+
+class StartInterviewResponse(BaseModel):
+    interview_id: str
+    first_question: str
+
+
 class InterviewTurnRequest(BaseModel):
     interview_id: str
     answer: str

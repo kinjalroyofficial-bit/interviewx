@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { previewInterviewPrompt } from '../../../api'
 
 const BROWSE_TOPICS = ['SQL', 'Python', 'Java']
@@ -31,7 +31,7 @@ const MODE_OPTIONS = [
   }
 ]
 
-export default function CurrentInterviewCard({ activeInterview, username }) {
+export default function CurrentInterviewCard({ activeInterview, username, onSetupChange }) {
   const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false)
   const [isModeModalOpen, setIsModeModalOpen] = useState(false)
   const [inputType, setInputType] = useState('text')
@@ -152,6 +152,17 @@ export default function CurrentInterviewCard({ activeInterview, username }) {
       setPromptPreviewStatus(error.message || 'Unable to generate prompt preview.')
     }
   }
+
+  useEffect(() => {
+    if (!onSetupChange) return
+    onSetupChange({
+      selectedMode,
+      selectedTopics: appliedTopics.map((topicConfig) => ({
+        topic: topicConfig.topic,
+        difficulty: topicConfig.difficulty
+      }))
+    })
+  }, [selectedMode, appliedTopics, onSetupChange])
 
   return (
     <section className="ic3-panel ic3-current-card" aria-label="Current interview info">

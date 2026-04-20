@@ -38,6 +38,8 @@ from app.schemas import (
     AuthRequest,
     AuthResponse,
     GoogleAuthRequest,
+    StartInterviewRequest,
+    StartInterviewResponse,
     PromptPreviewRequest,
     PromptPreviewResponse,
     UserProfileResponse,
@@ -462,6 +464,70 @@ def preview_interview_prompt(payload: PromptPreviewRequest, db: Session = Depend
     prompt_file.write_text(f"[Generated at {timestamp}]\n\n{prompt}\n", encoding="utf-8")
 
     return PromptPreviewResponse(prompt=prompt, prompt_file_path=str(prompt_file))
+
+
+@app.post("/interview/start", response_model=StartInterviewResponse)
+def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db)) -> StartInterviewResponse:
+    try:
+        clean_username = payload.username.strip()
+        user = db.query(User).filter(User.username == clean_username).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        interview_id = f"intv_{secrets.token_hex(8)}"
+        interview_prompt = build_interview_prompt(
+            user,
+            PromptPreviewRequest(
+                username=clean_username,
+                selected_mode=payload.selected_mode,
+                selected_topics=payload.selected_topics,
+            ),
+        )
+        starter_prompt = f"""{interview_prompt}
+
+Interview start instruction:
+- Ask the first interview question now.
+- Ask ONLY one question.
+- Keep it concise and mode-aligned.
+"""
+        response = client.responses.create(
+            model=os.getenv("OPENAI_MODEL"),
+            input=starter_prompt,
+            max_output_tokens=int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
+        )
+        first_question = response.output_text.strip()
+        if not first_question:
+            raise HTTPException(status_code=500, detail="Empty response from model")
+
+        session = InterviewSession(
+            id=interview_id,
+            user_id=user.id,
+            selected_mode=payload.selected_mode,
+            selected_topics=json.dumps(
+                [
+                    {"topic": topic.topic, "difficulty": topic.difficulty}
+                    for topic in payload.selected_topics
+                ]
+            ),
+        )
+        db.add(session)
+        db.add(
+            InterviewTurn(
+                session_id=interview_id,
+                role="assistant",
+                content=first_question,
+            )
+        )
+        db.commit()
+
+        return StartInterviewResponse(interview_id=interview_id, first_question=first_question)
+    except Exception as e:
+        db.rollback()
+        logger.error(f"INTERVIEW START ERROR = {str(e)}")
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail="Failed to start interview")
+
 
 @app.post("/interview/next-question", response_model=InterviewTurnResponse)
 def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_db)):
