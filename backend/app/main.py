@@ -94,6 +94,28 @@ def set_last_openai_payload(payload: dict) -> None:
     LAST_OPENAI_PAYLOAD = payload
 
 
+def extract_response_text(response) -> str:
+    text = getattr(response, "output_text", None)
+    if isinstance(text, str) and text.strip():
+        return text.strip()
+
+    output_items = getattr(response, "output", None)
+    if not isinstance(output_items, list):
+        return ""
+
+    extracted_chunks: list[str] = []
+    for item in output_items:
+        content_items = getattr(item, "content", None)
+        if not isinstance(content_items, list):
+            continue
+        for content in content_items:
+            content_text = getattr(content, "text", None)
+            if isinstance(content_text, str) and content_text.strip():
+                extracted_chunks.append(content_text.strip())
+
+    return "\n".join(extracted_chunks).strip()
+
+
 def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
     profile_name = user.full_name or user.username
     years = user.years_of_experience or "Not specified"
@@ -511,7 +533,7 @@ Interview start instruction:
                 "captured_at": datetime.now(timezone.utc).isoformat(),
             }
         )
-        first_question = response.output_text.strip()
+        first_question = extract_response_text(response)
         if not first_question:
             raise HTTPException(status_code=500, detail="Empty response from model")
 
@@ -608,7 +630,7 @@ Task:
             }
         )
 
-        next_question = response.output_text.strip()
+        next_question = extract_response_text(response)
         if not next_question:
             raise HTTPException(status_code=500, detail="Empty response from model")
 

@@ -75,6 +75,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [isSendingAnswer, setIsSendingAnswer] = useState(false)
   const [composerValue, setComposerValue] = useState('')
   const [startInterviewError, setStartInterviewError] = useState('')
+  const [sendAnswerError, setSendAnswerError] = useState('')
   const [currentSetup, setCurrentSetup] = useState({
     selectedMode: 'Free-Flowing - Conversational',
     selectedTopics: []
@@ -138,6 +139,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     if (!answer) return
 
     setIsSendingAnswer(true)
+    setSendAnswerError('')
     const userMessageId = `${liveInterview.id}-u-${Date.now()}`
     const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     setLiveInterview((currentInterview) => {
@@ -179,7 +181,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         }
       })
     } catch (error) {
-      setStartInterviewError(error.message || 'Unable to send answer.')
+      setSendAnswerError(error.message || 'Unable to send answer.')
     } finally {
       setIsSendingAnswer(false)
     }
@@ -220,6 +222,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
               disabled={isSendingAnswer}
               placeholder={isSendingAnswer ? 'Sending...' : 'Type your answer...'}
             />
+            {sendAnswerError ? <p>{sendAnswerError}</p> : null}
           </>
         ) : activeInterview ? (
           <>
