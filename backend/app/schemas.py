@@ -36,9 +36,6 @@ class TopicDifficultyInput(BaseModel):
 
 class PromptPreviewRequest(BaseModel):
     username: str
-    interview_title: str | None = None
-    interview_mode: str | None = None
-    interview_role: str | None = None
     selected_topics: list[TopicDifficultyInput] = Field(default_factory=list)
 
 

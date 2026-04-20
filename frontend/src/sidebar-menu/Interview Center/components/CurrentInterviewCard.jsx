@@ -99,9 +99,6 @@ export default function CurrentInterviewCard({ activeInterview, username }) {
     try {
       const data = await previewInterviewPrompt({
         username,
-        interview_title: activeInterview.title,
-        interview_mode: activeInterview.mode,
-        interview_role: activeInterview.role,
         selected_topics: appliedTopics.map((topicConfig) => ({
           topic: topicConfig.topic,
           difficulty: topicConfig.difficulty

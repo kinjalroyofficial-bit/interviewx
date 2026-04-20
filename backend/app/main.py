@@ -74,9 +74,6 @@ def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
     profile_name = user.full_name or user.username
     years = user.years_of_experience or "Not specified"
     technologies = user.technologies_worked_on or "Not specified"
-    interview_title = payload.interview_title or "General interview"
-    interview_mode = payload.interview_mode or "Practice"
-    interview_role = payload.interview_role or "Not specified"
     selected_topics = (
         "\n".join(
             f"- Topic: {topic_entry.topic} | Difficulty: {topic_entry.difficulty}"
@@ -96,15 +93,12 @@ Candidate Profile:
 - Years of Experience: {years}
 - Technologies Worked On: {technologies}
 
-Interview Configuration:
-- Interview Title: {interview_title}
-- Mode: {interview_mode}
-- Target Role: {interview_role}
+Current Interview Setup (from active current panel only):
 - Topic/Difficulty Selections:
 {selected_topics}
 
 Instructions:
-1) Tailor interview questions to the candidate's profile and selected topics.
+1) Tailor interview questions to the candidate's profile and selected topics only.
 2) Keep the flow progressive: start with warm-up, then technical depth, then applied problem-solving.
 3) Match difficulty to each topic's selected level.
 4) Ask one question at a time.
