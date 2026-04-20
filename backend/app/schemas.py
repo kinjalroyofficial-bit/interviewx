@@ -20,6 +20,7 @@ class UserProfileUpdateRequest(BaseModel):
     name: str | None = None
     years_of_experience: str | None = None
     technologies_worked_on: str | None = None
+    project_details: str | None = None
 
 
 class UserProfileResponse(BaseModel):
@@ -27,6 +28,7 @@ class UserProfileResponse(BaseModel):
     name: str | None = None
     years_of_experience: str | None = None
     technologies_worked_on: str | None = None
+    project_details: str | None = None
 
 
 class TopicDifficultyInput(BaseModel):
@@ -36,6 +38,7 @@ class TopicDifficultyInput(BaseModel):
 
 class PromptPreviewRequest(BaseModel):
     username: str
+    selected_mode: str | None = None
     selected_topics: list[TopicDifficultyInput] = Field(default_factory=list)
 
 

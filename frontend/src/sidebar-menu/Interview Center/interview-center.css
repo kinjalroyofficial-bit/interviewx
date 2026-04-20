@@ -330,6 +330,38 @@
   font-weight: 700;
 }
 
+.ic3-kv-row-mode {
+  align-items: center;
+}
+
+.ic3-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ic3-accent-soft) 58%, var(--ic3-border));
+  background: color-mix(in srgb, var(--ic3-accent-soft) 10%, var(--ic3-surface-soft));
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.ic3-mode-option {
+  min-height: 24px;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ic3-muted);
+  font-size: 0.61rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ic3-mode-option.is-active {
+  background: color-mix(in srgb, var(--ic3-accent-soft) 38%, var(--ic3-surface));
+  color: var(--ic3-text);
+}
+
 .ic3-input-toggle {
   display: inline-flex;
   align-items: center;

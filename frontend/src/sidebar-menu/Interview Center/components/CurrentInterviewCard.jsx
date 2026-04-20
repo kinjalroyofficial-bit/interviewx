@@ -3,10 +3,12 @@ import { previewInterviewPrompt } from '../../../api'
 
 const BROWSE_TOPICS = ['SQL', 'Python', 'Java']
 const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
+const MODE_OPTIONS = ['Practice', 'Mock', 'Guided', 'Assessment']
 
 export default function CurrentInterviewCard({ activeInterview, username }) {
   const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false)
   const [inputType, setInputType] = useState('text')
+  const [selectedMode, setSelectedMode] = useState(activeInterview.mode || MODE_OPTIONS[0])
   const defaultDifficulty = activeInterview.difficulty || 'Intermediate'
   const [topicSelections, setTopicSelections] = useState(() => (
     Object.fromEntries(
@@ -99,6 +101,7 @@ export default function CurrentInterviewCard({ activeInterview, username }) {
     try {
       const data = await previewInterviewPrompt({
         username,
+        selected_mode: selectedMode,
         selected_topics: appliedTopics.map((topicConfig) => ({
           topic: topicConfig.topic,
           difficulty: topicConfig.difficulty
@@ -135,9 +138,20 @@ export default function CurrentInterviewCard({ activeInterview, username }) {
         </div>
       </div>
 
-      <div className="ic3-kv-row">
+      <div className="ic3-kv-row ic3-kv-row-mode">
         <span>Mode</span>
-        <span className="ic3-pill">{activeInterview.mode}</span>
+        <div className="ic3-mode-toggle" role="group" aria-label="Interview mode">
+          {MODE_OPTIONS.map((modeOption) => (
+            <button
+              key={modeOption}
+              type="button"
+              className={`ic3-mode-option ${selectedMode === modeOption ? 'is-active' : ''}`}
+              onClick={() => setSelectedMode(modeOption)}
+            >
+              {modeOption}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="ic3-kv-row ic3-kv-row-input-type">

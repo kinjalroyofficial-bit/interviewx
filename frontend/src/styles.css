@@ -311,7 +311,8 @@ body,
   color: #cedbff;
 }
 
-.sidebar-modal-field input {
+.sidebar-modal-field input,
+.sidebar-modal-field textarea {
   min-height: 34px;
   border-radius: 9px;
   border: 1px solid #ffffff30;
@@ -319,6 +320,12 @@ body,
   color: #f5f8ff;
   padding: 0 0.58rem;
   font-size: 0.76rem;
+}
+
+.sidebar-modal-field textarea {
+  min-height: 92px;
+  resize: vertical;
+  padding-block: 0.5rem;
 }
 
 .sidebar-modal-actions {
@@ -454,7 +461,8 @@ body,
   color: #344b7a;
 }
 
-.dashboard-theme-light .sidebar-modal-field input {
+.dashboard-theme-light .sidebar-modal-field input,
+.dashboard-theme-light .sidebar-modal-field textarea {
   border-color: #c3d1eb;
   background: #ffffff;
   color: #1d2740;

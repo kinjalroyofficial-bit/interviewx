@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -23,6 +23,7 @@ class User(Base):
     full_name = Column(String, nullable=True)
     years_of_experience = Column(String, nullable=True)
     technologies_worked_on = Column(String, nullable=True)
+    project_details = Column(Text, nullable=True)
 
 
 class UserProfileUpdateLog(Base):
@@ -33,4 +34,5 @@ class UserProfileUpdateLog(Base):
     full_name = Column(String, nullable=True)
     years_of_experience = Column(String, nullable=True)
     technologies_worked_on = Column(String, nullable=True)
+    project_details = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

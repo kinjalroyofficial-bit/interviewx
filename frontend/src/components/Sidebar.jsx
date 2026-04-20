@@ -95,7 +95,8 @@ export default function Sidebar({ menu, greetingText, displayName, username, onL
   const [profileForm, setProfileForm] = useState({
     name: displayName || '',
     yearsOfExperience: '',
-    technologiesWorkedOn: ''
+    technologiesWorkedOn: '',
+    projectDetails: ''
   })
   const [profileStatus, setProfileStatus] = useState('')
 
@@ -160,7 +161,8 @@ export default function Sidebar({ menu, greetingText, displayName, username, onL
       setProfileForm({
         name: profile.name || '',
         yearsOfExperience: profile.years_of_experience || '',
-        technologiesWorkedOn: profile.technologies_worked_on || ''
+        technologiesWorkedOn: profile.technologies_worked_on || '',
+        projectDetails: profile.project_details || ''
       })
     } catch (error) {
       setProfileStatus(error.message || 'Unable to load profile.')
@@ -179,7 +181,8 @@ export default function Sidebar({ menu, greetingText, displayName, username, onL
         username,
         name: profileForm.name,
         years_of_experience: profileForm.yearsOfExperience,
-        technologies_worked_on: profileForm.technologiesWorkedOn
+        technologies_worked_on: profileForm.technologiesWorkedOn,
+        project_details: profileForm.projectDetails
       })
       setProfileStatus('Profile updated successfully.')
       setTimeout(() => {
@@ -266,6 +269,16 @@ export default function Sidebar({ menu, greetingText, displayName, username, onL
                 name="technologiesWorkedOn"
                 value={profileForm.technologiesWorkedOn}
                 onChange={handleProfileFieldChange}
+              />
+            </label>
+
+            <label className="sidebar-modal-field">
+              <span>Project Details</span>
+              <textarea
+                name="projectDetails"
+                value={profileForm.projectDetails}
+                onChange={handleProfileFieldChange}
+                rows={4}
               />
             </label>
 

@@ -77,6 +77,8 @@ def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
     profile_name = user.full_name or user.username
     years = user.years_of_experience or "Not specified"
     technologies = user.technologies_worked_on or "Not specified"
+    project_details = user.project_details or "Not specified"
+    selected_mode = payload.selected_mode or "Not specified"
     selected_topics = (
         "\n".join(
             f"- Topic: {topic_entry.topic} | Difficulty: {topic_entry.difficulty}"
@@ -101,8 +103,10 @@ Candidate Profile:
 - Name: {profile_name}
 - Years of Experience: {years}
 - Technologies Worked On: {technologies}
+- Project Details: {project_details}
 
 Current Interview Setup (from active current panel only):
+- Selected Mode: {selected_mode}
 - Topic/Difficulty Selections:
 {selected_topics}
 
@@ -306,6 +310,7 @@ def get_user_profile(username: str, db: Session = Depends(get_db)) -> UserProfil
         name=user.full_name,
         years_of_experience=user.years_of_experience,
         technologies_worked_on=user.technologies_worked_on,
+        project_details=user.project_details,
     )
 
 
@@ -319,12 +324,14 @@ def update_user_profile(payload: UserProfileUpdateRequest, db: Session = Depends
     user.full_name = normalize_profile_value(payload.name)
     user.years_of_experience = normalize_profile_value(payload.years_of_experience)
     user.technologies_worked_on = normalize_profile_value(payload.technologies_worked_on)
+    user.project_details = normalize_profile_value(payload.project_details)
 
     profile_update_log = UserProfileUpdateLog(
         user_id=user.id,
         full_name=user.full_name,
         years_of_experience=user.years_of_experience,
         technologies_worked_on=user.technologies_worked_on,
+        project_details=user.project_details,
     )
     db.add(profile_update_log)
     db.commit()
@@ -335,6 +342,7 @@ def update_user_profile(payload: UserProfileUpdateRequest, db: Session = Depends
         name=user.full_name,
         years_of_experience=user.years_of_experience,
         technologies_worked_on=user.technologies_worked_on,
+        project_details=user.project_details,
     )
 
 
