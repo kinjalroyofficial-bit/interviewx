@@ -90,6 +90,12 @@ export default function Sidebar({ menu, greetingText, displayName, onLeafSelect,
   const collapsed = typeof controlledCollapsed === 'boolean' ? controlledCollapsed : internalCollapsed
   const [openPaths, setOpenPaths] = useState(() => new Set(['awareness']))
   const [selectedPath, setSelectedPath] = useState('awareness')
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
+  const [profileForm, setProfileForm] = useState({
+    name: displayName || '',
+    yearsOfExperience: '',
+    technologiesWorkedOn: ''
+  })
 
   function setCollapsed(nextValue) {
     const resolvedValue = typeof nextValue === 'function' ? nextValue(collapsed) : nextValue
@@ -137,6 +143,11 @@ export default function Sidebar({ menu, greetingText, displayName, onLeafSelect,
     }
   }
 
+  function handleProfileFieldChange(event) {
+    const { name, value } = event.target
+    setProfileForm((currentForm) => ({ ...currentForm, [name]: value }))
+  }
+
   return (
     <aside className={`dashboard-sidebar ${collapsed ? 'is-collapsed' : ''}`}>
       <div className="sidebar-header">
@@ -164,8 +175,63 @@ export default function Sidebar({ menu, greetingText, displayName, onLeafSelect,
 
       <footer className="sidebar-profile" title={collapsed ? greetingText : undefined}>
         <div className="sidebar-avatar" aria-hidden="true">{displayName ? displayName[0].toUpperCase() : 'U'}</div>
-        {!collapsed ? <p className="sidebar-greeting">{greetingText}</p> : null}
+        {!collapsed ? (
+          <div className="sidebar-profile-content">
+            <p className="sidebar-greeting">{greetingText}</p>
+            <button type="button" className="sidebar-profile-update-button" onClick={() => setIsProfileModalOpen(true)}>
+              Update My Profile
+            </button>
+          </div>
+        ) : null}
       </footer>
+
+      {isProfileModalOpen ? (
+        <div className="sidebar-modal-backdrop" role="presentation" onClick={() => setIsProfileModalOpen(false)}>
+          <section
+            className="sidebar-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Update my profile"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h3>Update My Profile</h3>
+
+            <label className="sidebar-modal-field">
+              <span>Name</span>
+              <input
+                type="text"
+                name="name"
+                value={profileForm.name}
+                onChange={handleProfileFieldChange}
+              />
+            </label>
+
+            <label className="sidebar-modal-field">
+              <span>Year of Experience</span>
+              <input
+                type="text"
+                name="yearsOfExperience"
+                value={profileForm.yearsOfExperience}
+                onChange={handleProfileFieldChange}
+              />
+            </label>
+
+            <label className="sidebar-modal-field">
+              <span>Technologies Worked On</span>
+              <input
+                type="text"
+                name="technologiesWorkedOn"
+                value={profileForm.technologiesWorkedOn}
+                onChange={handleProfileFieldChange}
+              />
+            </label>
+
+            <div className="sidebar-modal-actions">
+              <button type="button" className="sidebar-modal-button" onClick={() => setIsProfileModalOpen(false)}>Close</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </aside>
   )
 }
