@@ -346,7 +346,7 @@
 }
 
 .ic3-modal.ic3-mode-modal {
-  width: min(1480px, calc(100vw - 120px));
+  width: min(1040px, calc(100vw - 80px));
 }
 
 .ic3-mode-head {
