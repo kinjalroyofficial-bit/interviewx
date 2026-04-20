@@ -128,3 +128,20 @@ export async function getLastOpenAIPayload() {
 
   return response.json()
 }
+
+export async function endInterview(payload) {
+  const response = await fetch(`${API_BASE_URL}/interview/end`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to end interview (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}

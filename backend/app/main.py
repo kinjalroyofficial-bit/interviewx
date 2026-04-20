@@ -37,6 +37,8 @@ from app.models import InterviewSession, InterviewTurn, User, UserProfileUpdateL
 from app.schemas import (
     AuthRequest,
     AuthResponse,
+    EndInterviewRequest,
+    EndInterviewResponse,
     GoogleAuthRequest,
     StartInterviewRequest,
     StartInterviewResponse,
@@ -53,6 +55,7 @@ app = FastAPI(title="InterviewX API", version="0.1.0")
 logger = logging.getLogger("interviewx.auth")
 QUESTION_REPOSITORY_PATH = Path(__file__).resolve().parent / "knowledge_repository" / "tech_questions.json"
 LAST_OPENAI_PAYLOAD: dict = {}
+INTERVIEW_END_KEYWORD = "[INTERVIEW_ENDED]"
 
 app.add_middleware(
     CORSMiddleware,
@@ -114,6 +117,30 @@ def extract_response_text(response) -> str:
                 extracted_chunks.append(content_text.strip())
 
     return "\n".join(extracted_chunks).strip()
+
+
+def finalize_interview(db: Session, session: InterviewSession) -> str:
+    turns = (
+        db.query(InterviewTurn)
+        .filter(InterviewTurn.session_id == session.id)
+        .order_by(InterviewTurn.timestamp.asc(), InterviewTurn.id.asc())
+        .all()
+    )
+    transcript_lines = [
+        f"[{turn.timestamp.isoformat() if turn.timestamp else ''}] {turn.role.upper()}: {turn.content}"
+        for turn in turns
+    ]
+    transcript_text = "\n".join(transcript_lines)
+
+    transcript_dir = Path(__file__).resolve().parent.parent / "tmp" / "interview_transcripts"
+    transcript_dir.mkdir(parents=True, exist_ok=True)
+    transcript_file = transcript_dir / f"{session.id}.txt"
+    transcript_file.write_text(transcript_text, encoding="utf-8")
+
+    session.status = "ended"
+    session.ended_at = datetime.now(timezone.utc)
+    session.updated_at = datetime.now(timezone.utc)
+    return str(transcript_file)
 
 
 def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
@@ -517,6 +544,7 @@ Interview start instruction:
 - Ask the first interview question now.
 - Ask ONLY one question.
 - Keep it concise and mode-aligned.
+- If and only if all interview goals are fully completed, return this exact keyword: {INTERVIEW_END_KEYWORD}
 """
         response = client.responses.create(
             model=os.getenv("OPENAI_MODEL"),
@@ -548,6 +576,7 @@ Interview start instruction:
                     for topic in payload.selected_topics
                 ]
             ),
+            status="active",
         )
         db.add(session)
         db.add(
@@ -585,6 +614,8 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
             session = InterviewSession(id=interview_id)
             db.add(session)
             db.flush()
+        elif session.status == "ended":
+            raise HTTPException(status_code=400, detail="Interview already ended.")
 
         db.add(
             InterviewTurn(
@@ -615,6 +646,7 @@ Instruction:
 - Ask ONLY one complete question sentence.
 - Keep it concise.
 - Prefer a relevant follow-up when possible.
+- If and only if all interview goals are fully completed, return this exact keyword: {INTERVIEW_END_KEYWORD}
 """
 
         request_payload = {
@@ -639,6 +671,12 @@ Instruction:
         if not next_question:
             raise HTTPException(status_code=500, detail="Empty response from model")
 
+        interview_ended = INTERVIEW_END_KEYWORD in next_question
+        if interview_ended:
+            next_question = next_question.replace(INTERVIEW_END_KEYWORD, "").strip()
+            if not next_question:
+                next_question = "Interview ended."
+
         db.add(
             InterviewTurn(
                 session_id=interview_id,
@@ -648,10 +686,15 @@ Instruction:
             )
         )
         session.updated_at = datetime.now(timezone.utc)
+        transcript_file_path = None
+        if interview_ended:
+            transcript_file_path = finalize_interview(db, session)
         db.commit()
 
         return InterviewTurnResponse(
-            next_question=next_question
+            next_question=next_question,
+            interview_ended=interview_ended,
+            transcript_file_path=transcript_file_path,
         )
 
     except Exception as e:
@@ -667,3 +710,23 @@ def get_last_openai_payload() -> dict:
     if not LAST_OPENAI_PAYLOAD:
         return {"message": "No OpenAI request captured yet."}
     return LAST_OPENAI_PAYLOAD
+
+
+@app.post("/interview/end", response_model=EndInterviewResponse)
+def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -> EndInterviewResponse:
+    interview_id = payload.interview_id.strip()
+    if not interview_id:
+        raise HTTPException(status_code=400, detail="interview_id is required")
+
+    session = db.query(InterviewSession).filter(InterviewSession.id == interview_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Interview session not found")
+
+    transcript_file_path = finalize_interview(db, session)
+    db.commit()
+
+    return EndInterviewResponse(
+        interview_id=interview_id,
+        interview_ended=True,
+        transcript_file_path=transcript_file_path,
+    )

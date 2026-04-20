@@ -64,3 +64,15 @@ class InterviewTurnRequest(BaseModel):
 
 class InterviewTurnResponse(BaseModel):
     next_question: str
+    interview_ended: bool = False
+    transcript_file_path: str | None = None
+
+
+class EndInterviewRequest(BaseModel):
+    interview_id: str
+
+
+class EndInterviewResponse(BaseModel):
+    interview_id: str
+    interview_ended: bool
+    transcript_file_path: str

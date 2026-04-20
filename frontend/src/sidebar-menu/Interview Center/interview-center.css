@@ -597,9 +597,26 @@
 }
 
 .ic3-chat-panel {
+  position: relative;
   display: grid;
   grid-template-rows: auto 1fr auto;
   overflow: hidden;
+}
+
+.ic3-end-interview-button {
+  position: absolute;
+  top: 0.95rem;
+  right: 0.95rem;
+  z-index: 20;
+  min-height: 28px;
+  padding: 0 0.65rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #f66 65%, white 35%);
+  background: color-mix(in srgb, #f66 32%, var(--ic3-surface));
+  color: var(--ic3-text);
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .ic3-chat-empty-state {

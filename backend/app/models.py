@@ -45,7 +45,9 @@ class InterviewSession(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     selected_mode = Column(String, nullable=True)
     selected_topics = Column(Text, nullable=True)
+    status = Column(String, nullable=False, default="active")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    ended_at = Column(DateTime(timezone=True), nullable=True)
     updated_at = Column(
         DateTime(timezone=True),
         server_default=func.now(),
