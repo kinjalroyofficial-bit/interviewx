@@ -33,7 +33,7 @@ from google.oauth2 import id_token as google_id_token
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models import User, UserProfileUpdateLog
+from app.models import InterviewSession, InterviewTurn, User, UserProfileUpdateLog
 from app.schemas import (
     AuthRequest,
     AuthResponse,
@@ -464,22 +464,51 @@ def preview_interview_prompt(payload: PromptPreviewRequest, db: Session = Depend
     return PromptPreviewResponse(prompt=prompt, prompt_file_path=str(prompt_file))
 
 @app.post("/interview/next-question", response_model=InterviewTurnResponse)
-def get_next_question(payload: InterviewTurnRequest):
+def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_db)):
     try:
-        prompt = f"""
-        You are InterviewX AI interviewer.
+        interview_id = payload.interview_id.strip()
+        if not interview_id:
+            raise HTTPException(status_code=400, detail="interview_id is required")
 
-        The candidate just answered:
-        "{payload.answer}"
+        answer = payload.answer.strip()
+        if not answer:
+            raise HTTPException(status_code=400, detail="answer is required")
 
-        Ask the next interview question.
+        session = db.query(InterviewSession).filter(InterviewSession.id == interview_id).first()
+        if not session:
+            session = InterviewSession(id=interview_id)
+            db.add(session)
+            db.flush()
 
-        Rules:
-        - Ask ONLY one question
-        - Make it relevant to the answer
-        - Keep it concise
-        - Prefer follow-up if possible
-        """
+        db.add(
+            InterviewTurn(
+                session_id=interview_id,
+                role="user",
+                content=answer,
+            )
+        )
+        db.flush()
+
+        previous_turns = (
+            db.query(InterviewTurn)
+            .filter(InterviewTurn.session_id == interview_id)
+            .order_by(InterviewTurn.timestamp.asc(), InterviewTurn.id.asc())
+            .all()
+        )
+        history_lines = [f"{turn.role}: {turn.content}" for turn in previous_turns]
+        history_text = "\n".join(history_lines)
+
+        prompt = f"""You are InterviewX AI interviewer.
+
+Conversation history:
+{history_text}
+
+Task:
+- Ask the next interview question based on the candidate's most recent answer and full prior context.
+- Ask ONLY one question.
+- Keep it concise.
+- Prefer a relevant follow-up when possible.
+"""
 
         response = client.responses.create(
             model=os.getenv("OPENAI_MODEL"),
@@ -487,10 +516,27 @@ def get_next_question(payload: InterviewTurnRequest):
             max_output_tokens=int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800))
         )
 
+        next_question = response.output_text.strip()
+        if not next_question:
+            raise HTTPException(status_code=500, detail="Empty response from model")
+
+        db.add(
+            InterviewTurn(
+                session_id=interview_id,
+                role="assistant",
+                content=next_question,
+            )
+        )
+        session.updated_at = datetime.now(timezone.utc)
+        db.commit()
+
         return InterviewTurnResponse(
-            next_question=response.output_text
+            next_question=next_question
         )
 
     except Exception as e:
+        db.rollback()
         logger.error(f"INTERVIEW ERROR = {str(e)}")
+        if isinstance(e, HTTPException):
+            raise e
         raise HTTPException(status_code=500, detail="Failed to generate question")
