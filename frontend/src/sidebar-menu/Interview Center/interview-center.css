@@ -345,7 +345,7 @@
   color: #1f2f55;
 }
 
-.ic3-mode-modal {
+.ic3-modal.ic3-mode-modal {
   width: min(1480px, calc(100vw - 120px));
 }
 

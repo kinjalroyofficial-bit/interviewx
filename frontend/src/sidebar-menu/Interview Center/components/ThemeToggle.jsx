@@ -5,7 +5,6 @@ export default function ThemeToggle({ checked, onChange }) {
       <span className="ic3-theme-toggle-track">
         <span className="ic3-theme-toggle-thumb" />
       </span>
-      <span className="ic3-theme-toggle-text">{checked ? 'Light' : 'Dark'}</span>
     </label>
   )
 }
