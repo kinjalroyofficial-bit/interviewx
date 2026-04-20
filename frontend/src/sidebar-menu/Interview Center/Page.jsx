@@ -51,6 +51,7 @@ const mockInterviews = [
 ]
 
 export default function InterviewCenterPage({ sidebarCollapsed = false }) {
+  const currentUsername = localStorage.getItem('interviewx-user') || ''
   const [isLightTheme, setIsLightTheme] = useState(false)
   const interviews = useMemo(
     () => [...mockInterviews]
@@ -102,7 +103,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           activeId={activeInterview?.id || ''}
           onSelect={setActiveInterviewId}
         />
-        <CurrentInterviewCard activeInterview={activeInterview || fallbackInterview} />
+        <CurrentInterviewCard activeInterview={activeInterview || fallbackInterview} username={currentUsername} />
       </section>
 
       <section className="ic3-panel ic3-chat-panel">

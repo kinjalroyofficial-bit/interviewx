@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react'
+import { previewInterviewPrompt } from '../../../api'
 
 const BROWSE_TOPICS = ['SQL', 'Python', 'Java']
 const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
 
-export default function CurrentInterviewCard({ activeInterview }) {
+export default function CurrentInterviewCard({ activeInterview, username }) {
   const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false)
   const [inputType, setInputType] = useState('text')
   const defaultDifficulty = activeInterview.difficulty || 'Intermediate'
@@ -22,6 +23,9 @@ export default function CurrentInterviewCard({ activeInterview }) {
     }))
   ))
   const topicScrollerRef = useRef(null)
+  const [isPromptPreviewOpen, setIsPromptPreviewOpen] = useState(false)
+  const [promptPreviewText, setPromptPreviewText] = useState('')
+  const [promptPreviewStatus, setPromptPreviewStatus] = useState('')
   const isDraggingRef = useRef(false)
   const dragStartXRef = useRef(0)
   const startScrollLeftRef = useRef(0)
@@ -83,6 +87,34 @@ export default function CurrentInterviewCard({ activeInterview }) {
     setIsBrowseModalOpen(false)
   }
 
+  const handlePromptPreview = async () => {
+    if (!username) {
+      setPromptPreviewStatus('Username unavailable. Please log in again.')
+      setIsPromptPreviewOpen(true)
+      return
+    }
+
+    setPromptPreviewStatus('Generating prompt preview...')
+    setIsPromptPreviewOpen(true)
+    try {
+      const data = await previewInterviewPrompt({
+        username,
+        interview_title: activeInterview.title,
+        interview_mode: activeInterview.mode,
+        interview_role: activeInterview.role,
+        selected_topics: appliedTopics.map((topicConfig) => ({
+          topic: topicConfig.topic,
+          difficulty: topicConfig.difficulty
+        }))
+      })
+      setPromptPreviewText(data.prompt)
+      setPromptPreviewStatus(`Prompt generated. File: ${data.prompt_file_path}`)
+    } catch (error) {
+      setPromptPreviewText('')
+      setPromptPreviewStatus(error.message || 'Unable to generate prompt preview.')
+    }
+  }
+
   return (
     <section className="ic3-panel ic3-current-card" aria-label="Current interview info">
       <h3>Current Interview</h3>
@@ -132,6 +164,7 @@ export default function CurrentInterviewCard({ activeInterview }) {
       </div>
 
       <button type="button" className="ic3-browse-button" onClick={() => setIsBrowseModalOpen(true)}>Browse Topics</button>
+      <button type="button" className="ic3-browse-button ic3-debug-button" onClick={handlePromptPreview}>Debug Prompt</button>
 
       {isBrowseModalOpen ? (
         <div className="ic3-modal-backdrop" role="presentation" onClick={() => setIsBrowseModalOpen(false)}>
@@ -165,6 +198,24 @@ export default function CurrentInterviewCard({ activeInterview }) {
             <div className="ic3-modal-actions">
               <button type="button" className="ic3-modal-close" onClick={() => setIsBrowseModalOpen(false)}>Close</button>
               <button type="button" className="ic3-modal-submit" onClick={handleBrowseSubmit}>Submit</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {isPromptPreviewOpen ? (
+        <div className="ic3-modal-backdrop" role="presentation" onClick={() => setIsPromptPreviewOpen(false)}>
+          <section className="ic3-modal ic3-prompt-modal" role="dialog" aria-modal="true" aria-label="Prompt preview" onClick={(event) => event.stopPropagation()}>
+            <h4>Prompt Preview</h4>
+            <p className="ic3-prompt-status">{promptPreviewStatus}</p>
+            <textarea
+              className="ic3-prompt-textarea"
+              value={promptPreviewText}
+              readOnly
+              aria-label="Generated prompt preview"
+            />
+            <div className="ic3-modal-actions">
+              <button type="button" className="ic3-modal-close" onClick={() => setIsPromptPreviewOpen(false)}>Close</button>
             </div>
           </section>
         </div>

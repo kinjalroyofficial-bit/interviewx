@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AuthRequest(BaseModel):
@@ -27,3 +27,21 @@ class UserProfileResponse(BaseModel):
     name: str | None = None
     years_of_experience: str | None = None
     technologies_worked_on: str | None = None
+
+
+class TopicDifficultyInput(BaseModel):
+    topic: str
+    difficulty: str
+
+
+class PromptPreviewRequest(BaseModel):
+    username: str
+    interview_title: str | None = None
+    interview_mode: str | None = None
+    interview_role: str | None = None
+    selected_topics: list[TopicDifficultyInput] = Field(default_factory=list)
+
+
+class PromptPreviewResponse(BaseModel):
+    prompt: str
+    prompt_file_path: str

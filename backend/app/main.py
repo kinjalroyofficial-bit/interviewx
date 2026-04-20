@@ -11,6 +11,8 @@ print("GOOGLE_CLIENT_ID:", os.getenv("GOOGLE_CLIENT_ID"))
 import os
 import secrets
 import logging
+from datetime import datetime, timezone
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +26,8 @@ from app.schemas import (
     AuthRequest,
     AuthResponse,
     GoogleAuthRequest,
+    PromptPreviewRequest,
+    PromptPreviewResponse,
     UserProfileResponse,
     UserProfileUpdateRequest,
 )
@@ -64,6 +68,50 @@ def normalize_profile_value(value: str | None) -> str | None:
         return None
     clean_value = value.strip()
     return clean_value or None
+
+
+def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
+    profile_name = user.full_name or user.username
+    years = user.years_of_experience or "Not specified"
+    technologies = user.technologies_worked_on or "Not specified"
+    interview_title = payload.interview_title or "General interview"
+    interview_mode = payload.interview_mode or "Practice"
+    interview_role = payload.interview_role or "Not specified"
+    selected_topics = (
+        "\n".join(
+            f"- Topic: {topic_entry.topic} | Difficulty: {topic_entry.difficulty}"
+            for topic_entry in payload.selected_topics
+        )
+        if payload.selected_topics
+        else "- No topics selected"
+    )
+
+    return f"""You are InterviewX AI Interviewer.
+
+Use the following candidate profile and interview setup as context before generating any interview questions.
+
+Candidate Profile:
+- Username: {user.username}
+- Name: {profile_name}
+- Years of Experience: {years}
+- Technologies Worked On: {technologies}
+
+Interview Configuration:
+- Interview Title: {interview_title}
+- Mode: {interview_mode}
+- Target Role: {interview_role}
+- Topic/Difficulty Selections:
+{selected_topics}
+
+Instructions:
+1) Tailor interview questions to the candidate's profile and selected topics.
+2) Keep the flow progressive: start with warm-up, then technical depth, then applied problem-solving.
+3) Match difficulty to each topic's selected level.
+4) Ask one question at a time.
+5) Ask concise follow-up questions when answers are vague or shallow.
+6) Maintain professional but encouraging tone.
+7) At the end, prepare the conversation for downstream performance analysis.
+"""
 
 
 @app.post("/auth/signup", response_model=AuthResponse)
@@ -224,3 +272,21 @@ def update_user_profile(payload: UserProfileUpdateRequest, db: Session = Depends
         years_of_experience=user.years_of_experience,
         technologies_worked_on=user.technologies_worked_on,
     )
+
+
+@app.post("/interview/prompt/preview", response_model=PromptPreviewResponse)
+def preview_interview_prompt(payload: PromptPreviewRequest, db: Session = Depends(get_db)) -> PromptPreviewResponse:
+    clean_username = payload.username.strip()
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    prompt = build_interview_prompt(user, payload)
+
+    prompt_dir = Path(__file__).resolve().parent.parent / "tmp"
+    prompt_dir.mkdir(parents=True, exist_ok=True)
+    prompt_file = prompt_dir / "interview_prompt_preview.txt"
+    timestamp = datetime.now(timezone.utc).isoformat()
+    prompt_file.write_text(f"[Generated at {timestamp}]\n\n{prompt}\n", encoding="utf-8")
+
+    return PromptPreviewResponse(prompt=prompt, prompt_file_path=str(prompt_file))

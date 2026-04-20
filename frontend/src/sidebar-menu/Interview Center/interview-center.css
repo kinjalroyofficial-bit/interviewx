@@ -377,6 +377,10 @@
   color: #1f2f55;
 }
 
+.ic3-debug-button {
+  margin-top: 0.35rem;
+}
+
 .ic3-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -485,6 +489,30 @@
 
 .dashboard-theme-light .ic3-modal-submit {
   color: #1f2f55;
+}
+
+.ic3-prompt-modal {
+  width: min(620px, 100%);
+}
+
+.ic3-prompt-status {
+  margin: 0.45rem 0 0;
+  font-size: 0.68rem;
+  color: var(--ic3-muted);
+}
+
+.ic3-prompt-textarea {
+  margin-top: 0.45rem;
+  width: 100%;
+  min-height: 250px;
+  resize: vertical;
+  border-radius: 8px;
+  border: 1px solid var(--ic3-border);
+  background: var(--ic3-surface-soft);
+  color: var(--ic3-text);
+  padding: 0.55rem;
+  font-size: 0.68rem;
+  line-height: 1.35;
 }
 
 .ic3-chat-panel {

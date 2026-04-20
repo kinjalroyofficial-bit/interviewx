@@ -66,3 +66,20 @@ export async function updateUserProfile(payload) {
 
   return response.json()
 }
+
+export async function previewInterviewPrompt(payload) {
+  const response = await fetch(`${API_BASE_URL}/interview/prompt/preview`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to generate interview prompt (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
