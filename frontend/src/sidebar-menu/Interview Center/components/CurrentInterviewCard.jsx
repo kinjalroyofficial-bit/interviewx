@@ -3,12 +3,40 @@ import { previewInterviewPrompt } from '../../../api'
 
 const BROWSE_TOPICS = ['SQL', 'Python', 'Java']
 const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
-const MODE_OPTIONS = ['Practice', 'Mock', 'Guided', 'Assessment']
+const MODE_OPTIONS = [
+  {
+    value: 'Free-flowing',
+    description: 'Dynamically generates a progressive flow of questions based on the candidate’s profile. The interview evolves naturally with adaptive depth and follow-ups.',
+    purpose: 'Builds confidence in open-ended interviews and helps candidates steer discussion toward their strengths.'
+  },
+  {
+    value: 'Topic Oriented',
+    description: 'The interview is tailored to selected technologies or concepts so all questions remain within the chosen scope.',
+    purpose: 'Improves depth and articulation in specific technical domains.'
+  },
+  {
+    value: 'Only Coding',
+    description: 'Focuses on coding challenges and follow-ups that test approach, logic, and implementation quality.',
+    purpose: 'Assesses practical coding, problem-solving, and technical communication under interview constraints.'
+  },
+  {
+    value: 'Pro-Mode',
+    description: 'Combines technical, coding, and situational questions in a profile-contextualized full interview flow.',
+    purpose: 'Provides a holistic readiness check across depth, coding proficiency, and communication.'
+  },
+  {
+    value: 'Differential',
+    description: 'Uses candidate context and role intent to generate tailored discussions around projects, strengths, and potential gaps.',
+    purpose: 'Evaluates candidate-role fit and encourages structured self-reflection for targeted opportunities.'
+  }
+]
 
 export default function CurrentInterviewCard({ activeInterview, username }) {
   const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false)
+  const [isModeModalOpen, setIsModeModalOpen] = useState(false)
   const [inputType, setInputType] = useState('text')
-  const [selectedMode, setSelectedMode] = useState(activeInterview.mode || MODE_OPTIONS[0])
+  const [selectedMode, setSelectedMode] = useState(MODE_OPTIONS[0].value)
+  const [pendingMode, setPendingMode] = useState(MODE_OPTIONS[0].value)
   const defaultDifficulty = activeInterview.difficulty || 'Intermediate'
   const [topicSelections, setTopicSelections] = useState(() => (
     Object.fromEntries(
@@ -89,6 +117,16 @@ export default function CurrentInterviewCard({ activeInterview, username }) {
     setIsBrowseModalOpen(false)
   }
 
+  const openModeModal = () => {
+    setPendingMode(selectedMode)
+    setIsModeModalOpen(true)
+  }
+
+  const handleModeSubmit = () => {
+    setSelectedMode(pendingMode)
+    setIsModeModalOpen(false)
+  }
+
   const handlePromptPreview = async () => {
     if (!username) {
       setPromptPreviewStatus('Username unavailable. Please log in again.')
@@ -140,18 +178,7 @@ export default function CurrentInterviewCard({ activeInterview, username }) {
 
       <div className="ic3-kv-row ic3-kv-row-mode">
         <span>Mode</span>
-        <div className="ic3-mode-toggle" role="group" aria-label="Interview mode">
-          {MODE_OPTIONS.map((modeOption) => (
-            <button
-              key={modeOption}
-              type="button"
-              className={`ic3-mode-option ${selectedMode === modeOption ? 'is-active' : ''}`}
-              onClick={() => setSelectedMode(modeOption)}
-            >
-              {modeOption}
-            </button>
-          ))}
-        </div>
+        <button type="button" className="ic3-pill ic3-mode-pill" onClick={openModeModal}>{selectedMode}</button>
       </div>
 
       <div className="ic3-kv-row ic3-kv-row-input-type">
@@ -209,6 +236,35 @@ export default function CurrentInterviewCard({ activeInterview, username }) {
             <div className="ic3-modal-actions">
               <button type="button" className="ic3-modal-close" onClick={() => setIsBrowseModalOpen(false)}>Close</button>
               <button type="button" className="ic3-modal-submit" onClick={handleBrowseSubmit}>Submit</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {isModeModalOpen ? (
+        <div className="ic3-modal-backdrop" role="presentation" onClick={() => setIsModeModalOpen(false)}>
+          <section className="ic3-modal ic3-mode-modal" role="dialog" aria-modal="true" aria-label="Interview modes" onClick={(event) => event.stopPropagation()}>
+            <h4>Select Interview Mode</h4>
+            <div className="ic3-mode-list" role="radiogroup" aria-label="Interview mode options">
+              {MODE_OPTIONS.map((modeOption) => (
+                <label key={modeOption.value} className="ic3-mode-item">
+                  <input
+                    type="radio"
+                    name="interview-mode"
+                    checked={pendingMode === modeOption.value}
+                    onChange={() => setPendingMode(modeOption.value)}
+                  />
+                  <div>
+                    <strong>{modeOption.value}</strong>
+                    <p><span>Description:</span> {modeOption.description}</p>
+                    <p><span>Purpose:</span> {modeOption.purpose}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+            <div className="ic3-modal-actions">
+              <button type="button" className="ic3-modal-close" onClick={() => setIsModeModalOpen(false)}>Cancel</button>
+              <button type="button" className="ic3-modal-submit" onClick={handleModeSubmit}>Submit</button>
             </div>
           </section>
         </div>
