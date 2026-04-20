@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { getLastOpenAIPayload, previewInterviewPrompt } from '../../../api'
+import { getLastOpenAIPayload, getLastOpenAIResponse, previewInterviewPrompt } from '../../../api'
 
 const BROWSE_TOPICS = ['SQL', 'Python', 'Java']
 const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
@@ -58,6 +58,9 @@ export default function CurrentInterviewCard({ activeInterview, username, onSetu
   const [isOpenAIPayloadOpen, setIsOpenAIPayloadOpen] = useState(false)
   const [openAIPayloadStatus, setOpenAIPayloadStatus] = useState('')
   const [openAIPayloadText, setOpenAIPayloadText] = useState('')
+  const [isOpenAIResponseOpen, setIsOpenAIResponseOpen] = useState(false)
+  const [openAIResponseStatus, setOpenAIResponseStatus] = useState('')
+  const [openAIResponseText, setOpenAIResponseText] = useState('')
   const isDraggingRef = useRef(false)
   const dragStartXRef = useRef(0)
   const startScrollLeftRef = useRef(0)
@@ -168,6 +171,19 @@ export default function CurrentInterviewCard({ activeInterview, username, onSetu
     }
   }
 
+  const handleLastResponseDebug = async () => {
+    setOpenAIResponseStatus('Fetching latest OpenAI response...')
+    setOpenAIResponseText('')
+    setIsOpenAIResponseOpen(true)
+    try {
+      const data = await getLastOpenAIResponse()
+      setOpenAIResponseText(JSON.stringify(data, null, 2))
+      setOpenAIResponseStatus('Latest response fetched.')
+    } catch (error) {
+      setOpenAIResponseStatus(error.message || 'Unable to fetch latest OpenAI response.')
+    }
+  }
+
   useEffect(() => {
     try {
       const savedValue = localStorage.getItem(storageKey)
@@ -273,6 +289,7 @@ export default function CurrentInterviewCard({ activeInterview, username, onSetu
       <button type="button" className="ic3-browse-button" onClick={() => setIsBrowseModalOpen(true)}>Browse Topics</button>
       <button type="button" className="ic3-browse-button ic3-debug-button" onClick={handlePromptPreview}>Debug Prompt</button>
       <button type="button" className="ic3-browse-button ic3-debug-button" onClick={handleLastPayloadDebug}>Debug Last OpenAI Call</button>
+      <button type="button" className="ic3-browse-button ic3-debug-button" onClick={handleLastResponseDebug}>Last OpenAI Response</button>
 
       {isBrowseModalOpen ? (
         <div className="ic3-modal-backdrop" role="presentation" onClick={() => setIsBrowseModalOpen(false)}>
@@ -374,6 +391,24 @@ export default function CurrentInterviewCard({ activeInterview, username, onSetu
             />
             <div className="ic3-modal-actions">
               <button type="button" className="ic3-modal-close" onClick={() => setIsOpenAIPayloadOpen(false)}>Close</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
+
+      {isOpenAIResponseOpen ? (
+        <div className="ic3-modal-backdrop" role="presentation" onClick={() => setIsOpenAIResponseOpen(false)}>
+          <section className="ic3-modal ic3-prompt-modal" role="dialog" aria-modal="true" aria-label="OpenAI response preview" onClick={(event) => event.stopPropagation()}>
+            <h4>Last OpenAI Response</h4>
+            <p className="ic3-prompt-status">{openAIResponseStatus}</p>
+            <textarea
+              className="ic3-prompt-textarea"
+              value={openAIResponseText}
+              readOnly
+              aria-label="Last OpenAI response"
+            />
+            <div className="ic3-modal-actions">
+              <button type="button" className="ic3-modal-close" onClick={() => setIsOpenAIResponseOpen(false)}>Close</button>
             </div>
           </section>
         </div>

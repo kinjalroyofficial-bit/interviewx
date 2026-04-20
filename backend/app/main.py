@@ -55,6 +55,7 @@ app = FastAPI(title="InterviewX API", version="0.1.0")
 logger = logging.getLogger("interviewx.auth")
 QUESTION_REPOSITORY_PATH = Path(__file__).resolve().parent / "knowledge_repository" / "tech_questions.json"
 LAST_OPENAI_PAYLOAD: dict = {}
+LAST_OPENAI_RESPONSE: dict = {}
 INTERVIEW_END_KEYWORD = "[INTERVIEW_ENDED]"
 
 app.add_middleware(
@@ -95,6 +96,11 @@ def normalize_profile_value(value: str | None) -> str | None:
 def set_last_openai_payload(payload: dict) -> None:
     global LAST_OPENAI_PAYLOAD
     LAST_OPENAI_PAYLOAD = payload
+
+
+def set_last_openai_response(response_data: dict) -> None:
+    global LAST_OPENAI_RESPONSE
+    LAST_OPENAI_RESPONSE = response_data
 
 
 def extract_response_text(response) -> str:
@@ -565,6 +571,15 @@ Interview start instruction:
         first_question = extract_response_text(response)
         if not first_question:
             raise HTTPException(status_code=500, detail="Empty response from model")
+        set_last_openai_response(
+            {
+                "endpoint": "/interview/start",
+                "interview_id": interview_id,
+                "response_id": getattr(response, "id", None),
+                "text": first_question,
+                "captured_at": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
         session = InterviewSession(
             id=interview_id,
@@ -638,20 +653,9 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
         )
         previous_response_id = previous_assistant_turn.response_id if previous_assistant_turn else None
 
-        prompt = f"""Candidate answer:
-{answer}
-
-Instruction:
-- Ask the next interview question based on this answer and prior interview context.
-- Ask ONLY one complete question sentence.
-- Keep it concise.
-- Prefer a relevant follow-up when possible.
-- If and only if all interview goals are fully completed, return this exact keyword: {INTERVIEW_END_KEYWORD}
-"""
-
         request_payload = {
             "model": os.getenv("OPENAI_MODEL"),
-            "input": prompt,
+            "input": answer,
             "max_output_tokens": int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
         }
         if previous_response_id:
@@ -670,6 +674,15 @@ Instruction:
         next_question = extract_response_text(response)
         if not next_question:
             raise HTTPException(status_code=500, detail="Empty response from model")
+        set_last_openai_response(
+            {
+                "endpoint": "/interview/next-question",
+                "interview_id": interview_id,
+                "response_id": getattr(response, "id", None),
+                "text": next_question,
+                "captured_at": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
         interview_ended = INTERVIEW_END_KEYWORD in next_question
         if interview_ended:
@@ -710,6 +723,13 @@ def get_last_openai_payload() -> dict:
     if not LAST_OPENAI_PAYLOAD:
         return {"message": "No OpenAI request captured yet."}
     return LAST_OPENAI_PAYLOAD
+
+
+@app.get("/interview/debug/last-openai-response")
+def get_last_openai_response() -> dict:
+    if not LAST_OPENAI_RESPONSE:
+        return {"message": "No OpenAI response captured yet."}
+    return LAST_OPENAI_RESPONSE
 
 
 @app.post("/interview/end", response_model=EndInterviewResponse)

@@ -129,6 +129,17 @@ export async function getLastOpenAIPayload() {
   return response.json()
 }
 
+export async function getLastOpenAIResponse() {
+  const response = await fetch(`${API_BASE_URL}/interview/debug/last-openai-response`)
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to fetch OpenAI response (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
+
 export async function endInterview(payload) {
   const response = await fetch(`${API_BASE_URL}/interview/end`, {
     method: 'POST',
