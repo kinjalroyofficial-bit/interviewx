@@ -61,4 +61,5 @@ class InterviewTurn(Base):
     session_id = Column(String, ForeignKey("interview_sessions.id"), nullable=False, index=True)
     role = Column(String, nullable=False)
     content = Column(Text, nullable=False)
+    response_id = Column(String, nullable=True, index=True)
     timestamp = Column(DateTime(timezone=True), server_default=func.now(), nullable=False, index=True)

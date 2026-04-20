@@ -99,6 +99,11 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setIsLightTheme(nextIsLight)
   }
 
+  function formatResponseTime(durationMs) {
+    if (durationMs < 1000) return `${durationMs} ms`
+    return `${(durationMs / 1000).toFixed(2)} s`
+  }
+
   async function handleStartInterview() {
     if (!currentUsername) {
       setStartInterviewError('Please log in again before starting the interview.')
@@ -107,12 +112,14 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
 
     setIsStartingInterview(true)
     setStartInterviewError('')
+    const requestStart = Date.now()
     try {
       const data = await startInterview({
         username: currentUsername,
         selected_mode: currentSetup.selectedMode,
         selected_topics: currentSetup.selectedTopics
       })
+      const responseTimeLabel = `response ${formatResponseTime(Date.now() - requestStart)}`
       const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       setLiveInterview({
         id: data.interview_id,
@@ -122,7 +129,8 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
             id: `${data.interview_id}-q1`,
             author: 'assistant',
             text: data.first_question,
-            time: nowTime
+            time: nowTime,
+            responseTimeLabel
           }
         ]
       })
@@ -160,10 +168,12 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setComposerValue('')
 
     try {
+      const requestStart = Date.now()
       const data = await nextInterviewQuestion({
         interview_id: liveInterview.id,
         answer
       })
+      const responseTimeLabel = `response ${formatResponseTime(Date.now() - requestStart)}`
       const assistantTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       setLiveInterview((currentInterview) => {
         if (!currentInterview) return currentInterview
@@ -175,7 +185,8 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
               id: `${currentInterview.id}-a-${Date.now()}`,
               author: 'assistant',
               text: data.next_question,
-              time: assistantTime
+              time: assistantTime,
+              responseTimeLabel
             }
           ]
         }

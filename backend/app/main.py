@@ -530,6 +530,7 @@ Interview start instruction:
                 "model": os.getenv("OPENAI_MODEL"),
                 "max_output_tokens": int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
                 "input": starter_prompt,
+                "previous_response_id": None,
                 "captured_at": datetime.now(timezone.utc).isoformat(),
             }
         )
@@ -554,6 +555,7 @@ Interview start instruction:
                 session_id=interview_id,
                 role="assistant",
                 content=first_question,
+                response_id=getattr(response, "id", None),
             )
         )
         db.commit()
@@ -593,39 +595,42 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
         )
         db.flush()
 
-        previous_turns = (
+        previous_assistant_turn = (
             db.query(InterviewTurn)
-            .filter(InterviewTurn.session_id == interview_id)
-            .order_by(InterviewTurn.timestamp.asc(), InterviewTurn.id.asc())
-            .all()
+            .filter(
+                InterviewTurn.session_id == interview_id,
+                InterviewTurn.role == "assistant",
+                InterviewTurn.response_id.isnot(None),
+            )
+            .order_by(InterviewTurn.timestamp.desc(), InterviewTurn.id.desc())
+            .first()
         )
-        history_lines = [f"{turn.role}: {turn.content}" for turn in previous_turns]
-        history_text = "\n".join(history_lines)
+        previous_response_id = previous_assistant_turn.response_id if previous_assistant_turn else None
 
-        prompt = f"""You are InterviewX AI interviewer.
+        prompt = f"""Candidate answer:
+{answer}
 
-Conversation history:
-{history_text}
-
-Task:
-- Ask the next interview question based on the candidate's most recent answer and full prior context.
-- Ask ONLY one question.
+Instruction:
+- Ask the next interview question based on this answer and prior interview context.
+- Ask ONLY one complete question sentence.
 - Keep it concise.
 - Prefer a relevant follow-up when possible.
 """
 
-        response = client.responses.create(
-            model=os.getenv("OPENAI_MODEL"),
-            input=prompt,
-            max_output_tokens=int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800))
-        )
+        request_payload = {
+            "model": os.getenv("OPENAI_MODEL"),
+            "input": prompt,
+            "max_output_tokens": int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
+        }
+        if previous_response_id:
+            request_payload["previous_response_id"] = previous_response_id
+
+        response = client.responses.create(**request_payload)
         set_last_openai_payload(
             {
                 "endpoint": "/interview/next-question",
                 "interview_id": interview_id,
-                "model": os.getenv("OPENAI_MODEL"),
-                "max_output_tokens": int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
-                "input": prompt,
+                "request_payload": request_payload,
                 "captured_at": datetime.now(timezone.utc).isoformat(),
             }
         )
@@ -639,6 +644,7 @@ Task:
                 session_id=interview_id,
                 role="assistant",
                 content=next_question,
+                response_id=getattr(response, "id", None),
             )
         )
         session.updated_at = datetime.now(timezone.utc)
