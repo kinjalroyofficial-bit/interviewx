@@ -58,5 +58,65 @@
       "Write a Java program to optimize performance using streams and parallel processing.",
       "Create a scalable Java-based backend architecture using modular and layered design principles."
     ]
+  },
+  "Python coding": {
+    "Beginner": [
+      "Write a Python function to reverse a string without using built-in functions.",
+      "Write a program to find the largest number in a list.",
+      "Implement a function to check if a string is a palindrome.",
+      "Write a Python program to count the frequency of each character in a string."
+    ],
+    "Intermediate": [
+      "Write a Python function to find the first non-repeating character in a string.",
+      "Implement a function to merge two sorted lists into one sorted list.",
+      "Write a program to find all pairs in a list that sum up to a given target.",
+      "Implement a stack using Python lists with push, pop, and peek operations."
+    ],
+    "Advanced": [
+      "Implement an LRU cache using Python with O(1) time complexity for all operations.",
+      "Write a Python program to detect cycles in a linked list.",
+      "Implement a thread-safe queue in Python.",
+      "Solve the problem of finding the longest substring without repeating characters efficiently."
+    ]
+  },
+  "SQL coding": {
+    "Beginner": [
+      "Write a query to fetch the second highest salary from an Employee table.",
+      "Write a query to find all employees whose name starts with a specific letter.",
+      "Write a query to count the number of records in a table grouped by a column.",
+      "Write a query to delete duplicate rows from a table while keeping one record."
+    ],
+    "Intermediate": [
+      "Write a SQL query to find the nth highest salary using window functions.",
+      "Write a query to find customers who have not placed any orders.",
+      "Write a query to calculate a running total of sales per customer.",
+      "Write a query to rank employees within each department based on salary."
+    ],
+    "Advanced": [
+      "Write a query to solve the gaps and islands problem in a dataset.",
+      "Write a recursive CTE to traverse hierarchical employee-manager relationships.",
+      "Write an optimized query to find the top 3 products by sales in each category.",
+      "Write a query to pivot rows into columns dynamically."
+    ]
+  },
+  "Java coding": {
+    "Beginner": [
+      "Write a Java program to reverse a string without using built-in reverse methods.",
+      "Write a program to find the factorial of a number using recursion.",
+      "Implement a program to check if a number is prime.",
+      "Write a Java program to sort an array using bubble sort."
+    ],
+    "Intermediate": [
+      "Write a Java program to implement a custom LinkedList.",
+      "Implement a program to find duplicates in an array using HashSet.",
+      "Write a Java program to check for balanced parentheses using a stack.",
+      "Implement a queue using two stacks in Java."
+    ],
+    "Advanced": [
+      "Implement a thread-safe singleton pattern in Java.",
+      "Write a Java program to implement a producer-consumer problem using threads.",
+      "Implement a graph traversal algorithm such as BFS or DFS.",
+      "Design and implement a rate limiter using Java concurrency utilities."
+    ]
   }
 }
