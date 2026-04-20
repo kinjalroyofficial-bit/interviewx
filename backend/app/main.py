@@ -87,14 +87,18 @@ def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
         if payload.selected_topics
         else "- No topics selected"
     )
-    selected_seed_questions = select_seed_questions(payload.selected_topics)
+    mode_type = detect_mode_type(selected_mode)
+    selected_seed_questions = select_seed_questions(payload.selected_topics, mode_type)
     seed_questions_section = (
-        "\n".join(f"- {question}" for question in selected_seed_questions)
+        "\n".join(
+            f"- Topic: {seed_question['topic']} | Difficulty: {seed_question['difficulty']} | Question: {seed_question['question']}"
+            for seed_question in selected_seed_questions
+        )
         if selected_seed_questions
         else "- No seed questions found for the selected topic/difficulty pairs."
     )
 
-    return f"""You are InterviewX AI Interviewer.
+    common_context = f"""You are InterviewX AI Interviewer.
 
 Use the following candidate profile and interview setup as context before generating any interview questions.
 
@@ -109,7 +113,62 @@ Current Interview Setup (from active current panel only):
 - Selected Mode: {selected_mode}
 - Topic/Difficulty Selections:
 {selected_topics}
+"""
 
+    if mode_type == "conversational":
+        return f"""{common_context}
+Instructions (Conversational Interview - Free-Flowing):
+1) Do NOT use curated seed questions.
+2) Generate questions dynamically using the candidate profile, projects, technologies, and prior answers as context.
+3) Keep the interview adaptive, natural, and progressive.
+4) Ask one question at a time and tailor follow-ups based on the candidate's previous response.
+5) Keep tone professional and encouraging.
+"""
+
+    if mode_type == "full_stack":
+        return f"""{common_context}
+Curated Question Seeds (from knowledge repository):
+{seed_questions_section}
+
+Instructions (Full-Stack Interview - Pro Mode):
+1) Follow strict phase order and do not mix phases:
+   - Phase 1: Project Deep Dive (ask 4-5 project-based questions on implementation, decisions, and challenges).
+   - Phase 2: Seeded Technical Questions (use topic+difficulty seeds; for each main seed, ask 2 follow-ups based on response and seed context).
+   - Phase 3: Behavioral / Organizational Fit (ask 2-3 HR/behavioral questions grounded in profile, experience, and projects).
+2) Ask one question at a time while preserving phase boundaries.
+3) Keep the interview coherent and mode-specific.
+"""
+
+    if mode_type == "live_coding":
+        return f"""{common_context}
+Curated Coding Question Seeds (from knowledge repository):
+{seed_questions_section}
+
+Instructions (Live Coding Interview - Exclusive Coding):
+1) Use coding-only questions from coding-specific topic nodes (topic + " coding").
+2) Ask only coding problems; do NOT include theoretical or conceptual-only questions.
+3) For each coding problem, ask the main problem and then exactly 2 follow-ups:
+   - One based on the candidate's proposed solution/approach.
+   - One exploring optimization, edge cases, or alternative approaches.
+4) Keep all questioning strictly in coding context.
+"""
+
+    if mode_type == "domain_focused":
+        return f"""{common_context}
+Curated Question Seeds (from knowledge repository):
+{seed_questions_section}
+
+Instructions (Domain-Focused Interview - Topic-Oriented):
+1) Use curated seeds selected from chosen topics and difficulties as base references.
+2) Keep questioning strictly focused on selected topic domains.
+3) For each seed question, ask the main question and then exactly 2 follow-ups:
+   - One based on the candidate's response.
+   - One grounded in the original question context.
+4) Ask one question at a time and maintain topic discipline.
+"""
+
+    # Differential mode remains aligned with the current baseline implementation.
+    return f"""{common_context}
 Curated Question Seeds (from knowledge repository):
 {seed_questions_section}
 
@@ -123,6 +182,21 @@ Instructions:
 7) Maintain professional but encouraging tone.
 8) At the end, prepare the conversation for downstream performance analysis.
 """
+
+
+def detect_mode_type(selected_mode: str) -> str:
+    mode_normalized = (selected_mode or "").strip().lower()
+    if "free-flowing" in mode_normalized or "conversational" in mode_normalized:
+        return "conversational"
+    if "topic oriented" in mode_normalized or "domain-focused" in mode_normalized:
+        return "domain_focused"
+    if "exclusively coding" in mode_normalized or "live coding" in mode_normalized:
+        return "live_coding"
+    if "pro-mode" in mode_normalized or "full-stack" in mode_normalized:
+        return "full_stack"
+    if "differential" in mode_normalized:
+        return "differential"
+    return "differential"
 
 
 def load_question_repository() -> dict:
@@ -149,14 +223,19 @@ def find_case_insensitive_key(mapping: dict, target: str) -> str | None:
     return None
 
 
-def select_seed_questions(selected_topics: list) -> list[str]:
+def select_seed_questions(selected_topics: list, mode_type: str = "differential") -> list[dict[str, str]]:
     repository = load_question_repository()
     if not repository:
         return []
 
-    selected_questions: list[str] = []
+    selected_questions: list[dict[str, str]] = []
     for topic_entry in selected_topics:
-        topic_key = find_case_insensitive_key(repository, topic_entry.topic.strip())
+        requested_topic = topic_entry.topic.strip()
+        lookup_topic = requested_topic
+        if mode_type == "live_coding":
+            lookup_topic = f"{requested_topic} coding"
+
+        topic_key = find_case_insensitive_key(repository, lookup_topic)
         if not topic_key:
             continue
 
@@ -177,7 +256,14 @@ def select_seed_questions(selected_topics: list) -> list[str]:
             continue
 
         picked_questions = random.sample(clean_questions, k=min(2, len(clean_questions)))
-        selected_questions.extend(picked_questions)
+        selected_questions.extend(
+            {
+                "topic": topic_key,
+                "difficulty": difficulty_key,
+                "question": question,
+            }
+            for question in picked_questions
+        )
 
     return selected_questions
 
