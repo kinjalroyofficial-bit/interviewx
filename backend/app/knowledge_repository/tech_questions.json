@@ -1,0 +1,62 @@
+{
+  "SQL": {
+    "Beginner": [
+      "Write a query to retrieve all records from a table containing customer details.",
+      "Create a SQL query to filter records based on a specific condition such as age or status.",
+      "Write a query to sort the results of a table in ascending and descending order.",
+      "Demonstrate how to select specific columns from a table instead of retrieving all columns."
+    ],
+    "Intermediate": [
+      "Write a SQL query to join two tables and retrieve combined data based on a common key.",
+      "Create a query to calculate aggregate values such as sum, average, and count grouped by a specific column.",
+      "Write a query to identify duplicate records in a dataset.",
+      "Demonstrate how to use window functions to calculate running totals or rankings within partitions."
+    ],
+    "Advanced": [
+      "Design a SQL query to optimize performance for a large dataset involving multiple joins and filters.",
+      "Write a query using common table expressions (CTEs) to simplify complex data transformations.",
+      "Create a query that handles hierarchical data using recursive queries.",
+      "Demonstrate how to design indexes and explain their impact on query performance."
+    ]
+  },
+  "Python": {
+    "Beginner": [
+      "Write a Python program to take user input and display formatted output.",
+      "Create a function in Python to perform basic arithmetic operations.",
+      "Demonstrate how to iterate through a list and perform operations on each element.",
+      "Write a Python program to check if a number is even or odd."
+    ],
+    "Intermediate": [
+      "Write a Python program to read data from a file and process its contents.",
+      "Create a class in Python with attributes and methods to represent a real-world entity.",
+      "Demonstrate the use of list comprehensions for data transformation.",
+      "Write a Python program to handle exceptions and ensure smooth execution."
+    ],
+    "Advanced": [
+      "Design a Python application using object-oriented principles with inheritance and polymorphism.",
+      "Write a Python program to implement multithreading or multiprocessing for performance optimization.",
+      "Demonstrate how to build and use decorators for function enhancement.",
+      "Create a Python solution that efficiently processes large datasets using generators and memory optimization techniques."
+    ]
+  },
+  "Java": {
+    "Beginner": [
+      "Write a Java program to print output and take user input using standard libraries.",
+      "Create a simple Java class with variables and methods.",
+      "Demonstrate the use of conditional statements and loops in Java.",
+      "Write a Java program to perform basic arithmetic operations."
+    ],
+    "Intermediate": [
+      "Create a Java program demonstrating object-oriented concepts such as inheritance and encapsulation.",
+      "Write a program to handle exceptions using try-catch blocks.",
+      "Demonstrate the use of collections such as ArrayList and HashMap.",
+      "Write a Java program to read and write data to a file."
+    ],
+    "Advanced": [
+      "Design a Java application using multithreading and synchronization mechanisms.",
+      "Demonstrate the use of design patterns such as Singleton or Factory in Java.",
+      "Write a Java program to optimize performance using streams and parallel processing.",
+      "Create a scalable Java-based backend architecture using modular and layered design principles."
+    ]
+  }
+}
