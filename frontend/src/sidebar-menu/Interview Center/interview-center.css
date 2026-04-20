@@ -23,10 +23,10 @@
   height: 100%;
   min-height: 0;
   display: grid;
-  --ic3-history-col: minmax(220px, 0.78fr);
+  --ic3-history-col: minmax(220px, 0.86fr);
   --ic3-chat-col: minmax(290px, 0.74fr);
   --ic3-insights-col: minmax(320px, 1fr);
-  --ic3-response-rail-width: minmax(220px, 1.06fr);
+  --ic3-response-rail-width: minmax(220px, 0.98fr);
   grid-template-columns: var(--ic3-history-col) var(--ic3-chat-col) var(--ic3-insights-col) 0;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 0.8rem;
