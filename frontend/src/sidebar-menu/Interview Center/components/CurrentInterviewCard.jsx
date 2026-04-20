@@ -6,8 +6,21 @@ const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
 export default function CurrentInterviewCard({ activeInterview }) {
   const [isBrowseModalOpen, setIsBrowseModalOpen] = useState(false)
   const [inputType, setInputType] = useState('text')
-  const [selectedTopics, setSelectedTopics] = useState(BROWSE_TOPICS)
-  const [selectedDifficulty, setSelectedDifficulty] = useState('Intermediate')
+  const defaultDifficulty = activeInterview.difficulty || 'Intermediate'
+  const [topicSelections, setTopicSelections] = useState(() => (
+    Object.fromEntries(
+      BROWSE_TOPICS.map((topic) => [topic, {
+        selected: activeInterview.topics.includes(topic),
+        difficulty: defaultDifficulty
+      }])
+    )
+  ))
+  const [appliedTopics, setAppliedTopics] = useState(() => (
+    activeInterview.topics.map((topic) => ({
+      topic,
+      difficulty: defaultDifficulty
+    }))
+  ))
   const topicScrollerRef = useRef(null)
   const isDraggingRef = useRef(false)
   const dragStartXRef = useRef(0)
@@ -39,11 +52,35 @@ export default function CurrentInterviewCard({ activeInterview }) {
   }
 
   const handleTopicToggle = (topic) => {
-    setSelectedTopics((currentTopics) => (
-      currentTopics.includes(topic)
-        ? currentTopics.filter((currentTopic) => currentTopic !== topic)
-        : [...currentTopics, topic]
-    ))
+    setTopicSelections((currentSelections) => ({
+      ...currentSelections,
+      [topic]: {
+        ...currentSelections[topic],
+        selected: !currentSelections[topic].selected
+      }
+    }))
+  }
+
+  const handleDifficultyChange = (topic, difficulty) => {
+    setTopicSelections((currentSelections) => ({
+      ...currentSelections,
+      [topic]: {
+        ...currentSelections[topic],
+        difficulty
+      }
+    }))
+  }
+
+  const handleBrowseSubmit = () => {
+    const nextAppliedTopics = BROWSE_TOPICS
+      .filter((topic) => topicSelections[topic].selected)
+      .map((topic) => ({
+        topic,
+        difficulty: topicSelections[topic].difficulty
+      }))
+
+    setAppliedTopics(nextAppliedTopics)
+    setIsBrowseModalOpen(false)
   }
 
   return (
@@ -61,22 +98,17 @@ export default function CurrentInterviewCard({ activeInterview }) {
           onMouseUp={handleTopicMouseUp}
           onMouseLeave={handleTopicMouseUp}
         >
-          {activeInterview.topics.map((topic) => (
-            <span key={topic} className="ic3-pill">{topic}</span>
+          {appliedTopics.map((topicConfig) => (
+            <span key={topicConfig.topic} className="ic3-pill">
+              {topicConfig.topic} · {topicConfig.difficulty}
+            </span>
           ))}
         </div>
       </div>
 
-      <div className="ic3-kv-row-double">
-        <div className="ic3-kv-row">
-          <span>Difficulty</span>
-          <span className="ic3-pill">{activeInterview.difficulty}</span>
-        </div>
-        <span className="ic3-row-divider" aria-hidden="true" />
-        <div className="ic3-kv-row">
-          <span>Mode</span>
-          <span className="ic3-pill">{activeInterview.mode}</span>
-        </div>
+      <div className="ic3-kv-row">
+        <span>Mode</span>
+        <span className="ic3-pill">{activeInterview.mode}</span>
       </div>
 
       <div className="ic3-kv-row ic3-kv-row-input-type">
@@ -107,31 +139,33 @@ export default function CurrentInterviewCard({ activeInterview }) {
             <h4>Browse Topics</h4>
             <div className="ic3-modal-fieldset" role="group" aria-label="Interview topics">
               {BROWSE_TOPICS.map((topic) => (
-                <label key={topic} className="ic3-modal-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={selectedTopics.includes(topic)}
-                    onChange={() => handleTopicToggle(topic)}
-                  />
-                  <span>{topic}</span>
-                </label>
+                <div key={topic} className="ic3-modal-topic-row">
+                  <label className="ic3-modal-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={topicSelections[topic].selected}
+                      onChange={() => handleTopicToggle(topic)}
+                    />
+                    <span>{topic}</span>
+                  </label>
+                  <select
+                    className="ic3-modal-select"
+                    value={topicSelections[topic].difficulty}
+                    onChange={(event) => handleDifficultyChange(topic, event.target.value)}
+                  >
+                    {DIFFICULTY_OPTIONS.map((difficultyOption) => (
+                      <option key={difficultyOption} value={difficultyOption}>
+                        {difficultyOption}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               ))}
             </div>
-
-            <label className="ic3-modal-label" htmlFor="ic3-browse-difficulty">Difficulty</label>
-            <select
-              id="ic3-browse-difficulty"
-              className="ic3-modal-select"
-              value={selectedDifficulty}
-              onChange={(event) => setSelectedDifficulty(event.target.value)}
-            >
-              {DIFFICULTY_OPTIONS.map((difficultyOption) => (
-                <option key={difficultyOption} value={difficultyOption}>
-                  {difficultyOption}
-                </option>
-              ))}
-            </select>
-            <button type="button" className="ic3-modal-close" onClick={() => setIsBrowseModalOpen(false)}>Close</button>
+            <div className="ic3-modal-actions">
+              <button type="button" className="ic3-modal-close" onClick={() => setIsBrowseModalOpen(false)}>Close</button>
+              <button type="button" className="ic3-modal-submit" onClick={handleBrowseSubmit}>Submit</button>
+            </div>
           </section>
         </div>
       ) : null}

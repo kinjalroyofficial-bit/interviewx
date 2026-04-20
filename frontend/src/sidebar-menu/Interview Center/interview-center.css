@@ -378,7 +378,7 @@
 }
 
 .ic3-modal-backdrop {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background: #00000075;
   display: grid;
@@ -388,7 +388,7 @@
 }
 
 .ic3-modal {
-  width: 100%;
+  width: min(420px, 100%);
   border-radius: 12px;
   border: 1px solid var(--ic3-border);
   background: var(--ic3-surface);
@@ -411,6 +411,13 @@
   margin-top: 0.5rem;
   display: grid;
   gap: 0.42rem;
+}
+
+.ic3-modal-topic-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px;
+  gap: 0.45rem;
+  align-items: center;
 }
 
 .ic3-modal-checkbox {
@@ -436,7 +443,6 @@
 }
 
 .ic3-modal-select {
-  margin-top: 0.28rem;
   width: 100%;
   min-height: 32px;
   padding: 0 0.5rem;
@@ -447,8 +453,14 @@
   font-size: 0.68rem;
 }
 
+.ic3-modal-actions {
+  margin-top: 0.62rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
 .ic3-modal-close {
-  margin-top: 0.6rem;
   min-height: 30px;
   padding: 0 0.55rem;
   border-radius: 8px;
@@ -457,6 +469,22 @@
   color: inherit;
   font-size: 0.66rem;
   font-weight: 700;
+}
+
+.ic3-modal-submit {
+  min-height: 30px;
+  padding: 0 0.68rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--ic3-accent) 65%, white 35%);
+  background: color-mix(in srgb, var(--ic3-accent) 65%, var(--ic3-surface-soft));
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dashboard-theme-light .ic3-modal-submit {
+  color: #1f2f55;
 }
 
 .ic3-chat-panel {
