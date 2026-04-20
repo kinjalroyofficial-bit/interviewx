@@ -346,27 +346,36 @@
 }
 
 .ic3-mode-modal {
-  width: min(760px, 100%);
+  width: min(1080px, 100%);
+}
+
+.ic3-mode-head {
+  margin-top: 0.55rem;
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.55rem;
+  padding: 0 0.6rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--ic3-muted);
 }
 
 .ic3-mode-list {
-  margin-top: 0.55rem;
+  margin-top: 0.4rem;
   display: grid;
-  gap: 0.5rem;
-  max-height: min(68vh, 540px);
-  overflow-y: auto;
+  gap: 0.38rem;
 }
 
 .ic3-mode-item {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.5rem;
+  grid-template-columns: 22px 200px minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.55rem;
   align-items: start;
   border: 1px solid var(--ic3-border);
   border-radius: 10px;
   background: var(--ic3-surface-soft);
-  padding: 0.52rem;
-  font-size: 0.68rem;
+  padding: 0.48rem 0.6rem;
+  font-size: 0.65rem;
 }
 
 .ic3-mode-item input {
@@ -375,18 +384,14 @@
 }
 
 .ic3-mode-item strong {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
+  line-height: 1.25;
 }
 
 .ic3-mode-item p {
-  margin: 0.26rem 0 0;
+  margin: 0;
   color: var(--ic3-muted);
-  line-height: 1.34;
-}
-
-.ic3-mode-item p > span {
-  color: var(--ic3-text);
-  font-weight: 700;
+  line-height: 1.32;
 }
 
 .ic3-input-toggle {

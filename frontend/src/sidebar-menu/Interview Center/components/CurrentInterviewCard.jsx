@@ -5,27 +5,27 @@ const BROWSE_TOPICS = ['SQL', 'Python', 'Java']
 const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
 const MODE_OPTIONS = [
   {
-    value: 'Free-flowing',
+    value: 'Free-Flowing - Conversational',
     description: 'Dynamically generates a progressive flow of questions based on the candidate’s profile. The interview evolves naturally with adaptive depth and follow-ups.',
     purpose: 'Builds confidence in open-ended interviews and helps candidates steer discussion toward their strengths.'
   },
   {
-    value: 'Topic Oriented',
+    value: 'Topic Oriented - Domain-Focused',
     description: 'The interview is tailored to selected technologies or concepts so all questions remain within the chosen scope.',
     purpose: 'Improves depth and articulation in specific technical domains.'
   },
   {
-    value: 'Only Coding',
+    value: 'Exclusively Coding',
     description: 'Focuses on coding challenges and follow-ups that test approach, logic, and implementation quality.',
     purpose: 'Assesses practical coding, problem-solving, and technical communication under interview constraints.'
   },
   {
-    value: 'Pro-Mode',
+    value: 'Pro-Mode - Full-Stack',
     description: 'Combines technical, coding, and situational questions in a profile-contextualized full interview flow.',
     purpose: 'Provides a holistic readiness check across depth, coding proficiency, and communication.'
   },
   {
-    value: 'Differential',
+    value: 'Differential - CV & JD Based',
     description: 'Uses candidate context and role intent to generate tailored discussions around projects, strengths, and potential gaps.',
     purpose: 'Evaluates candidate-role fit and encourages structured self-reflection for targeted opportunities.'
   }
@@ -245,6 +245,11 @@ export default function CurrentInterviewCard({ activeInterview, username }) {
         <div className="ic3-modal-backdrop" role="presentation" onClick={() => setIsModeModalOpen(false)}>
           <section className="ic3-modal ic3-mode-modal" role="dialog" aria-modal="true" aria-label="Interview modes" onClick={(event) => event.stopPropagation()}>
             <h4>Select Interview Mode</h4>
+            <div className="ic3-mode-head">
+              <span>Mode</span>
+              <span>Description</span>
+              <span>Purpose</span>
+            </div>
             <div className="ic3-mode-list" role="radiogroup" aria-label="Interview mode options">
               {MODE_OPTIONS.map((modeOption) => (
                 <label key={modeOption.value} className="ic3-mode-item">
@@ -254,11 +259,9 @@ export default function CurrentInterviewCard({ activeInterview, username }) {
                     checked={pendingMode === modeOption.value}
                     onChange={() => setPendingMode(modeOption.value)}
                   />
-                  <div>
-                    <strong>{modeOption.value}</strong>
-                    <p><span>Description:</span> {modeOption.description}</p>
-                    <p><span>Purpose:</span> {modeOption.purpose}</p>
-                  </div>
+                  <strong>{modeOption.value}</strong>
+                  <p>{modeOption.description}</p>
+                  <p>{modeOption.purpose}</p>
                 </label>
               ))}
             </div>
