@@ -52,6 +52,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 app = FastAPI(title="InterviewX API", version="0.1.0")
 logger = logging.getLogger("interviewx.auth")
 QUESTION_REPOSITORY_PATH = Path(__file__).resolve().parent / "knowledge_repository" / "tech_questions.json"
+LAST_OPENAI_PAYLOAD: dict = {}
 
 app.add_middleware(
     CORSMiddleware,
@@ -86,6 +87,11 @@ def normalize_profile_value(value: str | None) -> str | None:
         return None
     clean_value = value.strip()
     return clean_value or None
+
+
+def set_last_openai_payload(payload: dict) -> None:
+    global LAST_OPENAI_PAYLOAD
+    LAST_OPENAI_PAYLOAD = payload
 
 
 def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
@@ -495,6 +501,16 @@ Interview start instruction:
             input=starter_prompt,
             max_output_tokens=int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
         )
+        set_last_openai_payload(
+            {
+                "endpoint": "/interview/start",
+                "interview_id": interview_id,
+                "model": os.getenv("OPENAI_MODEL"),
+                "max_output_tokens": int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
+                "input": starter_prompt,
+                "captured_at": datetime.now(timezone.utc).isoformat(),
+            }
+        )
         first_question = response.output_text.strip()
         if not first_question:
             raise HTTPException(status_code=500, detail="Empty response from model")
@@ -581,6 +597,16 @@ Task:
             input=prompt,
             max_output_tokens=int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800))
         )
+        set_last_openai_payload(
+            {
+                "endpoint": "/interview/next-question",
+                "interview_id": interview_id,
+                "model": os.getenv("OPENAI_MODEL"),
+                "max_output_tokens": int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
+                "input": prompt,
+                "captured_at": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
         next_question = response.output_text.strip()
         if not next_question:
@@ -606,3 +632,10 @@ Task:
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(status_code=500, detail="Failed to generate question")
+
+
+@app.get("/interview/debug/last-openai-payload")
+def get_last_openai_payload() -> dict:
+    if not LAST_OPENAI_PAYLOAD:
+        return {"message": "No OpenAI request captured yet."}
+    return LAST_OPENAI_PAYLOAD

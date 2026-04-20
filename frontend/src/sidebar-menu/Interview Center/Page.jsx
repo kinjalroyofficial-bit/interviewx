@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { startInterview } from '../../api'
+import { nextInterviewQuestion, startInterview } from '../../api'
 import ChatComposer from './components/ChatComposer'
 import ChatHeader from './components/ChatHeader'
 import CurrentInterviewCard from './components/CurrentInterviewCard'
@@ -72,6 +72,8 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [activeInterviewId, setActiveInterviewId] = useState('')
   const [liveInterview, setLiveInterview] = useState(null)
   const [isStartingInterview, setIsStartingInterview] = useState(false)
+  const [isSendingAnswer, setIsSendingAnswer] = useState(false)
+  const [composerValue, setComposerValue] = useState('')
   const [startInterviewError, setStartInterviewError] = useState('')
   const [currentSetup, setCurrentSetup] = useState({
     selectedMode: 'Free-Flowing - Conversational',
@@ -130,6 +132,59 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     }
   }
 
+  async function handleSendAnswer() {
+    if (!liveInterview || isSendingAnswer) return
+    const answer = composerValue.trim()
+    if (!answer) return
+
+    setIsSendingAnswer(true)
+    const userMessageId = `${liveInterview.id}-u-${Date.now()}`
+    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    setLiveInterview((currentInterview) => {
+      if (!currentInterview) return currentInterview
+      return {
+        ...currentInterview,
+        messages: [
+          ...currentInterview.messages,
+          {
+            id: userMessageId,
+            author: 'user',
+            text: answer,
+            time: nowTime
+          }
+        ]
+      }
+    })
+    setComposerValue('')
+
+    try {
+      const data = await nextInterviewQuestion({
+        interview_id: liveInterview.id,
+        answer
+      })
+      const assistantTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      setLiveInterview((currentInterview) => {
+        if (!currentInterview) return currentInterview
+        return {
+          ...currentInterview,
+          messages: [
+            ...currentInterview.messages,
+            {
+              id: `${currentInterview.id}-a-${Date.now()}`,
+              author: 'assistant',
+              text: data.next_question,
+              time: assistantTime
+            }
+          ]
+        }
+      })
+    } catch (error) {
+      setStartInterviewError(error.message || 'Unable to send answer.')
+    } finally {
+      setIsSendingAnswer(false)
+    }
+  }
+
   return (
     <main className={`ic3-layout ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
       <header className="ic3-workspace-header">
@@ -158,12 +213,18 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         {liveInterview ? (
           <>
             <MessagePane messages={liveInterview.messages} />
-            <ChatComposer />
+            <ChatComposer
+              value={composerValue}
+              onChange={setComposerValue}
+              onSend={handleSendAnswer}
+              disabled={isSendingAnswer}
+              placeholder={isSendingAnswer ? 'Sending...' : 'Type your answer...'}
+            />
           </>
         ) : activeInterview ? (
           <>
             <MessagePane messages={activeInterview.messages} />
-            <ChatComposer />
+            <ChatComposer disabled placeholder="Start a live interview to send answers..." />
           </>
         ) : (
           <div className="ic3-chat-empty-state">
