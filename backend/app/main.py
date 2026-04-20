@@ -88,12 +88,14 @@ def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
         else "- No topics selected"
     )
     mode_type = detect_mode_type(selected_mode)
+    selected_topics_setup_section = (
+        f"- Topic/Difficulty Selections:\n{selected_topics}"
+        if mode_type != "conversational"
+        else ""
+    )
     selected_seed_questions = select_seed_questions(payload.selected_topics, mode_type)
     seed_questions_section = (
-        "\n".join(
-            f"- Topic: {seed_question['topic']} | Difficulty: {seed_question['difficulty']} | Question: {seed_question['question']}"
-            for seed_question in selected_seed_questions
-        )
+        "\n".join(f"- {seed_question['question']}" for seed_question in selected_seed_questions)
         if selected_seed_questions
         else "- No seed questions found for the selected topic/difficulty pairs."
     )
@@ -111,8 +113,7 @@ Candidate Profile:
 
 Current Interview Setup (from active current panel only):
 - Selected Mode: {selected_mode}
-- Topic/Difficulty Selections:
-{selected_topics}
+{selected_topics_setup_section}
 """
 
     if mode_type == "conversational":
