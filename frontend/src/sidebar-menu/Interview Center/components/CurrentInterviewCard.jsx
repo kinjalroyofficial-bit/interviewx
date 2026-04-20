@@ -240,7 +240,7 @@ export default function CurrentInterviewCard({ activeInterview, username, onSetu
               </span>
             ))
           ) : (
-            <span className="ic3-pill">Click “Browse Topics” to choose your interview topics.</span>
+            <span className="ic3-pill">Click Browse Topic</span>
           )}
         </div>
       </div>

@@ -174,6 +174,20 @@
   padding: 0.2rem 0;
 }
 
+.ic3-history-empty-state {
+  margin: 0.55rem;
+  min-height: 120px;
+  border: 1px dashed color-mix(in srgb, var(--ic3-accent-soft) 50%, var(--ic3-border));
+  border-radius: 10px;
+  padding: 0.8rem;
+  color: var(--ic3-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  display: grid;
+  align-content: center;
+  text-align: center;
+}
+
 .ic3-history-item {
   width: 100%;
   border: 1px solid transparent;

@@ -24,7 +24,7 @@ export default function InterviewHistoryPanel({ interviews, activeId, onSelect }
             ))}
           </div>
         ) : (
-          <p>Your interview history will appear over here.</p>
+          <p className="ic3-history-empty-state">Your interview history will appear here after your first completed interview.</p>
         )}
       </div>
     </aside>
