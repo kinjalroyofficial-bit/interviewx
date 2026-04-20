@@ -37,3 +37,32 @@ export function login(payload) {
 export function googleLogin(idToken) {
   return authRequest('/auth/google', { id_token: idToken })
 }
+
+export async function getUserProfile(username) {
+  const query = new URLSearchParams({ username })
+  const response = await fetch(`${API_BASE_URL}/users/profile?${query.toString()}`)
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to fetch user profile (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
+
+export async function updateUserProfile(payload) {
+  const response = await fetch(`${API_BASE_URL}/users/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to update user profile (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}

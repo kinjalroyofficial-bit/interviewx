@@ -37,6 +37,7 @@ export default function Dashboard() {
         menu={sidebarMenu}
         greetingText={greetingText}
         displayName={displayName}
+        username={currentUser || ''}
         onLeafSelect={setActiveLeafLabel}
         collapsed={isSidebarCollapsed}
         onCollapsedChange={setIsSidebarCollapsed}

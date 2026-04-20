@@ -338,6 +338,17 @@ body,
   cursor: pointer;
 }
 
+.sidebar-modal-button.is-primary {
+  border-color: #8ea8ff7d;
+  background: #1a2a5273;
+}
+
+.sidebar-modal-status {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #cedbff;
+}
+
 .dashboard-sidebar.is-collapsed .sidebar-profile {
   justify-content: center;
   padding-inline: 0;
@@ -453,6 +464,15 @@ body,
   border-color: #bccce9;
   background: #edf3ff;
   color: #1d2740;
+}
+
+.dashboard-theme-light .sidebar-modal-button.is-primary {
+  border-color: #9eb2da;
+  background: #dbe6ff;
+}
+
+.dashboard-theme-light .sidebar-modal-status {
+  color: #344b7a;
 }
 
 .dashboard-theme-light .sidebar-item:hover,

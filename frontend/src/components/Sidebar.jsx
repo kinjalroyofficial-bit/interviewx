@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { getUserProfile, updateUserProfile } from '../api'
 
 function Icon({ kind }) {
   const paths = {
@@ -85,7 +86,7 @@ function MenuNode({ item, depth, collapsed, openPaths, selectedPath, onItemClick
   )
 }
 
-export default function Sidebar({ menu, greetingText, displayName, onLeafSelect, collapsed: controlledCollapsed, onCollapsedChange }) {
+export default function Sidebar({ menu, greetingText, displayName, username, onLeafSelect, collapsed: controlledCollapsed, onCollapsedChange }) {
   const [internalCollapsed, setInternalCollapsed] = useState(false)
   const collapsed = typeof controlledCollapsed === 'boolean' ? controlledCollapsed : internalCollapsed
   const [openPaths, setOpenPaths] = useState(() => new Set(['awareness']))
@@ -96,6 +97,7 @@ export default function Sidebar({ menu, greetingText, displayName, onLeafSelect,
     yearsOfExperience: '',
     technologiesWorkedOn: ''
   })
+  const [profileStatus, setProfileStatus] = useState('')
 
   function setCollapsed(nextValue) {
     const resolvedValue = typeof nextValue === 'function' ? nextValue(collapsed) : nextValue
@@ -148,6 +150,47 @@ export default function Sidebar({ menu, greetingText, displayName, onLeafSelect,
     setProfileForm((currentForm) => ({ ...currentForm, [name]: value }))
   }
 
+  async function openProfileModal() {
+    setProfileStatus('')
+    setIsProfileModalOpen(true)
+    if (!username) return
+
+    try {
+      const profile = await getUserProfile(username)
+      setProfileForm({
+        name: profile.name || '',
+        yearsOfExperience: profile.years_of_experience || '',
+        technologiesWorkedOn: profile.technologies_worked_on || ''
+      })
+    } catch (error) {
+      setProfileStatus(error.message || 'Unable to load profile.')
+    }
+  }
+
+  async function handleProfileSave() {
+    if (!username) {
+      setProfileStatus('Missing username. Please login again.')
+      return
+    }
+
+    setProfileStatus('Saving...')
+    try {
+      await updateUserProfile({
+        username,
+        name: profileForm.name,
+        years_of_experience: profileForm.yearsOfExperience,
+        technologies_worked_on: profileForm.technologiesWorkedOn
+      })
+      setProfileStatus('Profile updated successfully.')
+      setTimeout(() => {
+        setIsProfileModalOpen(false)
+        setProfileStatus('')
+      }, 450)
+    } catch (error) {
+      setProfileStatus(error.message || 'Unable to save profile.')
+    }
+  }
+
   return (
     <aside className={`dashboard-sidebar ${collapsed ? 'is-collapsed' : ''}`}>
       <div className="sidebar-header">
@@ -178,7 +221,7 @@ export default function Sidebar({ menu, greetingText, displayName, onLeafSelect,
         {!collapsed ? (
           <div className="sidebar-profile-content">
             <p className="sidebar-greeting">{greetingText}</p>
-            <button type="button" className="sidebar-profile-update-button" onClick={() => setIsProfileModalOpen(true)}>
+            <button type="button" className="sidebar-profile-update-button" onClick={openProfileModal}>
               Update My Profile
             </button>
           </div>
@@ -228,7 +271,9 @@ export default function Sidebar({ menu, greetingText, displayName, onLeafSelect,
 
             <div className="sidebar-modal-actions">
               <button type="button" className="sidebar-modal-button" onClick={() => setIsProfileModalOpen(false)}>Close</button>
+              <button type="button" className="sidebar-modal-button is-primary" onClick={handleProfileSave}>Save</button>
             </div>
+            {profileStatus ? <p className="sidebar-modal-status">{profileStatus}</p> : null}
           </section>
         </div>
       ) : null}

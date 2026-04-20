@@ -19,8 +19,14 @@ from google.oauth2 import id_token as google_id_token
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models import User
-from app.schemas import AuthRequest, AuthResponse, GoogleAuthRequest
+from app.models import User, UserProfileUpdateLog
+from app.schemas import (
+    AuthRequest,
+    AuthResponse,
+    GoogleAuthRequest,
+    UserProfileResponse,
+    UserProfileUpdateRequest,
+)
 
 app = FastAPI(title="InterviewX API", version="0.1.0")
 logger = logging.getLogger("interviewx.auth")
@@ -51,6 +57,13 @@ def root() -> dict[str, str]:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+def normalize_profile_value(value: str | None) -> str | None:
+    if value is None:
+        return None
+    clean_value = value.strip()
+    return clean_value or None
 
 
 @app.post("/auth/signup", response_model=AuthResponse)
@@ -167,3 +180,47 @@ def google_login(payload: GoogleAuthRequest, db: Session = Depends(get_db)) -> A
     logger.info("Google login successful for email=%s", email)
 
     return AuthResponse(message="Google login successful", username=user.username)
+
+
+@app.get("/users/profile", response_model=UserProfileResponse)
+def get_user_profile(username: str, db: Session = Depends(get_db)) -> UserProfileResponse:
+    clean_username = username.strip()
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return UserProfileResponse(
+        username=user.username,
+        name=user.full_name,
+        years_of_experience=user.years_of_experience,
+        technologies_worked_on=user.technologies_worked_on,
+    )
+
+
+@app.put("/users/profile", response_model=UserProfileResponse)
+def update_user_profile(payload: UserProfileUpdateRequest, db: Session = Depends(get_db)) -> UserProfileResponse:
+    clean_username = payload.username.strip()
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.full_name = normalize_profile_value(payload.name)
+    user.years_of_experience = normalize_profile_value(payload.years_of_experience)
+    user.technologies_worked_on = normalize_profile_value(payload.technologies_worked_on)
+
+    profile_update_log = UserProfileUpdateLog(
+        user_id=user.id,
+        full_name=user.full_name,
+        years_of_experience=user.years_of_experience,
+        technologies_worked_on=user.technologies_worked_on,
+    )
+    db.add(profile_update_log)
+    db.commit()
+    db.refresh(user)
+
+    return UserProfileResponse(
+        username=user.username,
+        name=user.full_name,
+        years_of_experience=user.years_of_experience,
+        technologies_worked_on=user.technologies_worked_on,
+    )
