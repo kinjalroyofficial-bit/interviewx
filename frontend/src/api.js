@@ -159,7 +159,11 @@ export async function endInterview(payload) {
 
 export async function getInterviewHistory(username) {
   const query = new URLSearchParams({ username })
-  const response = await fetch(`${API_BASE_URL}/interview/history?${query.toString()}`)
+  let response = await fetch(`${API_BASE_URL}/interview/history?${query.toString()}`)
+
+  if (response.status === 404 && API_BASE_URL === '/api') {
+    response = await fetch(`/interview/history?${query.toString()}`)
+  }
 
   if (!response.ok) {
     const detail = await response.text()
