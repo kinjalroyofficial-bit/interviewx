@@ -49,7 +49,9 @@ from app.schemas import (
     UserProfileResponse,
     UserProfileUpdateRequest,
     InterviewTurnRequest,
-    InterviewTurnResponse
+    InterviewTurnResponse,
+    InterviewHistoryItem,
+    InterviewHistoryResponse,
 )
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -1090,3 +1092,47 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
         interview_ended=True,
         transcript_file_path=None,
     )
+
+
+@app.get("/interview/history", response_model=InterviewHistoryResponse)
+def get_interview_history(username: str, db: Session = Depends(get_db)) -> InterviewHistoryResponse:
+    clean_username = (username or "").strip()
+    if not clean_username:
+        raise HTTPException(status_code=400, detail="username is required")
+
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    sessions = (
+        db.query(InterviewSession)
+        .filter(InterviewSession.user_id == user.id)
+        .order_by(InterviewSession.created_at.desc())
+        .all()
+    )
+
+    interviews: list[InterviewHistoryItem] = []
+    for session in sessions:
+        transcript_turns: list[dict] = []
+        if session.transcript_json:
+            try:
+                parsed_turns = json.loads(session.transcript_json)
+                if isinstance(parsed_turns, list):
+                    transcript_turns = parsed_turns
+            except json.JSONDecodeError:
+                transcript_turns = []
+        if not transcript_turns:
+            _, transcript_turns = build_session_transcript_from_db(db, session.id)
+
+        interviews.append(
+            InterviewHistoryItem(
+                interview_id=session.id,
+                status=session.status,
+                selected_mode=session.selected_mode,
+                created_at=session.created_at.isoformat() if session.created_at else None,
+                ended_at=session.ended_at.isoformat() if session.ended_at else None,
+                transcript_turns=transcript_turns,
+            )
+        )
+
+    return InterviewHistoryResponse(interviews=interviews)

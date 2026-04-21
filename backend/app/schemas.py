@@ -87,3 +87,16 @@ class EndInterviewResponse(BaseModel):
     interview_id: str
     interview_ended: bool
     transcript_file_path: str | None = None
+
+
+class InterviewHistoryItem(BaseModel):
+    interview_id: str
+    status: str
+    selected_mode: str | None = None
+    created_at: str | None = None
+    ended_at: str | None = None
+    transcript_turns: list[InterviewTranscriptTurn] = Field(default_factory=list)
+
+
+class InterviewHistoryResponse(BaseModel):
+    interviews: list[InterviewHistoryItem] = Field(default_factory=list)

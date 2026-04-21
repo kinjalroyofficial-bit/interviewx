@@ -156,3 +156,15 @@ export async function endInterview(payload) {
 
   return response.json()
 }
+
+export async function getInterviewHistory(username) {
+  const query = new URLSearchParams({ username })
+  const response = await fetch(`${API_BASE_URL}/interview/history?${query.toString()}`)
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to fetch interview history (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}

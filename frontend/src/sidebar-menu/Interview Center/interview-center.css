@@ -603,9 +603,9 @@
   overflow: hidden;
 }
 
-.ic3-end-interview-button {
+.ic3-end-interview-floating-button {
   position: absolute;
-  top: 0.95rem;
+  bottom: 4.4rem;
   right: 0.95rem;
   z-index: 20;
   min-height: 28px;

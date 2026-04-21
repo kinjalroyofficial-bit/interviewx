@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { endInterview, nextInterviewQuestion, startInterview } from '../../api'
+import { endInterview, getInterviewHistory, nextInterviewQuestion, startInterview } from '../../api'
 import ChatComposer from './components/ChatComposer'
 import ChatHeader from './components/ChatHeader'
 import CurrentInterviewCard from './components/CurrentInterviewCard'
@@ -12,7 +12,7 @@ import './interview-center.css'
 export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const currentUsername = localStorage.getItem('interviewx-user') || ''
   const [isLightTheme, setIsLightTheme] = useState(false)
-  const [interviews] = useState([])
+  const [interviews, setInterviews] = useState([])
 
   const [activeInterviewId, setActiveInterviewId] = useState('')
   const [liveInterview, setLiveInterview] = useState(null)
@@ -22,6 +22,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [startInterviewError, setStartInterviewError] = useState('')
   const [sendAnswerError, setSendAnswerError] = useState('')
   const [endInterviewError, setEndInterviewError] = useState('')
+  const [historyError, setHistoryError] = useState('')
   const [isEndingInterview, setIsEndingInterview] = useState(false)
   const [currentSetup, setCurrentSetup] = useState({
     selectedMode: 'Free-Flowing - Conversational',
@@ -41,6 +42,37 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     if (!shell) return
     setIsLightTheme(shell.classList.contains('dashboard-theme-light'))
   }, [])
+
+  useEffect(() => {
+    if (!currentUsername) return
+    loadInterviewHistory()
+  }, [currentUsername])
+
+  async function loadInterviewHistory() {
+    try {
+      setHistoryError('')
+      const data = await getInterviewHistory(currentUsername)
+      const mappedInterviews = (data.interviews || []).map((interview) => {
+        const messages = (interview.transcript_turns || []).map((turn, idx) => ({
+          id: `${interview.interview_id}-${idx}`,
+          author: turn.role || 'assistant',
+          text: turn.content || '',
+          time: turn.timestamp ? new Date(turn.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'
+        }))
+        return {
+          id: interview.interview_id,
+          title: `Interview ${interview.interview_id.slice(-6)}`,
+          displayTime: interview.created_at ? new Date(interview.created_at).toLocaleDateString() : 'Unknown',
+          status: interview.status,
+          interviewEnded: interview.status === 'ended',
+          messages
+        }
+      })
+      setInterviews(mappedInterviews)
+    } catch (error) {
+      setHistoryError(error.message || 'Unable to load interview history.')
+    }
+  }
 
   function handleThemeToggle() {
     const shell = document.querySelector('.dashboard-shell')
@@ -89,6 +121,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           }
         ]
       })
+      await loadInterviewHistory()
     } catch (error) {
       setStartInterviewError(error.message || 'Unable to start interview.')
     } finally {
@@ -150,6 +183,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           ]
         }
       })
+      await loadInterviewHistory()
     } catch (error) {
       setSendAnswerError(error.message || 'Unable to send answer.')
     } finally {
@@ -195,6 +229,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           ]
         }
       })
+      await loadInterviewHistory()
     } catch (error) {
       setEndInterviewError(error.message || 'Unable to end interview.')
     } finally {
@@ -218,6 +253,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           activeId={activeInterview?.id || ''}
           onSelect={setActiveInterviewId}
         />
+        {historyError ? <p>{historyError}</p> : null}
         <CurrentInterviewCard
           activeInterview={activeInterview || fallbackInterview}
           username={currentUsername}
@@ -229,15 +265,15 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         <ChatHeader interview={liveInterview || activeInterview || defaultChatInterview} />
         {liveInterview ? (
           <>
+            <MessagePane messages={liveInterview.messages} />
             <button
               type="button"
-              className="ic3-end-interview-button"
+              className="ic3-end-interview-floating-button"
               onClick={handleEndInterview}
               disabled={isEndingInterview}
             >
               {isEndingInterview ? 'Saving...' : (liveInterview.interviewEnded ? 'Save Interview' : 'End Interview')}
             </button>
-            <MessagePane messages={liveInterview.messages} />
             <ChatComposer
               value={composerValue}
               onChange={setComposerValue}
