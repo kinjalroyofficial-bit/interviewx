@@ -25,6 +25,7 @@ import json
 import random
 from datetime import datetime, timezone
 from pathlib import Path
+from time import perf_counter
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -110,6 +111,12 @@ def record_interview_debug_event(event_data: dict) -> None:
     max_events = int(os.getenv("INTERVIEW_DEBUG_EVENTS_MAX", "200"))
     if len(INTERVIEW_DEBUG_EVENTS) > max_events:
         INTERVIEW_DEBUG_EVENTS = INTERVIEW_DEBUG_EVENTS[-max_events:]
+
+
+def print_interview_trace(event: str, **details) -> None:
+    timestamp = datetime.now(timezone.utc).isoformat()
+    serialized = json.dumps(details, default=str, ensure_ascii=False)
+    print(f"[InterviewTrace][{timestamp}] {event} | {serialized}", flush=True)
 
 
 def serialize_openai_response(response) -> dict:
@@ -208,6 +215,13 @@ def finalize_interview(
     transcript_text: str,
     transcript_turns: list[dict] | None = None,
 ) -> str:
+    finalize_start = perf_counter()
+    print_interview_trace(
+        "finalize_interview.started",
+        interview_id=session.id,
+        transcript_chars=len(transcript_text or ""),
+        turns_count=len(transcript_turns or []),
+    )
     normalized_turns = transcript_turns if isinstance(transcript_turns, list) else []
 
     transcript_dir = Path(__file__).resolve().parent.parent / "tmp" / "interview_transcripts"
@@ -220,6 +234,12 @@ def finalize_interview(
     session.status = "ended"
     session.ended_at = datetime.now(timezone.utc)
     session.updated_at = datetime.now(timezone.utc)
+    print_interview_trace(
+        "finalize_interview.completed",
+        interview_id=session.id,
+        transcript_file=str(transcript_file),
+        duration_ms=round((perf_counter() - finalize_start) * 1000, 2),
+    )
     return str(transcript_file)
 
 
@@ -622,10 +642,18 @@ def preview_interview_prompt(payload: PromptPreviewRequest, db: Session = Depend
 
 @app.post("/interview/start", response_model=StartInterviewResponse)
 def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db)) -> StartInterviewResponse:
+    endpoint_start = perf_counter()
     try:
         clean_username = payload.username.strip()
+        print_interview_trace(
+            "start_interview.received",
+            username=clean_username,
+            selected_mode=payload.selected_mode,
+            selected_topics_count=len(payload.selected_topics or []),
+        )
         user = db.query(User).filter(User.username == clean_username).first()
         if not user:
+            print_interview_trace("start_interview.user_not_found", username=clean_username)
             raise HTTPException(status_code=404, detail="User not found")
 
         interview_id = f"intv_{secrets.token_hex(8)}"
@@ -634,9 +662,17 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
             payload.selected_mode,
             payload.selected_topics,
         )
+        openai_start = perf_counter()
         response = client.responses.create(
             model=os.getenv("OPENAI_MODEL"),
             input=starter_prompt,
+        )
+        print_interview_trace(
+            "start_interview.openai_completed",
+            interview_id=interview_id,
+            model=os.getenv("OPENAI_MODEL"),
+            duration_ms=round((perf_counter() - openai_start) * 1000, 2),
+            response_id=getattr(response, "id", None),
         )
         set_last_openai_payload(
             {
@@ -695,7 +731,18 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
             status="active",
         )
         db.add(session)
+        commit_start = perf_counter()
         db.commit()
+        print_interview_trace(
+            "start_interview.db_commit_completed",
+            interview_id=interview_id,
+            duration_ms=round((perf_counter() - commit_start) * 1000, 2),
+        )
+        print_interview_trace(
+            "start_interview.completed",
+            interview_id=interview_id,
+            total_duration_ms=round((perf_counter() - endpoint_start) * 1000, 2),
+        )
         return StartInterviewResponse(
             interview_id=interview_id,
             first_question=first_question,
@@ -704,6 +751,12 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
     except Exception as e:
         db.rollback()
         logger.error(f"INTERVIEW START ERROR = {str(e)}")
+        print_interview_trace(
+            "start_interview.failed",
+            error=str(e),
+            error_type=type(e).__name__,
+            total_duration_ms=round((perf_counter() - endpoint_start) * 1000, 2),
+        )
         record_interview_debug_event(
             {
                 "event": "interview_start_error",
@@ -720,6 +773,7 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
 
 @app.post("/interview/next-question", response_model=InterviewTurnResponse)
 def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_db)):
+    endpoint_start = perf_counter()
     try:
         interview_id = payload.interview_id.strip()
         if not interview_id:
@@ -728,6 +782,12 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
         answer = payload.answer.strip()
         if not answer:
             raise HTTPException(status_code=400, detail="answer is required")
+        print_interview_trace(
+            "next_question.received",
+            interview_id=interview_id,
+            answer_chars=len(answer),
+            has_previous_response_id=bool(payload.previous_response_id),
+        )
 
         previous_response_id = payload.previous_response_id
 
@@ -738,7 +798,15 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
         if previous_response_id:
             request_payload["previous_response_id"] = previous_response_id
 
+        openai_start = perf_counter()
         response = client.responses.create(**request_payload)
+        print_interview_trace(
+            "next_question.openai_completed",
+            interview_id=interview_id,
+            model=request_payload.get("model"),
+            duration_ms=round((perf_counter() - openai_start) * 1000, 2),
+            response_id=getattr(response, "id", None),
+        )
         set_last_openai_payload(
             {
                 "endpoint": "/interview/next-question",
@@ -787,6 +855,13 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
             next_question = next_question.replace(INTERVIEW_END_KEYWORD, "").strip()
             if not next_question:
                 next_question = "Interview ended."
+        print_interview_trace(
+            "next_question.completed",
+            interview_id=interview_id,
+            interview_ended=interview_ended,
+            question_chars=len(next_question),
+            total_duration_ms=round((perf_counter() - endpoint_start) * 1000, 2),
+        )
 
         return InterviewTurnResponse(
             next_question=next_question,
@@ -798,6 +873,13 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
     except Exception as e:
         db.rollback()
         logger.error(f"INTERVIEW ERROR = {str(e)}")
+        print_interview_trace(
+            "next_question.failed",
+            interview_id=payload.interview_id if payload else None,
+            error=str(e),
+            error_type=type(e).__name__,
+            total_duration_ms=round((perf_counter() - endpoint_start) * 1000, 2),
+        )
         record_interview_debug_event(
             {
                 "event": "interview_next_question_error",
@@ -838,9 +920,16 @@ def get_interview_debug_events(limit: int = 20) -> dict:
 
 @app.post("/interview/end", response_model=EndInterviewResponse)
 def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -> EndInterviewResponse:
+    endpoint_start = perf_counter()
     interview_id = payload.interview_id.strip()
     if not interview_id:
         raise HTTPException(status_code=400, detail="interview_id is required")
+    print_interview_trace(
+        "end_interview.received",
+        interview_id=interview_id,
+        transcript_turns_count=len(payload.transcript_turns or []),
+        transcript_text_chars=len(payload.transcript_text or ""),
+    )
 
     session = db.query(InterviewSession).filter(InterviewSession.id == interview_id).first()
     if not session:
@@ -861,7 +950,19 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
         transcript_text=transcript_text,
         transcript_turns=transcript_turns,
     )
+    commit_start = perf_counter()
     db.commit()
+    print_interview_trace(
+        "end_interview.db_commit_completed",
+        interview_id=interview_id,
+        duration_ms=round((perf_counter() - commit_start) * 1000, 2),
+    )
+    print_interview_trace(
+        "end_interview.completed",
+        interview_id=interview_id,
+        transcript_file_path=transcript_file_path,
+        total_duration_ms=round((perf_counter() - endpoint_start) * 1000, 2),
+    )
 
     return EndInterviewResponse(
         interview_id=interview_id,
