@@ -60,6 +60,12 @@ LAST_OPENAI_PAYLOAD: dict = {}
 LAST_OPENAI_RESPONSE: dict = {}
 INTERVIEW_DEBUG_EVENTS: list[dict] = []
 INTERVIEW_END_KEYWORD = "[INTERVIEW_ENDED]"
+INTERVIEW_END_FALLBACK_PHRASES = (
+    "interview ended",
+    "the interview has ended",
+    "this interview has ended",
+    "end of interview",
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -144,6 +150,15 @@ def print_interview_trace(event: str, **details) -> None:
     timestamp = datetime.now(timezone.utc).isoformat()
     serialized = json.dumps(details, default=str, ensure_ascii=False)
     print(f"[InterviewTrace][{timestamp}] {event} | {serialized}", flush=True)
+
+
+def is_interview_end_signal(response_text: str) -> bool:
+    normalized_text = (response_text or "").strip().lower()
+    if not normalized_text:
+        return False
+    if INTERVIEW_END_KEYWORD.lower() in normalized_text:
+        return True
+    return any(phrase in normalized_text for phrase in INTERVIEW_END_FALLBACK_PHRASES)
 
 
 def serialize_openai_response(response) -> dict:
@@ -921,7 +936,7 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
             }
         )
 
-        interview_ended = INTERVIEW_END_KEYWORD in next_question
+        interview_ended = is_interview_end_signal(next_question)
         if interview_ended:
             next_question = next_question.replace(INTERVIEW_END_KEYWORD, "").strip()
             if not next_question:
