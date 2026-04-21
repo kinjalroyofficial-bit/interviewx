@@ -1142,6 +1142,8 @@ def build_interview_history_response(username: str, db: Session) -> InterviewHis
 @app.get("/api/interview/history/", response_model=InterviewHistoryResponse)
 @app.get("/interview/history", response_model=InterviewHistoryResponse)
 @app.get("/interview/history/", response_model=InterviewHistoryResponse)
+@app.get("/api/users/interview-history", response_model=InterviewHistoryResponse)
+@app.get("/users/interview-history", response_model=InterviewHistoryResponse)
 def get_interview_history(username: str, db: Session = Depends(get_db)) -> InterviewHistoryResponse:
     return build_interview_history_response(username=username, db=db)
 

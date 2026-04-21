@@ -160,6 +160,7 @@ export async function endInterview(payload) {
 export async function getInterviewHistory(username) {
   const query = new URLSearchParams({ username }).toString()
   const attempts = [
+    { url: `${API_BASE_URL}/users/interview-history?${query}`, options: {} },
     { url: `${API_BASE_URL}/interview/history?${query}`, options: {} },
     { url: `${API_BASE_URL}/interview/history/?${query}`, options: {} },
     {
@@ -172,6 +173,7 @@ export async function getInterviewHistory(username) {
     }
   ]
   if (API_BASE_URL === '/api') {
+    attempts.push({ url: `/users/interview-history?${query}`, options: {} })
     attempts.push({ url: `/interview/history?${query}`, options: {} })
     attempts.push({ url: `/interview/history/?${query}`, options: {} })
     attempts.push({
@@ -214,7 +216,12 @@ export async function getInterviewHistory(username) {
     if (openapiResponse.ok) {
       const openapi = await openapiResponse.json()
       const paths = openapi?.paths || {}
-      const hasHistoryPath = Boolean(paths['/interview/history'] || paths['/api/interview/history'])
+      const hasHistoryPath = Boolean(
+        paths['/interview/history']
+        || paths['/api/interview/history']
+        || paths['/users/interview-history']
+        || paths['/api/users/interview-history']
+      )
       if (!hasHistoryPath) {
         backendHint = ' Backend API currently does not expose /interview/history. Please deploy latest backend main and restart service.'
       }
