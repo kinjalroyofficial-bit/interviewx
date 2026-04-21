@@ -56,20 +56,31 @@ class StartInterviewRequest(BaseModel):
 class StartInterviewResponse(BaseModel):
     interview_id: str
     first_question: str
+    response_id: str | None = None
 
 
 class InterviewTurnRequest(BaseModel):
     interview_id: str
     answer: str
+    previous_response_id: str | None = None
 
 class InterviewTurnResponse(BaseModel):
     next_question: str
     interview_ended: bool = False
     transcript_file_path: str | None = None
+    response_id: str | None = None
+
+
+class InterviewTranscriptTurn(BaseModel):
+    role: str
+    content: str
+    timestamp: str | None = None
 
 
 class EndInterviewRequest(BaseModel):
     interview_id: str
+    transcript_text: str | None = None
+    transcript_turns: list[InterviewTranscriptTurn] = Field(default_factory=list)
 
 
 class EndInterviewResponse(BaseModel):

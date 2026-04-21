@@ -46,6 +46,8 @@ class InterviewSession(Base):
     selected_mode = Column(String, nullable=True)
     selected_topics = Column(Text, nullable=True)
     status = Column(String, nullable=False, default="active")
+    transcript_text = Column(Text, nullable=True)
+    transcript_json = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     ended_at = Column(DateTime(timezone=True), nullable=True)
     updated_at = Column(

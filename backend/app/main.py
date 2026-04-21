@@ -33,7 +33,7 @@ from google.oauth2 import id_token as google_id_token
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models import InterviewSession, InterviewTurn, User, UserProfileUpdateLog
+from app.models import InterviewSession, User, UserProfileUpdateLog
 from app.schemas import (
     AuthRequest,
     AuthResponse,
@@ -203,24 +203,20 @@ def build_response_diagnostics(raw_response: dict) -> dict:
     }
 
 
-def finalize_interview(db: Session, session: InterviewSession) -> str:
-    turns = (
-        db.query(InterviewTurn)
-        .filter(InterviewTurn.session_id == session.id)
-        .order_by(InterviewTurn.timestamp.asc(), InterviewTurn.id.asc())
-        .all()
-    )
-    transcript_lines = [
-        f"[{turn.timestamp.isoformat() if turn.timestamp else ''}] {turn.role.upper()}: {turn.content}"
-        for turn in turns
-    ]
-    transcript_text = "\n".join(transcript_lines)
+def finalize_interview(
+    session: InterviewSession,
+    transcript_text: str,
+    transcript_turns: list[dict] | None = None,
+) -> str:
+    normalized_turns = transcript_turns if isinstance(transcript_turns, list) else []
 
     transcript_dir = Path(__file__).resolve().parent.parent / "tmp" / "interview_transcripts"
     transcript_dir.mkdir(parents=True, exist_ok=True)
     transcript_file = transcript_dir / f"{session.id}.txt"
     transcript_file.write_text(transcript_text, encoding="utf-8")
 
+    session.transcript_text = transcript_text
+    session.transcript_json = json.dumps(normalized_turns)
     session.status = "ended"
     session.ended_at = datetime.now(timezone.utc)
     session.updated_at = datetime.now(timezone.utc)
@@ -699,17 +695,12 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
             status="active",
         )
         db.add(session)
-        db.add(
-            InterviewTurn(
-                session_id=interview_id,
-                role="assistant",
-                content=first_question,
-                response_id=getattr(response, "id", None),
-            )
-        )
         db.commit()
-
-        return StartInterviewResponse(interview_id=interview_id, first_question=first_question)
+        return StartInterviewResponse(
+            interview_id=interview_id,
+            first_question=first_question,
+            response_id=getattr(response, "id", None),
+        )
     except Exception as e:
         db.rollback()
         logger.error(f"INTERVIEW START ERROR = {str(e)}")
@@ -738,34 +729,7 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
         if not answer:
             raise HTTPException(status_code=400, detail="answer is required")
 
-        session = db.query(InterviewSession).filter(InterviewSession.id == interview_id).first()
-        if not session:
-            session = InterviewSession(id=interview_id)
-            db.add(session)
-            db.flush()
-        elif session.status == "ended":
-            raise HTTPException(status_code=400, detail="Interview already ended.")
-
-        db.add(
-            InterviewTurn(
-                session_id=interview_id,
-                role="user",
-                content=answer,
-            )
-        )
-        db.flush()
-
-        previous_assistant_turn = (
-            db.query(InterviewTurn)
-            .filter(
-                InterviewTurn.session_id == interview_id,
-                InterviewTurn.role == "assistant",
-                InterviewTurn.response_id.isnot(None),
-            )
-            .order_by(InterviewTurn.timestamp.desc(), InterviewTurn.id.desc())
-            .first()
-        )
-        previous_response_id = previous_assistant_turn.response_id if previous_assistant_turn else None
+        previous_response_id = payload.previous_response_id
 
         request_payload = {
             "model": os.getenv("OPENAI_MODEL"),
@@ -824,24 +788,11 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
             if not next_question:
                 next_question = "Interview ended."
 
-        db.add(
-            InterviewTurn(
-                session_id=interview_id,
-                role="assistant",
-                content=next_question,
-                response_id=getattr(response, "id", None),
-            )
-        )
-        session.updated_at = datetime.now(timezone.utc)
-        transcript_file_path = None
-        if interview_ended:
-            transcript_file_path = finalize_interview(db, session)
-        db.commit()
-
         return InterviewTurnResponse(
             next_question=next_question,
             interview_ended=interview_ended,
-            transcript_file_path=transcript_file_path,
+            transcript_file_path=None,
+            response_id=getattr(response, "id", None),
         )
 
     except Exception as e:
@@ -895,7 +846,21 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
     if not session:
         raise HTTPException(status_code=404, detail="Interview session not found")
 
-    transcript_file_path = finalize_interview(db, session)
+    transcript_turns = [turn.model_dump() for turn in payload.transcript_turns]
+    if payload.transcript_text and payload.transcript_text.strip():
+        transcript_text = payload.transcript_text.strip()
+    else:
+        transcript_lines = [
+            f"[{turn.get('timestamp') or ''}] {str(turn.get('role', '')).upper()}: {turn.get('content', '')}"
+            for turn in transcript_turns
+        ]
+        transcript_text = "\n".join(transcript_lines).strip() or "Interview ended."
+
+    transcript_file_path = finalize_interview(
+        session,
+        transcript_text=transcript_text,
+        transcript_turns=transcript_turns,
+    )
     db.commit()
 
     return EndInterviewResponse(

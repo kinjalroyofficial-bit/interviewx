@@ -77,6 +77,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         id: data.interview_id,
         title: 'Live Interview',
         interviewEnded: false,
+        lastResponseId: data.response_id || null,
         transcriptFilePath: null,
         messages: [
           {
@@ -125,7 +126,8 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       const requestStart = Date.now()
       const data = await nextInterviewQuestion({
         interview_id: liveInterview.id,
-        answer
+        answer,
+        previous_response_id: liveInterview.lastResponseId || null
       })
       const responseTimeLabel = `response ${formatResponseTime(Date.now() - requestStart)}`
       const assistantTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -134,6 +136,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         return {
           ...currentInterview,
           interviewEnded: Boolean(data.interview_ended),
+          lastResponseId: data.response_id || currentInterview.lastResponseId || null,
           transcriptFilePath: data.transcript_file_path || currentInterview.transcriptFilePath || null,
           messages: [
             ...currentInterview.messages,
@@ -155,12 +158,25 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   }
 
   async function handleEndInterview() {
-    if (!liveInterview || liveInterview.interviewEnded || isEndingInterview) return
+    if (!liveInterview || isEndingInterview) return
 
     setIsEndingInterview(true)
     setEndInterviewError('')
     try {
-      const data = await endInterview({ interview_id: liveInterview.id })
+      const transcriptTurns = liveInterview.messages.map((message) => ({
+        role: message.author,
+        content: message.text,
+        timestamp: message.time || null
+      }))
+      const transcriptText = transcriptTurns
+        .map((turn) => `[${turn.timestamp || ''}] ${String(turn.role || '').toUpperCase()}: ${turn.content || ''}`)
+        .join('\n')
+
+      const data = await endInterview({
+        interview_id: liveInterview.id,
+        transcript_text: transcriptText,
+        transcript_turns: transcriptTurns
+      })
       const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       setLiveInterview((currentInterview) => {
         if (!currentInterview) return currentInterview
@@ -217,9 +233,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
               type="button"
               className="ic3-end-interview-button"
               onClick={handleEndInterview}
-              disabled={isEndingInterview || liveInterview.interviewEnded}
+              disabled={isEndingInterview}
             >
-              {liveInterview.interviewEnded ? 'Interview Ended' : (isEndingInterview ? 'Ending...' : 'End Interview')}
+              {isEndingInterview ? 'Saving...' : (liveInterview.interviewEnded ? 'Save Interview' : 'End Interview')}
             </button>
             <MessagePane messages={liveInterview.messages} />
             <ChatComposer
