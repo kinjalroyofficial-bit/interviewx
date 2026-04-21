@@ -159,16 +159,34 @@ export async function endInterview(payload) {
 
 export async function getInterviewHistory(username) {
   const query = new URLSearchParams({ username })
-  let response = await fetch(`${API_BASE_URL}/interview/history?${query.toString()}`)
-
-  if (response.status === 404 && API_BASE_URL === '/api') {
-    response = await fetch(`/interview/history?${query.toString()}`)
+  const attemptedUrls = [`${API_BASE_URL}/interview/history?${query.toString()}`]
+  if (API_BASE_URL === '/api') {
+    attemptedUrls.push(`/interview/history?${query.toString()}`)
   }
 
-  if (!response.ok) {
-    const detail = await response.text()
-    throw new Error(`Failed to fetch interview history (${response.status}): ${detail}`)
+  let lastFailure = ''
+  for (const url of attemptedUrls) {
+    const response = await fetch(url)
+    const rawBody = await response.text()
+    const contentType = response.headers.get('content-type') || ''
+
+    if (!response.ok) {
+      lastFailure = `url=${url} status=${response.status} body=${rawBody.slice(0, 180)}`
+      continue
+    }
+
+    if (!contentType.includes('application/json')) {
+      lastFailure = `url=${url} status=${response.status} contentType=${contentType || 'unknown'} body=${rawBody.slice(0, 180)}`
+      continue
+    }
+
+    try {
+      return rawBody ? JSON.parse(rawBody) : { interviews: [] }
+    } catch (error) {
+      const parseError = error instanceof Error ? error.message : 'Unknown JSON parse error'
+      lastFailure = `url=${url} status=${response.status} parseError=${parseError} body=${rawBody.slice(0, 180)}`
+    }
   }
 
-  return response.json()
+  throw new Error(`Failed to fetch interview history. ${lastFailure}`)
 }
