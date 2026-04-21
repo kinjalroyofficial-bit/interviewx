@@ -18,6 +18,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [liveInterview, setLiveInterview] = useState(null)
   const [isStartingInterview, setIsStartingInterview] = useState(false)
   const [isSendingAnswer, setIsSendingAnswer] = useState(false)
+  const [isEndingInterview, setIsEndingInterview] = useState(false)
   const [composerValue, setComposerValue] = useState('')
   const [startInterviewError, setStartInterviewError] = useState('')
   const [sendAnswerError, setSendAnswerError] = useState('')
@@ -192,7 +193,34 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     }
   }
 
-  function handleEndInterview() {
+  async function handleEndInterview() {
+    if (!liveInterview) return
+    if (liveInterview.interviewEnded) {
+      setComposerValue('')
+      setLiveInterview(null)
+      setActiveInterviewId('')
+      return
+    }
+    setSendAnswerError('')
+    setIsEndingInterview(true)
+    try {
+      await endInterview({ interview_id: liveInterview.id, transcript_turns: [] })
+      setLiveInterview((currentInterview) => {
+        if (!currentInterview) return currentInterview
+        return {
+          ...currentInterview,
+          interviewEnded: true
+        }
+      })
+      await loadInterviewHistory()
+    } catch (error) {
+      setSendAnswerError(error.message || 'Unable to end interview.')
+    } finally {
+      setIsEndingInterview(false)
+    }
+  }
+
+  function handleCloseInterview() {
     if (!liveInterview) return
     setComposerValue('')
     setLiveInterview(null)
@@ -244,13 +272,24 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         {liveInterview ? (
           <>
             <MessagePane messages={liveInterview.messages} />
-            <button
-              type="button"
-              className="ic3-end-interview-floating-button"
-              onClick={handleEndInterview}
-            >
-              {liveInterview.interviewEnded ? 'Close Interview' : 'End Interview'}
-            </button>
+            {liveInterview.interviewEnded ? (
+              <button
+                type="button"
+                className="ic3-end-interview-floating-button"
+                onClick={handleCloseInterview}
+              >
+                Close Interview
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="ic3-end-interview-floating-button"
+                onClick={handleEndInterview}
+                disabled={isEndingInterview}
+              >
+                {isEndingInterview ? 'Saving...' : 'End Interview'}
+              </button>
+            )}
             {liveInterview.interviewEnded ? (
               <button
                 type="button"
@@ -265,7 +304,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
               value={composerValue}
               onChange={setComposerValue}
               onSend={handleSendAnswer}
-              disabled={isSendingAnswer || liveInterview.interviewEnded}
+              disabled={isSendingAnswer || isEndingInterview || liveInterview.interviewEnded}
               placeholder={liveInterview.interviewEnded ? 'Interview ended.' : (isSendingAnswer ? 'Sending...' : 'Type your answer...')}
             />
             {sendAnswerError ? <p>{sendAnswerError}</p> : null}
