@@ -1121,8 +1121,6 @@ def build_interview_history_response(username: str, db: Session) -> InterviewHis
                     transcript_turns = parsed_turns
             except json.JSONDecodeError:
                 transcript_turns = []
-        if not transcript_turns:
-            _, transcript_turns = build_session_transcript_from_db(db, session.id)
 
         interviews.append(
             InterviewHistoryItem(
