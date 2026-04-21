@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { endInterview, getInterviewHistory, nextInterviewQuestion, startInterview } from '../../api'
+import { getInterviewHistory, nextInterviewQuestion, startInterview } from '../../api'
 import ChatComposer from './components/ChatComposer'
 import ChatHeader from './components/ChatHeader'
 import CurrentInterviewCard from './components/CurrentInterviewCard'
@@ -21,9 +21,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [composerValue, setComposerValue] = useState('')
   const [startInterviewError, setStartInterviewError] = useState('')
   const [sendAnswerError, setSendAnswerError] = useState('')
-  const [endInterviewError, setEndInterviewError] = useState('')
   const [historyError, setHistoryError] = useState('')
-  const [isEndingInterview, setIsEndingInterview] = useState(false)
   const [currentSetup, setCurrentSetup] = useState({
     selectedMode: 'Free-Flowing - Conversational',
     selectedTopics: []
@@ -191,46 +189,11 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     }
   }
 
-  async function handleEndInterview() {
-    if (!liveInterview || isEndingInterview) return
-
-    setIsEndingInterview(true)
-    setEndInterviewError('')
-    try {
-      const transcriptTurns = liveInterview.messages.map((message) => ({
-        role: message.author,
-        content: message.text,
-        timestamp: message.time || null
-      }))
-
-      const data = await endInterview({
-        interview_id: liveInterview.id,
-        transcript_turns: transcriptTurns
-      })
-      const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      setLiveInterview((currentInterview) => {
-        if (!currentInterview) return currentInterview
-        return {
-          ...currentInterview,
-          interviewEnded: true,
-          transcriptFilePath: data.transcript_file_path,
-          messages: [
-            ...currentInterview.messages,
-            {
-              id: `${currentInterview.id}-ended-${Date.now()}`,
-              author: 'assistant',
-              text: 'Interview ended. Analysis will be triggered from this transcript.',
-              time: nowTime
-            }
-          ]
-        }
-      })
-      await loadInterviewHistory()
-    } catch (error) {
-      setEndInterviewError(error.message || 'Unable to end interview.')
-    } finally {
-      setIsEndingInterview(false)
-    }
+  function handleEndInterview() {
+    if (!liveInterview) return
+    setComposerValue('')
+    setLiveInterview(null)
+    setActiveInterviewId('')
   }
 
   return (
@@ -266,9 +229,8 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
               type="button"
               className="ic3-end-interview-floating-button"
               onClick={handleEndInterview}
-              disabled={isEndingInterview}
             >
-              {isEndingInterview ? 'Saving...' : (liveInterview.interviewEnded ? 'Save Interview' : 'End Interview')}
+              {liveInterview.interviewEnded ? 'Close Interview' : 'End Interview'}
             </button>
             <ChatComposer
               value={composerValue}
@@ -278,7 +240,6 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
               placeholder={liveInterview.interviewEnded ? 'Interview ended.' : (isSendingAnswer ? 'Sending...' : 'Type your answer...')}
             />
             {sendAnswerError ? <p>{sendAnswerError}</p> : null}
-            {endInterviewError ? <p>{endInterviewError}</p> : null}
             {liveInterview.transcriptFilePath ? <p>Transcript file: {liveInterview.transcriptFilePath}</p> : null}
           </>
         ) : activeInterview ? (

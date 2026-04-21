@@ -398,10 +398,18 @@ Curated Question Seeds (from knowledge repository):
 Instructions (Domain-Focused Interview - Topic-Oriented):
 1) Use curated seeds selected from chosen topics and difficulties as base references.
 2) Keep questioning strictly focused on selected topic domains.
-3) For each seed question, ask the main question and then exactly 2 follow-ups:
-   - One based on the candidate's response.
-   - One grounded in the original question context.
-4) Ask one question at a time and maintain topic discipline.
+3) Ask exactly one question per turn. Never ask two questions in the same message.
+4) Do not label questions as "Question 1", "Follow-up", "Seed question", "Main question", or similar metadata.
+5) Maintain this strict internal structure without skipping:
+   - Seed Question A
+   - Follow-up A1
+   - Follow-up A2
+   - Seed Question B
+   - Follow-up B1
+   - Follow-up B2
+6) Ensure both Seed Question A and Seed Question B are explicitly asked; do not skip Seed Question B.
+7) Do not end the interview before at least 6 total interviewer questions have been asked.
+8) Ask the interview-end signal only after rule #7 is satisfied.
 """
 
     # Differential mode remains aligned with the current baseline implementation.
