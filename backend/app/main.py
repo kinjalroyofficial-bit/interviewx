@@ -31,6 +31,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
+from sqlalchemy import text as sql_text
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
@@ -76,6 +77,32 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def ensure_interview_session_transcript_columns() -> None:
+    db = SessionLocal()
+    try:
+        print_interview_trace("db_schema.ensure_columns.started", table="interview_sessions")
+        db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS transcript_text TEXT"))
+        db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS transcript_json TEXT"))
+        db.commit()
+        print_interview_trace("db_schema.ensure_columns.completed", table="interview_sessions")
+    except Exception as exc:
+        db.rollback()
+        print_interview_trace(
+            "db_schema.ensure_columns.failed",
+            table="interview_sessions",
+            error=str(exc),
+            error_type=type(exc).__name__,
+        )
+        raise
+    finally:
+        db.close()
+
+
+@app.on_event("startup")
+def startup_schema_sync() -> None:
+    ensure_interview_session_transcript_columns()
 
 
 @app.get("/")
