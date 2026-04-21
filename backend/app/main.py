@@ -641,14 +641,12 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
         response = client.responses.create(
             model=os.getenv("OPENAI_MODEL"),
             input=starter_prompt,
-            max_output_tokens=int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
         )
         set_last_openai_payload(
             {
                 "endpoint": "/interview/start",
                 "interview_id": interview_id,
                 "model": os.getenv("OPENAI_MODEL"),
-                "max_output_tokens": int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
                 "input": starter_prompt,
                 "previous_response_id": None,
                 "captured_at": datetime.now(timezone.utc).isoformat(),
@@ -772,7 +770,6 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
         request_payload = {
             "model": os.getenv("OPENAI_MODEL"),
             "input": answer,
-            "max_output_tokens": int(os.getenv("OPENAI_MAX_OUTPUT_TOKENS", 800)),
         }
         if previous_response_id:
             request_payload["previous_response_id"] = previous_response_id
