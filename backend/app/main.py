@@ -107,18 +107,48 @@ def extract_response_text(response) -> str:
     text = getattr(response, "output_text", None)
     if isinstance(text, str) and text.strip():
         return text.strip()
+    if isinstance(text, list):
+        joined_output_text = "\n".join(
+            item.strip() for item in text if isinstance(item, str) and item.strip()
+        ).strip()
+        if joined_output_text:
+            return joined_output_text
 
     output_items = getattr(response, "output", None)
+    if isinstance(output_items, dict):
+        output_items = [output_items]
     if not isinstance(output_items, list):
-        return ""
+        model_dump = getattr(response, "model_dump", None)
+        if callable(model_dump):
+            dumped_response = model_dump()
+            output_text = dumped_response.get("output_text")
+            if isinstance(output_text, str) and output_text.strip():
+                return output_text.strip()
+            if isinstance(output_text, list):
+                joined_output_text = "\n".join(
+                    item.strip() for item in output_text if isinstance(item, str) and item.strip()
+                ).strip()
+                if joined_output_text:
+                    return joined_output_text
+            output_items = dumped_response.get("output")
+            if isinstance(output_items, dict):
+                output_items = [output_items]
+        if not isinstance(output_items, list):
+            return ""
 
     extracted_chunks: list[str] = []
     for item in output_items:
         content_items = getattr(item, "content", None)
+        if content_items is None and isinstance(item, dict):
+            content_items = item.get("content")
+        if isinstance(content_items, dict):
+            content_items = [content_items]
         if not isinstance(content_items, list):
             continue
         for content in content_items:
             content_text = getattr(content, "text", None)
+            if content_text is None and isinstance(content, dict):
+                content_text = content.get("text")
             if isinstance(content_text, str) and content_text.strip():
                 extracted_chunks.append(content_text.strip())
 
@@ -258,6 +288,25 @@ Instructions:
 6) Ask concise follow-up questions when answers are vague or shallow.
 7) Maintain professional but encouraging tone.
 8) At the end, prepare the conversation for downstream performance analysis.
+"""
+
+
+def build_start_interview_prompt(user: User, selected_mode: str, selected_topics: list) -> str:
+    interview_prompt = build_interview_prompt(
+        user,
+        PromptPreviewRequest(
+            username=user.username,
+            selected_mode=selected_mode,
+            selected_topics=selected_topics,
+        ),
+    )
+    return f"""{interview_prompt}
+
+Interview start instruction:
+- Ask the first interview question now.
+- Ask ONLY one question.
+- Keep it concise and mode-aligned.
+- If and only if all interview goals are fully completed, return this exact keyword: {INTERVIEW_END_KEYWORD}
 """
 
 
@@ -516,7 +565,7 @@ def preview_interview_prompt(payload: PromptPreviewRequest, db: Session = Depend
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    prompt = build_interview_prompt(user, payload)
+    prompt = build_start_interview_prompt(user, payload.selected_mode, payload.selected_topics)
 
     prompt_dir = Path(__file__).resolve().parent.parent / "tmp"
     prompt_dir.mkdir(parents=True, exist_ok=True)
@@ -536,22 +585,11 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
             raise HTTPException(status_code=404, detail="User not found")
 
         interview_id = f"intv_{secrets.token_hex(8)}"
-        interview_prompt = build_interview_prompt(
+        starter_prompt = build_start_interview_prompt(
             user,
-            PromptPreviewRequest(
-                username=clean_username,
-                selected_mode=payload.selected_mode,
-                selected_topics=payload.selected_topics,
-            ),
+            payload.selected_mode,
+            payload.selected_topics,
         )
-        starter_prompt = f"""{interview_prompt}
-
-Interview start instruction:
-- Ask the first interview question now.
-- Ask ONLY one question.
-- Keep it concise and mode-aligned.
-- If and only if all interview goals are fully completed, return this exact keyword: {INTERVIEW_END_KEYWORD}
-"""
         response = client.responses.create(
             model=os.getenv("OPENAI_MODEL"),
             input=starter_prompt,
