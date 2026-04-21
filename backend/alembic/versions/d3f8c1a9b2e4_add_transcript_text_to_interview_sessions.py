@@ -7,6 +7,7 @@ Create Date: 2026-04-21 00:00:00.000000
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
 
 
 # revision identifiers, used by Alembic.
@@ -17,8 +18,31 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column("interview_sessions", sa.Column("transcript_text", sa.Text(), nullable=True))
+    conn = op.get_bind()
+
+    result = conn.execute(text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name='interview_sessions'
+        AND column_name='transcript_text'
+    """))
+
+    if not result.fetchone():
+        op.add_column(
+            "interview_sessions",
+            sa.Column("transcript_text", sa.Text(), nullable=True)
+        )
 
 
 def downgrade() -> None:
-    op.drop_column("interview_sessions", "transcript_text")
+    conn = op.get_bind()
+
+    result = conn.execute(text("""
+        SELECT column_name
+        FROM information_schema.columns
+        WHERE table_name='interview_sessions'
+        AND column_name='transcript_text'
+    """))
+
+    if result.fetchone():
+        op.drop_column("interview_sessions", "transcript_text")

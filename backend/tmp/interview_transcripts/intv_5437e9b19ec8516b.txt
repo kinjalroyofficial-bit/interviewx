@@ -1,0 +1,19 @@
+[06:41 pm] ASSISTANT: **Question 1 (Python | Beginner):**  
+Write a Python program to check if a number is even or odd.
+[06:41 pm] USER: num = int(input()) print("Even" if num % 2 == 0 else "Odd")
+[06:41 pm] ASSISTANT: **Follow-up 1 (based on your response):**  
+How would you modify your program to handle non-integer inputs (e.g., if the user types `abc`), without crashing?
+[06:42 pm] USER: Handle invalid (non-integer) input by catching the conversion error and retrying instead of letting the program crash.
+[06:42 pm] ASSISTANT: **Follow-up 2 (grounded in the original question context):**  
+What changes would you make so the same even/odd check works for negative numbers as well?
+[06:42 pm] USER: No special change is required—even/odd logic already works for negative integers.
+[06:42 pm] ASSISTANT: **Question 2 (Python | Beginner):**  
+Write a Python program to take user input and display formatted output.
+[06:43 pm] USER: name = input("Enter your name: ") age = input("Enter your age: ") city = input("Enter your city: ")  # Display formatted output print(f"\nHello {name}!") print(f"You are {age} years old and live in {city}.")
+[06:43 pm] ASSISTANT: **Follow-up 1 (based on your response):**  
+How would you ensure that `age` is validated as a number (e.g., reject non-numeric input) before displaying it?
+
+**Follow-up 2 (grounded in the original question context):**  
+Can you rewrite the formatted output using a single `print()` statement with one formatted multi-line string (instead of multiple `print()` calls)?
+[06:43 pm] USER: name = input("Enter your name: ")  # Validate age while True:     age_input = input("Enter your age: ")     try:         age = int(age_input)         break     except ValueError:         print("Invalid input. Please enter a numeric age.")  city = input("Enter your city: ")  # Single print with multi-line formatted string print(f""" --- User Details --- Name : {name} Age  : {age} City : {city} """)
+[06:43 pm] ASSISTANT: Interview ended.
