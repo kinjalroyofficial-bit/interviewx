@@ -52,6 +52,7 @@ from app.schemas import (
     InterviewTurnResponse,
     InterviewHistoryItem,
     InterviewHistoryResponse,
+    InterviewHistoryRequest,
 )
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -1094,9 +1095,7 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
     )
 
 
-@app.get("/api/interview/history", response_model=InterviewHistoryResponse)
-@app.get("/interview/history", response_model=InterviewHistoryResponse)
-def get_interview_history(username: str, db: Session = Depends(get_db)) -> InterviewHistoryResponse:
+def build_interview_history_response(username: str, db: Session) -> InterviewHistoryResponse:
     clean_username = (username or "").strip()
     if not clean_username:
         raise HTTPException(status_code=400, detail="username is required")
@@ -1137,3 +1136,17 @@ def get_interview_history(username: str, db: Session = Depends(get_db)) -> Inter
         )
 
     return InterviewHistoryResponse(interviews=interviews)
+
+
+@app.get("/api/interview/history", response_model=InterviewHistoryResponse)
+@app.get("/api/interview/history/", response_model=InterviewHistoryResponse)
+@app.get("/interview/history", response_model=InterviewHistoryResponse)
+@app.get("/interview/history/", response_model=InterviewHistoryResponse)
+def get_interview_history(username: str, db: Session = Depends(get_db)) -> InterviewHistoryResponse:
+    return build_interview_history_response(username=username, db=db)
+
+
+@app.post("/api/interview/history", response_model=InterviewHistoryResponse)
+@app.post("/interview/history", response_model=InterviewHistoryResponse)
+def get_interview_history_post(payload: InterviewHistoryRequest, db: Session = Depends(get_db)) -> InterviewHistoryResponse:
+    return build_interview_history_response(username=payload.username, db=db)

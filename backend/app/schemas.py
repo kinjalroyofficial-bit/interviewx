@@ -100,3 +100,7 @@ class InterviewHistoryItem(BaseModel):
 
 class InterviewHistoryResponse(BaseModel):
     interviews: list[InterviewHistoryItem] = Field(default_factory=list)
+
+
+class InterviewHistoryRequest(BaseModel):
+    username: str
