@@ -208,5 +208,20 @@ export async function getInterviewHistory(username) {
     }
   }
 
-  throw new Error(`Failed to fetch interview history. ${failures.join(' | ')}`)
+  let backendHint = ''
+  try {
+    const openapiResponse = await fetch(`${API_BASE_URL}/openapi.json`)
+    if (openapiResponse.ok) {
+      const openapi = await openapiResponse.json()
+      const paths = openapi?.paths || {}
+      const hasHistoryPath = Boolean(paths['/interview/history'] || paths['/api/interview/history'])
+      if (!hasHistoryPath) {
+        backendHint = ' Backend API currently does not expose /interview/history. Please deploy latest backend main and restart service.'
+      }
+    }
+  } catch {
+    backendHint = ''
+  }
+
+  throw new Error(`Failed to fetch interview history. ${failures.join(' | ')}${backendHint}`)
 }
