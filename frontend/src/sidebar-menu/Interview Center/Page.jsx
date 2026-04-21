@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getInterviewHistory, nextInterviewQuestion, startInterview } from '../../api'
+import { endInterview, evaluateInterview, getInterviewHistory, nextInterviewQuestion, startInterview } from '../../api'
 import ChatComposer from './components/ChatComposer'
 import ChatHeader from './components/ChatHeader'
 import CurrentInterviewCard from './components/CurrentInterviewCard'
@@ -22,6 +22,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [startInterviewError, setStartInterviewError] = useState('')
   const [sendAnswerError, setSendAnswerError] = useState('')
   const [historyError, setHistoryError] = useState('')
+  const [analyticsText, setAnalyticsText] = useState('')
+  const [analyticsError, setAnalyticsError] = useState('')
+  const [isEvaluating, setIsEvaluating] = useState(false)
   const [currentSetup, setCurrentSetup] = useState({
     selectedMode: 'Free-Flowing - Conversational',
     selectedTopics: []
@@ -196,6 +199,22 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setActiveInterviewId('')
   }
 
+  async function handleMyPerformance() {
+    if (!liveInterview || isEvaluating || !liveInterview.interviewEnded) return
+    setIsEvaluating(true)
+    setAnalyticsError('')
+    try {
+      await endInterview({ interview_id: liveInterview.id, transcript_turns: [] })
+      const evaluation = await evaluateInterview({ interview_id: liveInterview.id })
+      setAnalyticsText(JSON.stringify(evaluation, null, 2))
+      await loadInterviewHistory()
+    } catch (error) {
+      setAnalyticsError(error.message || 'Unable to evaluate interview.')
+    } finally {
+      setIsEvaluating(false)
+    }
+  }
+
   return (
     <main className={`ic3-layout ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
       <header className="ic3-workspace-header">
@@ -232,6 +251,16 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
             >
               {liveInterview.interviewEnded ? 'Close Interview' : 'End Interview'}
             </button>
+            {liveInterview.interviewEnded ? (
+              <button
+                type="button"
+                className="ic3-end-interview-floating-button is-secondary"
+                onClick={handleMyPerformance}
+                disabled={isEvaluating}
+              >
+                {isEvaluating ? 'Evaluating...' : 'My Performance'}
+              </button>
+            ) : null}
             <ChatComposer
               value={composerValue}
               onChange={setComposerValue}
@@ -266,6 +295,8 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
 
       <aside className={`ic3-panel ic3-response-rail ${sidebarCollapsed ? 'is-visible' : ''}`} aria-label="Response analytics">
         <p>Response Analytics</p>
+        {analyticsError ? <p>{analyticsError}</p> : null}
+        <pre className="ic3-response-analytics-dump">{analyticsText || 'Run "My Performance" after ending an interview to view analytics.'}</pre>
       </aside>
     </main>
   )

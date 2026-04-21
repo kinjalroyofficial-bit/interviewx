@@ -28,6 +28,8 @@ Create `backend/.env` (or export environment variables) with:
 DATABASE_URL=postgresql://interviewx_user:StrongPassword123@localhost:5432/interviewx
 GOOGLE_CLIENT_ID=GOOGLE_CLIENT_ID_PLACEHOLDER
 GOOGLE_CLIENT_SECRET=GOOGLE_CLIENT_SECRET_PLACEHOLDER
+OPENAI_MODEL=gpt-4.1-nano
+INTERVIEW_EVAL_MODEL=gpt-5
 ```
 
 ## Frontend (React)

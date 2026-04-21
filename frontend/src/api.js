@@ -157,6 +157,23 @@ export async function endInterview(payload) {
   return response.json()
 }
 
+export async function evaluateInterview(payload) {
+  const response = await fetch(`${API_BASE_URL}/interview/evaluate`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to evaluate interview (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
+
 export async function getInterviewHistory(username) {
   const query = new URLSearchParams({ username }).toString()
   const attempts = [

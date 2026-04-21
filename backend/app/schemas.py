@@ -103,3 +103,19 @@ class InterviewHistoryResponse(BaseModel):
 
 class InterviewHistoryRequest(BaseModel):
     username: str
+
+
+class InterviewEvaluationRequest(BaseModel):
+    interview_id: str
+
+
+class InterviewEvaluationMetric(BaseModel):
+    score: int
+    summary: str
+
+
+class InterviewEvaluationResponse(BaseModel):
+    overall_score: int
+    technical_competency: InterviewEvaluationMetric
+    communication: InterviewEvaluationMetric
+    areas_of_improvement: list[str] = Field(default_factory=list)

@@ -627,6 +627,19 @@
   cursor: pointer;
 }
 
+.ic3-end-interview-floating-button.is-secondary {
+  right: 7.2rem;
+  border: 1px solid color-mix(in srgb, var(--ic3-accent) 70%, white 30%);
+  background: color-mix(in srgb, var(--ic3-accent) 32%, var(--ic3-surface));
+}
+
+.ic3-response-analytics-dump {
+  margin-top: 0.6rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.68rem;
+}
+
 .ic3-chat-empty-state {
   position: relative;
   display: grid;

@@ -54,6 +54,8 @@ from app.schemas import (
     InterviewHistoryItem,
     InterviewHistoryResponse,
     InterviewHistoryRequest,
+    InterviewEvaluationRequest,
+    InterviewEvaluationResponse,
 )
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -70,6 +72,48 @@ INTERVIEW_END_FALLBACK_PHRASES = (
     "this interview has ended",
     "end of interview",
 )
+INTERVIEW_EVALUATION_PROMPT_TEMPLATE = """You are an expert interview evaluator.
+
+Your task is to evaluate a completed interview using:
+1. Candidate profile data
+2. Interview transcript (fetched from database)
+
+Input:
+- Candidate Profile:
+{profile_data}
+
+- Interview Transcript (source: database transcript_text):
+{transcript}
+
+Instructions:
+- Evaluate responses based on clarity, technical depth, relevance, and communication.
+- Keep analysis concise and evidence-based.
+- Do NOT hallucinate missing information.
+- Output is intended for direct display as plain text in a Response Analytics section.
+- Return valid JSON only.
+- Do not include any explanation outside JSON.
+
+Required JSON structure:
+{{
+  "overall_score": 0,
+  "technical_competency": {{
+    "score": 0,
+    "summary": ""
+  }},
+  "communication": {{
+    "score": 0,
+    "summary": ""
+  }},
+  "areas_of_improvement": [
+    ""
+  ]
+}}
+
+Scoring Rules:
+- Scores must be between 0 and 100.
+- Summaries should be short and precise.
+- Base evaluation strictly on provided transcript and profile.
+"""
 
 app.add_middleware(
     CORSMiddleware,
@@ -330,6 +374,24 @@ def append_turn_to_session_transcript(
     session.transcript_json = json.dumps(turns)
     session.updated_at = datetime.now(timezone.utc)
     return turns
+
+
+def build_profile_payload(user: User) -> dict[str, str]:
+    return {
+        "username": user.username or "",
+        "name": user.full_name or "",
+        "years_of_experience": user.years_of_experience or "",
+        "technologies_worked_on": user.technologies_worked_on or "",
+        "project_details": user.project_details or "",
+    }
+
+
+def clamp_score(value) -> int:
+    try:
+        score = int(value)
+    except (TypeError, ValueError):
+        return 0
+    return max(0, min(score, 100))
 
 
 def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
@@ -1087,6 +1149,70 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
         interview_id=interview_id,
         interview_ended=True,
         transcript_file_path=None,
+    )
+
+
+@app.post("/interview/evaluate", response_model=InterviewEvaluationResponse)
+def evaluate_interview(payload: InterviewEvaluationRequest, db: Session = Depends(get_db)) -> InterviewEvaluationResponse:
+    interview_id = (payload.interview_id or "").strip()
+    if not interview_id:
+        raise HTTPException(status_code=400, detail="interview_id is required")
+
+    session = db.query(InterviewSession).filter(InterviewSession.id == interview_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Interview session not found")
+    if not session.user_id:
+        raise HTTPException(status_code=400, detail="Interview session is not linked to a user")
+    if not session.transcript_json:
+        raise HTTPException(status_code=400, detail="No transcript found for this interview")
+
+    transcript_turns = load_session_transcript_turns(session)
+    if not transcript_turns:
+        raise HTTPException(status_code=400, detail="Transcript is empty")
+
+    user = db.query(User).filter(User.id == session.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    profile_data = build_profile_payload(user)
+    transcript_payload = json.dumps(transcript_turns, ensure_ascii=False)
+    eval_prompt = INTERVIEW_EVALUATION_PROMPT_TEMPLATE.format(
+        profile_data=json.dumps(profile_data, ensure_ascii=False, indent=2),
+        transcript=transcript_payload,
+    )
+    eval_model = os.getenv("INTERVIEW_EVAL_MODEL", "gpt-5")
+
+    response = client.responses.create(
+        model=eval_model,
+        input=eval_prompt,
+    )
+    response_text = extract_response_text(response)
+    if not response_text:
+        raise HTTPException(status_code=500, detail="Empty response from evaluation model")
+    try:
+        evaluation_json = json.loads(response_text)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(status_code=500, detail=f"Evaluation response is not valid JSON: {exc}") from exc
+
+    technical = evaluation_json.get("technical_competency") if isinstance(evaluation_json, dict) else {}
+    communication = evaluation_json.get("communication") if isinstance(evaluation_json, dict) else {}
+    improvement_areas = evaluation_json.get("areas_of_improvement") if isinstance(evaluation_json, dict) else []
+
+    return InterviewEvaluationResponse(
+        overall_score=clamp_score(evaluation_json.get("overall_score") if isinstance(evaluation_json, dict) else 0),
+        technical_competency={
+            "score": clamp_score(technical.get("score") if isinstance(technical, dict) else 0),
+            "summary": str(technical.get("summary") if isinstance(technical, dict) else ""),
+        },
+        communication={
+            "score": clamp_score(communication.get("score") if isinstance(communication, dict) else 0),
+            "summary": str(communication.get("summary") if isinstance(communication, dict) else ""),
+        },
+        areas_of_improvement=[
+            str(item)
+            for item in (improvement_areas if isinstance(improvement_areas, list) else [])
+            if str(item).strip()
+        ],
     )
 
 
