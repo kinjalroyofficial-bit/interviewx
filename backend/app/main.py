@@ -415,15 +415,14 @@ Instructions (Live Coding Interview - Exclusive Coding):
 
     if mode_type == "domain_focused":
         return f"""{common_context}
-Curated Question Seeds (from knowledge repository):
+Curated Question Seeds:
 {seed_questions_section}
 
 Instructions (Domain-Focused Interview - Topic-Oriented):
-1) Use curated seeds selected from chosen topics and difficulties as base references.
-2) Keep questioning strictly focused on selected topic domains.
-3) Ask exactly one question per turn. Never ask two questions in the same message.
-4) Do not label questions as "Question 1", "Follow-up", "Seed question", "Main question", or similar metadata.
-5) Maintain this strict internal structure without skipping:
+1) Use curated seeds questions as base references.
+2) Ask exactly one question per turn. Never ask two questions in the same message.
+3) Do not label questions as "Question 1", "Follow-up", "Seed question", "Main question", or similar metadata.
+4) Maintain this strict internal structure without skipping:
    - Seed Question A
    - Follow-up A1
    - Follow-up A2
