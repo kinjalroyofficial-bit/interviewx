@@ -103,6 +103,15 @@ def set_last_openai_response(response_data: dict) -> None:
     LAST_OPENAI_RESPONSE = response_data
 
 
+def serialize_openai_response(response) -> dict:
+    model_dump = getattr(response, "model_dump", None)
+    if callable(model_dump):
+        dumped = model_dump()
+        if isinstance(dumped, dict):
+            return dumped
+    return {"repr": repr(response)}
+
+
 def extract_response_text(response) -> str:
     text = getattr(response, "output_text", None)
     if isinstance(text, str) and text.strip():
@@ -149,6 +158,8 @@ def extract_response_text(response) -> str:
             content_text = getattr(content, "text", None)
             if content_text is None and isinstance(content, dict):
                 content_text = content.get("text")
+                if isinstance(content_text, dict):
+                    content_text = content_text.get("value")
             if isinstance(content_text, str) and content_text.strip():
                 extracted_chunks.append(content_text.strip())
 
@@ -608,6 +619,16 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
         )
         first_question = extract_response_text(response)
         if not first_question:
+            set_last_openai_response(
+                {
+                    "endpoint": "/interview/start",
+                    "interview_id": interview_id,
+                    "response_id": getattr(response, "id", None),
+                    "text": "",
+                    "raw_response": serialize_openai_response(response),
+                    "captured_at": datetime.now(timezone.utc).isoformat(),
+                }
+            )
             raise HTTPException(status_code=500, detail="Empty response from model")
         set_last_openai_response(
             {
@@ -711,6 +732,16 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
 
         next_question = extract_response_text(response)
         if not next_question:
+            set_last_openai_response(
+                {
+                    "endpoint": "/interview/next-question",
+                    "interview_id": interview_id,
+                    "response_id": getattr(response, "id", None),
+                    "text": "",
+                    "raw_response": serialize_openai_response(response),
+                    "captured_at": datetime.now(timezone.utc).isoformat(),
+                }
+            )
             raise HTTPException(status_code=500, detail="Empty response from model")
         set_last_openai_response(
             {
