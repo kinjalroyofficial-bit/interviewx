@@ -202,13 +202,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         content: message.text,
         timestamp: message.time || null
       }))
-      const transcriptText = transcriptTurns
-        .map((turn) => `[${turn.timestamp || ''}] ${String(turn.role || '').toUpperCase()}: ${turn.content || ''}`)
-        .join('\n')
 
       const data = await endInterview({
         interview_id: liveInterview.id,
-        transcript_text: transcriptText,
         transcript_turns: transcriptTurns
       })
       const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })

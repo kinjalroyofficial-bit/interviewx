@@ -79,7 +79,6 @@ class InterviewTranscriptTurn(BaseModel):
 
 class EndInterviewRequest(BaseModel):
     interview_id: str
-    transcript_text: str | None = None
     transcript_turns: list[InterviewTranscriptTurn] = Field(default_factory=list)
 
 

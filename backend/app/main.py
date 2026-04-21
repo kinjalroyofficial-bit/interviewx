@@ -92,7 +92,6 @@ def ensure_interview_session_transcript_columns() -> None:
     db = SessionLocal()
     try:
         print_interview_trace("db_schema.ensure_columns.started", table="interview_sessions")
-        db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS transcript_text TEXT"))
         db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS transcript_json TEXT"))
         db.commit()
         print_interview_trace("db_schema.ensure_columns.completed", table="interview_sessions")
@@ -257,19 +256,16 @@ def build_response_diagnostics(raw_response: dict) -> dict:
 
 def finalize_interview(
     session: InterviewSession,
-    transcript_text: str,
     transcript_turns: list[dict] | None = None,
 ) -> None:
     finalize_start = perf_counter()
     print_interview_trace(
         "finalize_interview.started",
         interview_id=session.id,
-        transcript_chars=len(transcript_text or ""),
         turns_count=len(transcript_turns or []),
     )
     normalized_turns = transcript_turns if isinstance(transcript_turns, list) else []
 
-    session.transcript_text = transcript_text
     session.transcript_json = json.dumps(normalized_turns)
     session.status = "ended"
     session.ended_at = datetime.now(timezone.utc)
@@ -294,14 +290,6 @@ def load_session_transcript_turns(session: InterviewSession) -> list[dict]:
     return []
 
 
-def build_transcript_text_from_turns(transcript_turns: list[dict]) -> str:
-    transcript_text = "\n".join(
-        f"[{turn['timestamp'] or ''}] {str(turn['role'] or '').upper()}: {turn['content'] or ''}"
-        for turn in transcript_turns
-    ).strip() or "Interview ended."
-    return transcript_text
-
-
 def append_turn_to_session_transcript(
     session: InterviewSession,
     role: str,
@@ -317,7 +305,6 @@ def append_turn_to_session_transcript(
         }
     )
     session.transcript_json = json.dumps(turns)
-    session.transcript_text = build_transcript_text_from_turns(turns)
     session.updated_at = datetime.now(timezone.utc)
     return turns
 
@@ -954,10 +941,8 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
         )
         transcript_file_path = None
         if interview_ended:
-            transcript_text = build_transcript_text_from_turns(transcript_turns)
             finalize_interview(
                 session,
-                transcript_text=transcript_text,
                 transcript_turns=transcript_turns,
             )
         db.commit()
@@ -1034,7 +1019,6 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
         "end_interview.received",
         interview_id=interview_id,
         transcript_turns_count=len(payload.transcript_turns or []),
-        transcript_text_chars=len(payload.transcript_text or ""),
     )
 
     session = db.query(InterviewSession).filter(InterviewSession.id == interview_id).first()
@@ -1045,16 +1029,8 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
     else:
         transcript_turns = load_session_transcript_turns(session)
 
-    if payload.transcript_text and payload.transcript_text.strip():
-        transcript_text = payload.transcript_text.strip()
-    elif transcript_turns:
-        transcript_text = build_transcript_text_from_turns(transcript_turns)
-    else:
-        transcript_text = (session.transcript_text or "").strip() or "Interview ended."
-
     finalize_interview(
         session,
-        transcript_text=transcript_text,
         transcript_turns=transcript_turns,
     )
     commit_start = perf_counter()
@@ -1088,7 +1064,13 @@ def build_interview_history_response(username: str, db: Session) -> InterviewHis
 
     sessions = (
         db.query(InterviewSession)
-        .filter(InterviewSession.user_id == user.id)
+        .filter(
+            InterviewSession.user_id == user.id,
+            InterviewSession.status == "ended",
+            InterviewSession.transcript_json.isnot(None),
+            InterviewSession.transcript_json != "",
+            InterviewSession.transcript_json != "[]",
+        )
         .order_by(InterviewSession.created_at.desc())
         .all()
     )
