@@ -35,7 +35,7 @@ from sqlalchemy import text as sql_text
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models import InterviewSession, User, UserProfileUpdateLog
+from app.models import InterviewSession, InterviewTurn, User, UserProfileUpdateLog
 from app.schemas import (
     AuthRequest,
     AuthResponse,
@@ -241,7 +241,7 @@ def finalize_interview(
     session: InterviewSession,
     transcript_text: str,
     transcript_turns: list[dict] | None = None,
-) -> str:
+) -> None:
     finalize_start = perf_counter()
     print_interview_trace(
         "finalize_interview.started",
@@ -251,11 +251,6 @@ def finalize_interview(
     )
     normalized_turns = transcript_turns if isinstance(transcript_turns, list) else []
 
-    transcript_dir = Path(__file__).resolve().parent.parent / "tmp" / "interview_transcripts"
-    transcript_dir.mkdir(parents=True, exist_ok=True)
-    transcript_file = transcript_dir / f"{session.id}.txt"
-    transcript_file.write_text(transcript_text, encoding="utf-8")
-
     session.transcript_text = transcript_text
     session.transcript_json = json.dumps(normalized_turns)
     session.status = "ended"
@@ -264,10 +259,49 @@ def finalize_interview(
     print_interview_trace(
         "finalize_interview.completed",
         interview_id=session.id,
-        transcript_file=str(transcript_file),
         duration_ms=round((perf_counter() - finalize_start) * 1000, 2),
     )
-    return str(transcript_file)
+    return None
+
+
+def record_interview_turn(
+    db: Session,
+    interview_id: str,
+    role: str,
+    content: str,
+    response_id: str | None = None,
+) -> None:
+    db.add(
+        InterviewTurn(
+            session_id=interview_id,
+            role=role,
+            content=content,
+            response_id=response_id,
+            timestamp=datetime.now(timezone.utc),
+        )
+    )
+
+
+def build_session_transcript_from_db(db: Session, interview_id: str) -> tuple[str, list[dict]]:
+    turns = (
+        db.query(InterviewTurn)
+        .filter(InterviewTurn.session_id == interview_id)
+        .order_by(InterviewTurn.timestamp.asc(), InterviewTurn.id.asc())
+        .all()
+    )
+    transcript_turns = [
+        {
+            "role": turn.role,
+            "content": turn.content,
+            "timestamp": turn.timestamp.isoformat() if turn.timestamp else None,
+        }
+        for turn in turns
+    ]
+    transcript_text = "\n".join(
+        f"[{turn['timestamp'] or ''}] {str(turn['role'] or '').upper()}: {turn['content'] or ''}"
+        for turn in transcript_turns
+    ).strip() or "Interview ended."
+    return transcript_text, transcript_turns
 
 
 def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
@@ -758,6 +792,13 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
             status="active",
         )
         db.add(session)
+        record_interview_turn(
+            db=db,
+            interview_id=interview_id,
+            role="assistant",
+            content=first_question,
+            response_id=getattr(response, "id", None),
+        )
         commit_start = perf_counter()
         db.commit()
         print_interview_trace(
@@ -805,6 +846,9 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
         interview_id = payload.interview_id.strip()
         if not interview_id:
             raise HTTPException(status_code=400, detail="interview_id is required")
+        session = db.query(InterviewSession).filter(InterviewSession.id == interview_id).first()
+        if not session:
+            raise HTTPException(status_code=404, detail="Interview session not found")
 
         answer = payload.answer.strip()
         if not answer:
@@ -882,6 +926,29 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
             next_question = next_question.replace(INTERVIEW_END_KEYWORD, "").strip()
             if not next_question:
                 next_question = "Interview ended."
+        record_interview_turn(
+            db=db,
+            interview_id=interview_id,
+            role="user",
+            content=answer,
+            response_id=previous_response_id,
+        )
+        record_interview_turn(
+            db=db,
+            interview_id=interview_id,
+            role="assistant",
+            content=next_question,
+            response_id=getattr(response, "id", None),
+        )
+        transcript_file_path = None
+        if interview_ended:
+            transcript_text, transcript_turns = build_session_transcript_from_db(db, interview_id)
+            finalize_interview(
+                session,
+                transcript_text=transcript_text,
+                transcript_turns=transcript_turns,
+            )
+        db.commit()
         print_interview_trace(
             "next_question.completed",
             interview_id=interview_id,
@@ -893,7 +960,7 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
         return InterviewTurnResponse(
             next_question=next_question,
             interview_ended=interview_ended,
-            transcript_file_path=None,
+            transcript_file_path=transcript_file_path,
             response_id=getattr(response, "id", None),
         )
 
@@ -962,17 +1029,30 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
     if not session:
         raise HTTPException(status_code=404, detail="Interview session not found")
 
-    transcript_turns = [turn.model_dump() for turn in payload.transcript_turns]
+    existing_turn_count = (
+        db.query(InterviewTurn).filter(InterviewTurn.session_id == interview_id).count()
+    )
+    if payload.transcript_turns and existing_turn_count == 0:
+        for turn in payload.transcript_turns:
+            content = (turn.content or "").strip()
+            role = (turn.role or "").strip()
+            if not content or not role:
+                continue
+            record_interview_turn(
+                db=db,
+                interview_id=interview_id,
+                role=role,
+                content=content,
+                response_id=None,
+            )
+
     if payload.transcript_text and payload.transcript_text.strip():
         transcript_text = payload.transcript_text.strip()
+        transcript_turns = [turn.model_dump() for turn in payload.transcript_turns]
     else:
-        transcript_lines = [
-            f"[{turn.get('timestamp') or ''}] {str(turn.get('role', '')).upper()}: {turn.get('content', '')}"
-            for turn in transcript_turns
-        ]
-        transcript_text = "\n".join(transcript_lines).strip() or "Interview ended."
+        transcript_text, transcript_turns = build_session_transcript_from_db(db, interview_id)
 
-    transcript_file_path = finalize_interview(
+    finalize_interview(
         session,
         transcript_text=transcript_text,
         transcript_turns=transcript_turns,
@@ -987,12 +1067,11 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
     print_interview_trace(
         "end_interview.completed",
         interview_id=interview_id,
-        transcript_file_path=transcript_file_path,
         total_duration_ms=round((perf_counter() - endpoint_start) * 1000, 2),
     )
 
     return EndInterviewResponse(
         interview_id=interview_id,
         interview_ended=True,
-        transcript_file_path=transcript_file_path,
+        transcript_file_path=None,
     )

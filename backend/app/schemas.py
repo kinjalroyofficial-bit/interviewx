@@ -86,4 +86,4 @@ class EndInterviewRequest(BaseModel):
 class EndInterviewResponse(BaseModel):
     interview_id: str
     interview_ended: bool
-    transcript_file_path: str
+    transcript_file_path: str | None = None
