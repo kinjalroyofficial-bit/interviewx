@@ -23,6 +23,7 @@ import secrets
 
 import json
 import random
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
@@ -224,6 +225,28 @@ def extract_response_text(response) -> str:
                 extracted_chunks.append(content_text.strip())
 
     return "\n".join(extracted_chunks).strip()
+
+
+def normalize_interviewer_question_text(question_text: str) -> str:
+    normalized = (question_text or "").strip()
+    if not normalized:
+        return ""
+
+    # Remove markdown emphasis around common prefixed labels.
+    normalized = re.sub(
+        r"^\s*\*{0,2}\s*(question|q)\s*\d+\s*(\((main|follow[- ]?up|seed)\))?\s*[:\-–]\s*\*{0,2}\s*",
+        "",
+        normalized,
+        flags=re.IGNORECASE,
+    )
+    normalized = re.sub(
+        r"^\s*\*{0,2}\s*(main|follow[- ]?up|seed)\s*(question)?\s*[:\-–]\s*\*{0,2}\s*",
+        "",
+        normalized,
+        flags=re.IGNORECASE,
+    )
+    normalized = re.sub(r"^\s*\*{1,2}(.*?)\*{1,2}\s*$", r"\1", normalized)
+    return normalized.strip()
 
 
 def build_response_diagnostics(raw_response: dict) -> dict:
@@ -443,6 +466,7 @@ def build_start_interview_prompt(user: User, selected_mode: str, selected_topics
 Interview start instruction:
 - Ask the first interview question now.
 - Ask ONLY one question.
+- Output only the plain question text (no numbering, no labels, no prefixes).
 - Keep it concise and mode-aligned.
 - If and only if all interview goals are fully completed, return this exact keyword: {INTERVIEW_END_KEYWORD}
 """
@@ -782,6 +806,9 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
                 }
             )
             raise HTTPException(status_code=500, detail="Empty response from model")
+        first_question = normalize_interviewer_question_text(first_question)
+        if not first_question:
+            raise HTTPException(status_code=500, detail="Model response did not contain a valid interview question")
         set_last_openai_response(
             {
                 "endpoint": "/interview/start",
@@ -922,6 +949,9 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
                 }
             )
             raise HTTPException(status_code=500, detail="Empty response from model")
+        next_question = normalize_interviewer_question_text(next_question)
+        if not next_question:
+            raise HTTPException(status_code=500, detail="Model response did not contain a valid interview question")
         set_last_openai_response(
             {
                 "endpoint": "/interview/next-question",
