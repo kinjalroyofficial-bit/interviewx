@@ -1094,6 +1094,7 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
     )
 
 
+@app.get("/api/interview/history", response_model=InterviewHistoryResponse)
 @app.get("/interview/history", response_model=InterviewHistoryResponse)
 def get_interview_history(username: str, db: Session = Depends(get_db)) -> InterviewHistoryResponse:
     clean_username = (username or "").strip()
