@@ -241,9 +241,13 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         type: 'session.update',
         session: {
           type: 'realtime',
-          input_audio_transcription: {
-            model: 'gpt-4o-mini-transcribe',
-            language: 'en'
+          audio: {
+            input: {
+              transcription: {
+                model: 'gpt-4o-mini-transcribe',
+                language: 'en'
+              }
+            }
           }
         }
       }
