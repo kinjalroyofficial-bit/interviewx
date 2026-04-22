@@ -126,6 +126,29 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     return `${(durationMs / 1000).toFixed(2)} s`
   }
 
+  function readLatestInterviewSetup() {
+    const storageKey = `interviewx-setup-${currentUsername || 'guest'}`
+    try {
+      const rawValue = localStorage.getItem(storageKey)
+      if (!rawValue) return currentSetup
+      const parsedValue = JSON.parse(rawValue)
+      const normalizedInputType = String(parsedValue?.inputType || currentSetup.inputType || 'text').toLowerCase()
+      const selectedTopics = Array.isArray(parsedValue?.selectedTopics)
+        ? parsedValue.selectedTopics
+            .filter((entry) => entry && typeof entry.topic === 'string' && typeof entry.difficulty === 'string')
+            .map((entry) => ({ topic: entry.topic, difficulty: entry.difficulty }))
+        : currentSetup.selectedTopics
+      return {
+        selectedMode: typeof parsedValue?.selectedMode === 'string' ? parsedValue.selectedMode : currentSetup.selectedMode,
+        inputType: normalizedInputType === 'voice' ? 'voice' : 'text',
+        selectedTopics
+      }
+    } catch (error) {
+      console.warn('[VoiceInterview] Failed to read setup from localStorage. Using in-memory setup.', error)
+      return currentSetup
+    }
+  }
+
   function stopVoiceInterviewSession() {
     console.info('[VoiceInterview] Stopping realtime session and media tracks.')
     if (voiceStateTimersRef.current.user) {
@@ -332,15 +355,24 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setIsStartingInterview(true)
     setStartInterviewError('')
     setSendAnswerError('')
+    const latestSetup = readLatestInterviewSetup()
+    if (
+      latestSetup.inputType !== currentSetup.inputType
+      || latestSetup.selectedMode !== currentSetup.selectedMode
+      || JSON.stringify(latestSetup.selectedTopics) !== JSON.stringify(currentSetup.selectedTopics)
+    ) {
+      setCurrentSetup(latestSetup)
+    }
+    console.info('[Interview] Starting interview with setup', latestSetup)
     const requestStart = Date.now()
     try {
-      if (currentSetup.inputType === 'voice') {
+      if (latestSetup.inputType === 'voice') {
         setVoiceStatusMessage('Preparing microphone and voice session...')
         await ensureMicrophoneAccess()
         const voiceData = await startVoiceInterviewSession({
           username: currentUsername,
-          selected_mode: currentSetup.selectedMode,
-          selected_topics: currentSetup.selectedTopics
+          selected_mode: latestSetup.selectedMode,
+          selected_topics: latestSetup.selectedTopics
         })
         await initializeVoiceRealtimeConnection(voiceData.client_secret, voiceData.model)
         const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -367,9 +399,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       }
       const data = await startInterview({
         username: currentUsername,
-        selected_mode: currentSetup.selectedMode,
-        input_type: currentSetup.inputType,
-        selected_topics: currentSetup.selectedTopics
+        selected_mode: latestSetup.selectedMode,
+        input_type: latestSetup.inputType,
+        selected_topics: latestSetup.selectedTopics
       })
       const responseTimeLabel = `response ${formatResponseTime(Date.now() - requestStart)}`
       const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
