@@ -279,35 +279,22 @@
 
 .ic3-kv-row-topic {
   padding-bottom: 0.12rem;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: nowrap;
 }
 
 .ic3-topic-values {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.32rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scroll-behavior: smooth;
-  white-space: nowrap;
-  flex-wrap: nowrap;
+  overflow: visible;
+  white-space: normal;
+  flex-wrap: wrap;
   max-width: 100%;
   min-width: 0;
-  cursor: grab;
-  user-select: none;
+  cursor: default;
+  user-select: auto;
   padding-bottom: 0.1rem;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.ic3-topic-values.is-dragging {
-  cursor: grabbing;
-}
-
-.ic3-topic-values::-webkit-scrollbar {
-  width: 0;
-  height: 0;
 }
 
 .ic3-topic-values .ic3-pill {

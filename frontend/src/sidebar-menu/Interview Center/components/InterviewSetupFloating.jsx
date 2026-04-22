@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const BROWSE_TOPICS = ['SQL', 'Python', 'Java']
 const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced']
@@ -50,36 +50,6 @@ export default function InterviewSetupFloating({ activeInterview, username, onSe
   const [appliedTopics, setAppliedTopics] = useState(() => (
     []
   ))
-  const topicScrollerRef = useRef(null)
-  const isDraggingRef = useRef(false)
-  const dragStartXRef = useRef(0)
-  const startScrollLeftRef = useRef(0)
-
-  const handleTopicMouseDown = (event) => {
-    const scroller = topicScrollerRef.current
-    if (!scroller) return
-    isDraggingRef.current = true
-    dragStartXRef.current = event.pageX - scroller.offsetLeft
-    startScrollLeftRef.current = scroller.scrollLeft
-    scroller.classList.add('is-dragging')
-  }
-
-  const handleTopicMouseMove = (event) => {
-    if (!isDraggingRef.current) return
-    const scroller = topicScrollerRef.current
-    if (!scroller) return
-    event.preventDefault()
-    const x = event.pageX - scroller.offsetLeft
-    const walk = x - dragStartXRef.current
-    scroller.scrollLeft = startScrollLeftRef.current - walk
-  }
-
-  const handleTopicMouseUp = () => {
-    const scroller = topicScrollerRef.current
-    isDraggingRef.current = false
-    if (scroller) scroller.classList.remove('is-dragging')
-  }
-
   const handleTopicToggle = (topic) => {
     setTopicSelections((currentSelections) => ({
       ...currentSelections,
@@ -177,13 +147,8 @@ export default function InterviewSetupFloating({ activeInterview, username, onSe
       <div className="ic3-kv-row ic3-kv-row-topic">
         <span>Topic</span>
         <div
-          ref={topicScrollerRef}
           className="ic3-topic-values"
           aria-label="Topics"
-          onMouseDown={handleTopicMouseDown}
-          onMouseMove={handleTopicMouseMove}
-          onMouseUp={handleTopicMouseUp}
-          onMouseLeave={handleTopicMouseUp}
         >
           {appliedTopics.length > 0 ? (
             appliedTopics.map((topicConfig) => (
