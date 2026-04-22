@@ -223,19 +223,7 @@ export async function getInterviewHistory(username) {
       }
     }
   ]
-  if (API_BASE_URL === '/api') {
-    attempts.push({ url: `/users/interview-history?${query}`, options: {} })
-    attempts.push({ url: `/interview/history?${query}`, options: {} })
-    attempts.push({ url: `/interview/history/?${query}`, options: {} })
-    attempts.push({
-      url: '/interview/history',
-      options: {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username })
-      }
-    })
-  }
+  
 
   const failures = []
   for (const attempt of attempts) {

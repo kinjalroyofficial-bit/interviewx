@@ -24,6 +24,7 @@ class User(Base):
     years_of_experience = Column(String, nullable=True)
     technologies_worked_on = Column(String, nullable=True)
     project_details = Column(Text, nullable=True)
+    credits = Column(Integer, nullable=False, default=0)
 
 
 class UserProfileUpdateLog(Base):

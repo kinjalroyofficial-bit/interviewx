@@ -14,6 +14,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const currentUsername = localStorage.getItem('interviewx-user') || ''
   const [isLightTheme, setIsLightTheme] = useState(false)
   const [interviews, setInterviews] = useState([])
+  const [credits, setCredits] = useState(0)
 
   const [activeInterviewId, setActiveInterviewId] = useState('')
   const [liveInterview, setLiveInterview] = useState(null)
@@ -62,6 +63,20 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     if (!currentUsername) return
     loadInterviewHistory('')
   }, [currentUsername])
+
+  useEffect(() => {
+  if (!currentUsername) return
+
+  fetch(`/api/user/credits?username=${currentUsername}`)
+    .then(res => res.json())
+    .then(data => {
+      setCredits(data.credits || 0)
+    })
+    .catch(err => {
+      console.error("Credits fetch failed", err)
+    })
+
+}, [currentUsername])
 
   useEffect(() => () => {
     stopVoiceInterviewSession()
@@ -681,7 +696,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         <h1>Interview Center</h1>
         <div className="ic3-header-actions">
           <ThemeToggle checked={isLightTheme} onChange={handleThemeToggle} />
-          <button type="button" className="ic3-header-button">Logout</button>
+          <div className="ic3-header-button">
+  Credits: {credits}
+</div>
         </div>
       </header>
 

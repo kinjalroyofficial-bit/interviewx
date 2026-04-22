@@ -200,6 +200,18 @@ def root() -> dict[str, str]:
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
+    
+@app.get("/user/credits")
+@app.get("/api/user/credits")
+def get_user_credits(username: str, db: Session = Depends(get_db)):
+    clean_username = username.strip()
+    user = db.query(User).filter(User.username == clean_username).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"credits": user.credits}
+
 
 def normalize_profile_value(value: str | None) -> str | None:
     if value is None:
