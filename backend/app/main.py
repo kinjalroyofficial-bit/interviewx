@@ -1277,6 +1277,7 @@ def build_interview_history_response(username: str, db: Session) -> InterviewHis
     interviews: list[InterviewHistoryItem] = []
     for session in sessions:
         transcript_turns: list[dict] = []
+        performance_analytics = None
         if session.transcript_json:
             try:
                 parsed_turns = json.loads(session.transcript_json)
@@ -1284,6 +1285,12 @@ def build_interview_history_response(username: str, db: Session) -> InterviewHis
                     transcript_turns = parsed_turns
             except json.JSONDecodeError:
                 transcript_turns = []
+        if session.performance_analytics_json:
+            try:
+                parsed_performance = json.loads(session.performance_analytics_json)
+                performance_analytics = normalize_evaluation_payload(parsed_performance)
+            except json.JSONDecodeError:
+                performance_analytics = None
 
         interviews.append(
             InterviewHistoryItem(
@@ -1293,6 +1300,7 @@ def build_interview_history_response(username: str, db: Session) -> InterviewHis
                 created_at=session.created_at.isoformat() if session.created_at else None,
                 ended_at=session.ended_at.isoformat() if session.ended_at else None,
                 transcript_turns=transcript_turns,
+                performance_analytics=performance_analytics,
             )
         )
 

@@ -68,7 +68,8 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           displayTime: interview.created_at ? new Date(interview.created_at).toLocaleDateString() : 'Unknown',
           status: interview.status,
           interviewEnded: interview.status === 'ended',
-          messages
+          messages,
+          performanceAnalytics: interview.performance_analytics || null
         }
       })
       setInterviews(mappedInterviews)
@@ -230,6 +231,11 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
 
   async function handleMyPerformance() {
     if (!liveInterview || isEvaluating || !liveInterview.interviewEnded) return
+    await loadPerformanceAnalytics(liveInterview.id)
+  }
+
+  async function loadPerformanceAnalytics(interviewId) {
+    if (!interviewId || isEvaluating) return
     setIsEvaluating(true)
     setAnalyticsError('')
     setAnalyticsPending(false)
@@ -237,9 +243,14 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       const maxAttempts = 15
       for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
         try {
-          const evaluation = await evaluateInterview({ interview_id: liveInterview.id })
+          const evaluation = await evaluateInterview({ interview_id: interviewId })
           setAnalyticsPending(false)
           setAnalytics(evaluation)
+          setInterviews((items) => items.map((item) => (
+            item.id === interviewId
+              ? { ...item, performanceAnalytics: evaluation }
+              : item
+          )))
           await loadInterviewHistory()
           return
         } catch (error) {
@@ -260,6 +271,18 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       setIsEvaluating(false)
     }
   }
+
+  useEffect(() => {
+    if (!activeInterview || liveInterview || isEvaluating) return
+    if (activeInterview.performanceAnalytics) {
+      setAnalyticsPending(false)
+      setAnalyticsError('')
+      setAnalytics(activeInterview.performanceAnalytics)
+      return
+    }
+    setAnalytics(null)
+    loadPerformanceAnalytics(activeInterview.id)
+  }, [activeInterviewId, activeInterview, liveInterview, isEvaluating])
 
   return (
     <main className={`ic3-layout ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>

@@ -95,6 +95,7 @@ class InterviewHistoryItem(BaseModel):
     created_at: str | None = None
     ended_at: str | None = None
     transcript_turns: list[InterviewTranscriptTurn] = Field(default_factory=list)
+    performance_analytics: "InterviewEvaluationResponse | None" = None
 
 
 class InterviewHistoryResponse(BaseModel):

@@ -1066,11 +1066,12 @@
   display: grid;
   grid-column: 4;
   grid-row: 2;
-  align-content: center;
+  align-content: start;
   justify-items: center;
   border-style: dashed;
   padding: 0.8rem;
-  overflow: hidden;
+  overflow-y: auto;
+  max-height: 100%;
   opacity: 0;
   transform: translateX(100%);
   pointer-events: none;
@@ -1142,6 +1143,59 @@
   font-size: 0.7rem !important;
   color: var(--ic3-muted);
   text-align: left !important;
+}
+
+.ic3-history-scroll-window,
+.ic3-message-pane,
+.ic3-response-rail {
+  scrollbar-width: thin;
+  scrollbar-color: #6678ab #0f1526;
+}
+
+.ic3-history-scroll-window::-webkit-scrollbar,
+.ic3-message-pane::-webkit-scrollbar,
+.ic3-response-rail::-webkit-scrollbar {
+  width: 10px;
+}
+
+.ic3-history-scroll-window::-webkit-scrollbar-track,
+.ic3-message-pane::-webkit-scrollbar-track,
+.ic3-response-rail::-webkit-scrollbar-track {
+  background: #0f1526;
+  border-radius: 999px;
+}
+
+.ic3-history-scroll-window::-webkit-scrollbar-thumb,
+.ic3-message-pane::-webkit-scrollbar-thumb,
+.ic3-response-rail::-webkit-scrollbar-thumb {
+  background: #6678ab;
+  border: 2px solid #0f1526;
+  border-radius: 999px;
+}
+
+.ic3-history-scroll-window::-webkit-scrollbar-thumb:hover,
+.ic3-message-pane::-webkit-scrollbar-thumb:hover,
+.ic3-response-rail::-webkit-scrollbar-thumb:hover {
+  background: #7b90c4;
+}
+
+.dashboard-theme-light .ic3-history-scroll-window,
+.dashboard-theme-light .ic3-message-pane,
+.dashboard-theme-light .ic3-response-rail {
+  scrollbar-color: #9fb4df #d4e0f7;
+}
+
+.dashboard-theme-light .ic3-history-scroll-window::-webkit-scrollbar-track,
+.dashboard-theme-light .ic3-message-pane::-webkit-scrollbar-track,
+.dashboard-theme-light .ic3-response-rail::-webkit-scrollbar-track {
+  background: #d4e0f7;
+}
+
+.dashboard-theme-light .ic3-history-scroll-window::-webkit-scrollbar-thumb,
+.dashboard-theme-light .ic3-message-pane::-webkit-scrollbar-thumb,
+.dashboard-theme-light .ic3-response-rail::-webkit-scrollbar-thumb {
+  background: #95abd7;
+  border-color: #d4e0f7;
 }
 
 @keyframes ic3-spin {
