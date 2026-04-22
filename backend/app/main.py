@@ -1281,35 +1281,75 @@ def evaluate_interview(payload: InterviewEvaluationRequest, db: Session = Depend
 
 @app.post("/interview/answer-quality", response_model=AnswerQualityResponse)
 def evaluate_answer_quality(payload: AnswerQualityRequest) -> AnswerQualityResponse:
+    endpoint_start = perf_counter()
     answer = (payload.answer or "").strip()
     if not answer:
         raise HTTPException(status_code=400, detail="answer is required")
-
-    prompt = ANSWER_QUALITY_PROMPT_TEMPLATE.format(answer=answer)
-    quality_model = os.getenv("OPENAI_MODEL", "gpt-5.4-nano")
-    response = client.responses.create(
-        model=quality_model,
-        input=prompt,
+    print_interview_trace(
+        "answer_quality.received",
+        interview_id=(payload.interview_id or "").strip() or None,
+        answer_chars=len(answer),
     )
-    response_text = extract_response_text(response)
-    if not response_text:
-        return AnswerQualityResponse(
-            status="good",
-            feedback="Answer is clear overall. Keep this concise structure.",
-        )
+
     try:
-        quality_json = json.loads(response_text)
-    except json.JSONDecodeError:
+        prompt = ANSWER_QUALITY_PROMPT_TEMPLATE.format(answer=answer)
+        quality_model = os.getenv("ANSWER_QUALITY_MODEL", "gpt-5.4-nano")
+        response = client.responses.create(
+            model=quality_model,
+            input=prompt,
+        )
+        response_text = extract_response_text(response)
+        if not response_text:
+            result = AnswerQualityResponse(
+                status="good",
+                feedback="Answer is clear overall. Keep this concise structure.",
+            )
+            print_interview_trace(
+                "answer_quality.completed",
+                interview_id=(payload.interview_id or "").strip() or None,
+                status=result.status,
+                duration_ms=round((perf_counter() - endpoint_start) * 1000, 2),
+            )
+            return result
+        try:
+            quality_json = json.loads(response_text)
+        except json.JSONDecodeError:
+            result = AnswerQualityResponse(
+                status="needs_improvement",
+                feedback="Improve sentence clarity and structure. Use direct, concise points.",
+            )
+            print_interview_trace(
+                "answer_quality.non_json_fallback",
+                interview_id=(payload.interview_id or "").strip() or None,
+                duration_ms=round((perf_counter() - endpoint_start) * 1000, 2),
+            )
+            return result
+
+        status = str(quality_json.get("status", "needs_improvement")).strip().lower()
+        if status not in {"good", "needs_improvement"}:
+            status = "needs_improvement"
+        feedback = str(quality_json.get("feedback", "")).strip() or "Improve sentence clarity and structure."
+        result = AnswerQualityResponse(status=status, feedback=feedback)
+        print_interview_trace(
+            "answer_quality.completed",
+            interview_id=(payload.interview_id or "").strip() or None,
+            status=result.status,
+            duration_ms=round((perf_counter() - endpoint_start) * 1000, 2),
+        )
+        return result
+    except Exception as exc:
+        print_interview_trace(
+            "answer_quality.failed",
+            interview_id=(payload.interview_id or "").strip() or None,
+            error=str(exc),
+            error_type=type(exc).__name__,
+            duration_ms=round((perf_counter() - endpoint_start) * 1000, 2),
+        )
+        logger.error("answer_quality failed interview_id=%s error=%s", (payload.interview_id or "").strip() or None, str(exc))
         return AnswerQualityResponse(
             status="needs_improvement",
-            feedback="Improve sentence clarity and structure. Use direct, concise points.",
+            feedback="Unable to evaluate this answer right now. Continue with concise, structured responses.",
         )
-
-    status = str(quality_json.get("status", "needs_improvement")).strip().lower()
-    if status not in {"good", "needs_improvement"}:
-        status = "needs_improvement"
-    feedback = str(quality_json.get("feedback", "")).strip() or "Improve sentence clarity and structure."
-    return AnswerQualityResponse(status=status, feedback=feedback)
 
 
 def build_interview_history_response(username: str, db: Session) -> InterviewHistoryResponse:

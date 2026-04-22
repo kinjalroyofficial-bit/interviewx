@@ -176,7 +176,6 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       }
     })
     setComposerValue('')
-    triggerAnswerQualityEvaluation(answer)
 
     try {
       const requestStart = Date.now()
@@ -208,17 +207,31 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       })
       await loadInterviewHistory(liveInterview?.id || '')
     } catch (error) {
+      console.error('nextInterviewQuestion failed', {
+        interviewId: liveInterview.id,
+        error
+      })
       setSendAnswerError(error.message || 'Unable to send answer.')
     } finally {
+      dispatchAnswerQualityEvaluation(answer, liveInterview.id)
       setIsSendingAnswer(false)
     }
   }
 
-  async function triggerAnswerQualityEvaluation(answerText) {
+  function dispatchAnswerQualityEvaluation(answerText, interviewId) {
+    window.setTimeout(() => {
+      void triggerAnswerQualityEvaluation(answerText, interviewId)
+    }, 0)
+  }
+
+  async function triggerAnswerQualityEvaluation(answerText, interviewId) {
     const cleanAnswer = (answerText || '').trim()
     if (!cleanAnswer) return
     try {
-      const result = await evaluateAnswerQuality({ answer: cleanAnswer })
+      const result = await evaluateAnswerQuality({
+        answer: cleanAnswer,
+        interview_id: interviewId
+      })
       setAnswerQualityCards((cards) => [
         {
           id: `aq-${Date.now()}`,
@@ -228,8 +241,12 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         },
         ...cards
       ])
-    } catch {
-      // Keep this evaluation non-blocking and session-only.
+    } catch (error) {
+      console.error('answer quality evaluation failed', {
+        interviewId,
+        answerPreview: cleanAnswer.slice(0, 80),
+        error
+      })
     }
   }
 

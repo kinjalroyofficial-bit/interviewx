@@ -124,6 +124,7 @@ class InterviewEvaluationResponse(BaseModel):
 
 class AnswerQualityRequest(BaseModel):
     answer: str
+    interview_id: str | None = None
 
 
 class AnswerQualityResponse(BaseModel):
