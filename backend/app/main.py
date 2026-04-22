@@ -28,7 +28,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
@@ -139,6 +139,7 @@ def ensure_interview_session_transcript_columns() -> None:
     try:
         print_interview_trace("db_schema.ensure_columns.started", table="interview_sessions")
         db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS transcript_json TEXT"))
+        db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS performance_analytics_json TEXT"))
         db.commit()
         print_interview_trace("db_schema.ensure_columns.completed", table="interview_sessions")
     except Exception as exc:
@@ -393,6 +394,75 @@ def clamp_score(value) -> int:
     except (TypeError, ValueError):
         return 0
     return max(0, min(score, 100))
+
+
+def normalize_evaluation_payload(evaluation_json: dict | None) -> InterviewEvaluationResponse:
+    evaluation_data = evaluation_json if isinstance(evaluation_json, dict) else {}
+    technical = evaluation_data.get("technical_competency") if isinstance(evaluation_data, dict) else {}
+    communication = evaluation_data.get("communication") if isinstance(evaluation_data, dict) else {}
+    improvement_areas = evaluation_data.get("areas_of_improvement") if isinstance(evaluation_data, dict) else []
+    return InterviewEvaluationResponse(
+        overall_score=clamp_score(evaluation_data.get("overall_score") if isinstance(evaluation_data, dict) else 0),
+        technical_competency={
+            "score": clamp_score(technical.get("score") if isinstance(technical, dict) else 0),
+            "summary": str(technical.get("summary") if isinstance(technical, dict) else ""),
+        },
+        communication={
+            "score": clamp_score(communication.get("score") if isinstance(communication, dict) else 0),
+            "summary": str(communication.get("summary") if isinstance(communication, dict) else ""),
+        },
+        areas_of_improvement=[
+            str(item)
+            for item in (improvement_areas if isinstance(improvement_areas, list) else [])
+            if str(item).strip()
+        ],
+    )
+
+
+def evaluate_and_store_interview_performance(interview_id: str) -> None:
+    clean_interview_id = (interview_id or "").strip()
+    if not clean_interview_id:
+        return
+    db = SessionLocal()
+    try:
+        session = db.query(InterviewSession).filter(InterviewSession.id == clean_interview_id).first()
+        if not session or not session.user_id or not session.transcript_json:
+            return
+        if session.performance_analytics_json:
+            return
+
+        transcript_turns = load_session_transcript_turns(session)
+        if not transcript_turns:
+            return
+
+        user = db.query(User).filter(User.id == session.user_id).first()
+        if not user:
+            return
+
+        profile_data = build_profile_payload(user)
+        transcript_payload = json.dumps(transcript_turns, ensure_ascii=False)
+        eval_prompt = INTERVIEW_EVALUATION_PROMPT_TEMPLATE.format(
+            profile_data=json.dumps(profile_data, ensure_ascii=False, indent=2),
+            transcript=transcript_payload,
+        )
+        eval_model = os.getenv("INTERVIEW_EVAL_MODEL", "gpt-5")
+        response = client.responses.create(
+            model=eval_model,
+            input=eval_prompt,
+        )
+        response_text = extract_response_text(response)
+        if not response_text:
+            return
+        evaluation_json = json.loads(response_text)
+        normalized = normalize_evaluation_payload(evaluation_json)
+        session.performance_analytics_json = json.dumps(normalized.model_dump(), ensure_ascii=False)
+        session.updated_at = datetime.now(timezone.utc)
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        logger.error("Failed to persist interview performance for interview_id=%s error=%s", clean_interview_id, str(exc))
+    finally:
+        db.close()
 
 
 def build_interview_prompt(user: User, payload: PromptPreviewRequest) -> str:
@@ -940,7 +1010,11 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
 
 
 @app.post("/interview/next-question", response_model=InterviewTurnResponse)
-def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_db)):
+def get_next_question(
+    payload: InterviewTurnRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
     endpoint_start = perf_counter()
     try:
         interview_id = payload.interview_id.strip()
@@ -1046,6 +1120,8 @@ def get_next_question(payload: InterviewTurnRequest, db: Session = Depends(get_d
                 transcript_turns=transcript_turns,
             )
         db.commit()
+        if interview_ended:
+            background_tasks.add_task(evaluate_and_store_interview_performance, interview_id)
         print_interview_trace(
             "next_question.completed",
             interview_id=interview_id,
@@ -1110,7 +1186,11 @@ def get_interview_debug_events(limit: int = 20) -> dict:
 
 
 @app.post("/interview/end", response_model=EndInterviewResponse)
-def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -> EndInterviewResponse:
+def end_interview(
+    payload: EndInterviewRequest,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+) -> EndInterviewResponse:
     endpoint_start = perf_counter()
     interview_id = payload.interview_id.strip()
     if not interview_id:
@@ -1140,6 +1220,7 @@ def end_interview(payload: EndInterviewRequest, db: Session = Depends(get_db)) -
         interview_id=interview_id,
         duration_ms=round((perf_counter() - commit_start) * 1000, 2),
     )
+    background_tasks.add_task(evaluate_and_store_interview_performance, interview_id)
     print_interview_trace(
         "end_interview.completed",
         interview_id=interview_id,
@@ -1162,59 +1243,13 @@ def evaluate_interview(payload: InterviewEvaluationRequest, db: Session = Depend
     session = db.query(InterviewSession).filter(InterviewSession.id == interview_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Interview session not found")
-    if not session.user_id:
-        raise HTTPException(status_code=400, detail="Interview session is not linked to a user")
-    if not session.transcript_json:
-        raise HTTPException(status_code=400, detail="No transcript found for this interview")
-
-    transcript_turns = load_session_transcript_turns(session)
-    if not transcript_turns:
-        raise HTTPException(status_code=400, detail="Transcript is empty")
-
-    user = db.query(User).filter(User.id == session.user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    profile_data = build_profile_payload(user)
-    transcript_payload = json.dumps(transcript_turns, ensure_ascii=False)
-    eval_prompt = INTERVIEW_EVALUATION_PROMPT_TEMPLATE.format(
-        profile_data=json.dumps(profile_data, ensure_ascii=False, indent=2),
-        transcript=transcript_payload,
-    )
-    eval_model = os.getenv("INTERVIEW_EVAL_MODEL", "gpt-5")
-
-    response = client.responses.create(
-        model=eval_model,
-        input=eval_prompt,
-    )
-    response_text = extract_response_text(response)
-    if not response_text:
-        raise HTTPException(status_code=500, detail="Empty response from evaluation model")
+    if not session.performance_analytics_json:
+        raise HTTPException(status_code=409, detail="Interview analytics is being generated. Please wait...")
     try:
-        evaluation_json = json.loads(response_text)
+        stored_payload = json.loads(session.performance_analytics_json)
     except json.JSONDecodeError as exc:
-        raise HTTPException(status_code=500, detail=f"Evaluation response is not valid JSON: {exc}") from exc
-
-    technical = evaluation_json.get("technical_competency") if isinstance(evaluation_json, dict) else {}
-    communication = evaluation_json.get("communication") if isinstance(evaluation_json, dict) else {}
-    improvement_areas = evaluation_json.get("areas_of_improvement") if isinstance(evaluation_json, dict) else []
-
-    return InterviewEvaluationResponse(
-        overall_score=clamp_score(evaluation_json.get("overall_score") if isinstance(evaluation_json, dict) else 0),
-        technical_competency={
-            "score": clamp_score(technical.get("score") if isinstance(technical, dict) else 0),
-            "summary": str(technical.get("summary") if isinstance(technical, dict) else ""),
-        },
-        communication={
-            "score": clamp_score(communication.get("score") if isinstance(communication, dict) else 0),
-            "summary": str(communication.get("summary") if isinstance(communication, dict) else ""),
-        },
-        areas_of_improvement=[
-            str(item)
-            for item in (improvement_areas if isinstance(improvement_areas, list) else [])
-            if str(item).strip()
-        ],
-    )
+        raise HTTPException(status_code=500, detail=f"Stored analytics is invalid JSON: {exc}") from exc
+    return normalize_evaluation_payload(stored_payload)
 
 
 def build_interview_history_response(username: str, db: Session) -> InterviewHistoryResponse:

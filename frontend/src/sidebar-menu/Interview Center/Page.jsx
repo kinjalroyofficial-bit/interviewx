@@ -25,6 +25,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [historyError, setHistoryError] = useState('')
   const [analytics, setAnalytics] = useState(null)
   const [analyticsError, setAnalyticsError] = useState('')
+  const [analyticsPending, setAnalyticsPending] = useState(false)
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [currentSetup, setCurrentSetup] = useState({
     selectedMode: 'Free-Flowing - Conversational',
@@ -231,11 +232,28 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     if (!liveInterview || isEvaluating || !liveInterview.interviewEnded) return
     setIsEvaluating(true)
     setAnalyticsError('')
+    setAnalyticsPending(false)
     try {
-      await endInterview({ interview_id: liveInterview.id, transcript_turns: [] })
-      const evaluation = await evaluateInterview({ interview_id: liveInterview.id })
-      setAnalytics(evaluation)
-      await loadInterviewHistory()
+      const maxAttempts = 15
+      for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+        try {
+          const evaluation = await evaluateInterview({ interview_id: liveInterview.id })
+          setAnalyticsPending(false)
+          setAnalytics(evaluation)
+          await loadInterviewHistory()
+          return
+        } catch (error) {
+          const message = error.message || 'Unable to evaluate interview.'
+          if (!message.includes('Interview analytics is being generated. Please wait...')) {
+            throw error
+          }
+          setAnalyticsPending(true)
+          await new Promise((resolve) => {
+            setTimeout(resolve, 2000)
+          })
+        }
+      }
+      setAnalyticsError('Interview analytics is being generated. Please wait...')
     } catch (error) {
       setAnalyticsError(error.message || 'Unable to evaluate interview.')
     } finally {
@@ -335,6 +353,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       <aside className={`ic3-panel ic3-response-rail ${sidebarCollapsed ? 'is-visible' : ''}`} aria-label="Response analytics">
         <p>Response Analytics</p>
         {analyticsError ? <p>{analyticsError}</p> : null}
+        {analyticsPending ? <p className="ic3-response-analytics-empty">Interview analytics is being generated. Please wait...</p> : null}
         {analytics ? (
           <div className="ic3-analytics-dashboard">
             <div className="ic3-analytics-overall-card">
