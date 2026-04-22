@@ -49,10 +49,10 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
 
   useEffect(() => {
     if (!currentUsername) return
-    loadInterviewHistory()
+    loadInterviewHistory('')
   }, [currentUsername])
 
-  async function loadInterviewHistory() {
+  async function loadInterviewHistory(nextActiveInterviewId = '') {
     try {
       setHistoryError('')
       const data = await getInterviewHistory(currentUsername)
@@ -74,9 +74,23 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         }
       })
       setInterviews(mappedInterviews)
+      if (nextActiveInterviewId) {
+        const hasRequestedInterview = mappedInterviews.some((item) => item.id === nextActiveInterviewId)
+        setActiveInterviewId(hasRequestedInterview ? nextActiveInterviewId : '')
+      }
     } catch (error) {
       setHistoryError(error.message || 'Unable to load interview history.')
     }
+  }
+
+  async function handleSelectInterview(interviewId) {
+    if (!interviewId || !currentUsername) return
+    setActiveInterviewId('')
+    setAnalytics(null)
+    setAnalyticsError('')
+    setAnalyticsPending(false)
+    setHistoryPerformanceMessage('')
+    await loadInterviewHistory(interviewId)
   }
 
   function handleThemeToggle() {
@@ -126,7 +140,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           }
         ]
       })
-      await loadInterviewHistory()
+      await loadInterviewHistory(liveInterview?.id || '')
     } catch (error) {
       setStartInterviewError(error.message || 'Unable to start interview.')
     } finally {
@@ -188,7 +202,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           ]
         }
       })
-      await loadInterviewHistory()
+      await loadInterviewHistory(liveInterview?.id || '')
     } catch (error) {
       setSendAnswerError(error.message || 'Unable to send answer.')
     } finally {
@@ -254,7 +268,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
               ? { ...item, performanceAnalytics: evaluation }
               : item
           )))
-          await loadInterviewHistory()
+          await loadInterviewHistory(interviewId)
           return
         } catch (error) {
           const message = error.message || 'Unable to evaluate interview.'
@@ -304,7 +318,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         <InterviewHistoryPanel
           interviews={interviews}
           activeId={activeInterview?.id || ''}
-          onSelect={setActiveInterviewId}
+          onSelect={handleSelectInterview}
         />
         {historyError ? <p>{historyError}</p> : null}
         <CurrentInterviewCard
