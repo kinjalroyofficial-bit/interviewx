@@ -1096,6 +1096,26 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
         raise HTTPException(status_code=500, detail="Failed to start interview")
 
 
+@app.post("/api/interview/voice/session", response_model=StartInterviewResponse)
+def start_voice_interview_session_compat(
+    payload: StartInterviewRequest,
+    db: Session = Depends(get_db),
+) -> StartInterviewResponse:
+    print_interview_trace(
+        "start_voice_session_compat.received",
+        username=payload.username.strip(),
+        selected_mode=payload.selected_mode,
+        selected_topics_count=len(payload.selected_topics or []),
+    )
+    voice_payload = StartInterviewRequest(
+        username=payload.username,
+        selected_mode=payload.selected_mode,
+        input_type="voice",
+        selected_topics=payload.selected_topics,
+    )
+    return start_interview(voice_payload, db)
+
+
 @app.post("/interview/voice/session", response_model=StartVoiceInterviewSessionResponse)
 def start_voice_interview_session(
     payload: StartVoiceInterviewSessionRequest,
