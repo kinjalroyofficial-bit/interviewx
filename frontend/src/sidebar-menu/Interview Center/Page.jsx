@@ -434,7 +434,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
 
       <RightPlaceholderPanel />
 
-      <aside className={`ic3-panel ic3-response-rail ${sidebarCollapsed ? 'is-visible' : ''}`} aria-label="Response analytics">
+      <aside className={`ic3-response-rail ${sidebarCollapsed ? 'is-visible' : ''}`} aria-label="Response analytics">
         <section className="ic3-answer-quality-panel">
           <p>Answer Quality Insights</p>
           {answerQualityCards.length ? (
