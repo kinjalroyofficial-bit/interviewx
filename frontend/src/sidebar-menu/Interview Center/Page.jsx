@@ -26,6 +26,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [analytics, setAnalytics] = useState(null)
   const [analyticsError, setAnalyticsError] = useState('')
   const [analyticsPending, setAnalyticsPending] = useState(false)
+  const [historyPerformanceMessage, setHistoryPerformanceMessage] = useState('')
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [currentSetup, setCurrentSetup] = useState({
     selectedMode: 'Free-Flowing - Conversational',
@@ -231,6 +232,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
 
   async function handleMyPerformance() {
     if (!liveInterview || isEvaluating || !liveInterview.interviewEnded) return
+    setHistoryPerformanceMessage('')
     await loadPerformanceAnalytics(liveInterview.id)
   }
 
@@ -239,6 +241,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setIsEvaluating(true)
     setAnalyticsError('')
     setAnalyticsPending(false)
+    setHistoryPerformanceMessage('')
     try {
       const maxAttempts = 15
       for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
@@ -277,11 +280,14 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     if (activeInterview.performanceAnalytics) {
       setAnalyticsPending(false)
       setAnalyticsError('')
+      setHistoryPerformanceMessage('')
       setAnalytics(activeInterview.performanceAnalytics)
       return
     }
+    setAnalyticsPending(false)
+    setAnalyticsError('')
     setAnalytics(null)
-    loadPerformanceAnalytics(activeInterview.id)
+    setHistoryPerformanceMessage("Performance analytics not available. Please run 'My Performance' to generate it.")
   }, [activeInterviewId, activeInterview, liveInterview, isEvaluating])
 
   return (
@@ -354,6 +360,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         ) : activeInterview ? (
           <>
             <MessagePane messages={activeInterview.messages} />
+            {historyPerformanceMessage ? <p>{historyPerformanceMessage}</p> : null}
             <ChatComposer disabled placeholder="Start a live interview to send answers..." />
           </>
         ) : (
