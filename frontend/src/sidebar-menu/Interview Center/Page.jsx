@@ -20,6 +20,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [isStartingInterview, setIsStartingInterview] = useState(false)
   const [isSendingAnswer, setIsSendingAnswer] = useState(false)
   const [isEndingInterview, setIsEndingInterview] = useState(false)
+  const [hasLiveInterviewEnded, setHasLiveInterviewEnded] = useState(false)
   const [composerValue, setComposerValue] = useState('')
   const [startInterviewError, setStartInterviewError] = useState('')
   const [sendAnswerError, setSendAnswerError] = useState('')
@@ -88,6 +89,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   async function handleSelectInterview(interviewId) {
     if (!interviewId || !currentUsername) return
     setLiveInterview(null)
+    setHasLiveInterviewEnded(false)
     setComposerValue('')
     setActiveInterviewId('')
     setAnalytics(null)
@@ -145,6 +147,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           }
         ]
       })
+      setHasLiveInterviewEnded(false)
       setAnswerQualityCards([])
       await loadInterviewHistory(liveInterview?.id || '')
     } catch (error) {
@@ -187,13 +190,15 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         answer,
         previous_response_id: liveInterview.lastResponseId || null
       })
+      const nextInterviewEnded = Boolean(data.interview_ended)
+      if (nextInterviewEnded) setHasLiveInterviewEnded(true)
       const responseTimeLabel = `response ${formatResponseTime(Date.now() - requestStart)}`
       const assistantTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       setLiveInterview((currentInterview) => {
         if (!currentInterview) return currentInterview
         return {
           ...currentInterview,
-          interviewEnded: Boolean(data.interview_ended),
+          interviewEnded: nextInterviewEnded,
           lastResponseId: data.response_id || currentInterview.lastResponseId || null,
           transcriptFilePath: data.transcript_file_path || currentInterview.transcriptFilePath || null,
           messages: [
@@ -259,6 +264,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       setComposerValue('')
       setLiveInterview(null)
       setActiveInterviewId('')
+      setHasLiveInterviewEnded(false)
       return
     }
     setSendAnswerError('')
@@ -272,6 +278,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           interviewEnded: true
         }
       })
+      setHasLiveInterviewEnded(true)
       await loadInterviewHistory()
     } catch (error) {
       setSendAnswerError(error.message || 'Unable to end interview.')
@@ -285,6 +292,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setComposerValue('')
     setLiveInterview(null)
     setActiveInterviewId('')
+    setHasLiveInterviewEnded(false)
   }
 
   async function handleMyPerformance() {
@@ -375,7 +383,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         {liveInterview ? (
           <>
             <MessagePane messages={liveInterview.messages} />
-            {liveInterview.interviewEnded ? (
+            {hasLiveInterviewEnded ? (
               <button
                 type="button"
                 className="ic3-end-interview-floating-button"
@@ -393,7 +401,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
                 {isEndingInterview ? 'Saving...' : 'End Interview'}
               </button>
             )}
-            {liveInterview.interviewEnded ? (
+            {hasLiveInterviewEnded ? (
               <button
                 type="button"
                 className="ic3-end-interview-floating-button is-secondary"
