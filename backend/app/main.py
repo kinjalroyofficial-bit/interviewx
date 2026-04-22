@@ -89,9 +89,10 @@ Instructions:
 - Evaluate responses based on clarity, technical depth, relevance, and communication.
 - Keep analysis concise and evidence-based.
 - Do NOT hallucinate missing information.
-- Output is intended for direct display as plain text in a Response Analytics section.
+- Output is intended for a structured Response Analytics dashboard.
 - Return valid JSON only.
 - Do not include any explanation outside JSON.
+- Follow the required JSON structure exactly; do not add or remove keys.
 
 Required JSON structure:
 {{

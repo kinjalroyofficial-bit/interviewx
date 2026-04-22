@@ -23,7 +23,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [startInterviewError, setStartInterviewError] = useState('')
   const [sendAnswerError, setSendAnswerError] = useState('')
   const [historyError, setHistoryError] = useState('')
-  const [analyticsText, setAnalyticsText] = useState('')
+  const [analytics, setAnalytics] = useState(null)
   const [analyticsError, setAnalyticsError] = useState('')
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [currentSetup, setCurrentSetup] = useState({
@@ -234,7 +234,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     try {
       await endInterview({ interview_id: liveInterview.id, transcript_turns: [] })
       const evaluation = await evaluateInterview({ interview_id: liveInterview.id })
-      setAnalyticsText(JSON.stringify(evaluation, null, 2))
+      setAnalytics(evaluation)
       await loadInterviewHistory()
     } catch (error) {
       setAnalyticsError(error.message || 'Unable to evaluate interview.')
@@ -335,7 +335,38 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       <aside className={`ic3-panel ic3-response-rail ${sidebarCollapsed ? 'is-visible' : ''}`} aria-label="Response analytics">
         <p>Response Analytics</p>
         {analyticsError ? <p>{analyticsError}</p> : null}
-        <pre className="ic3-response-analytics-dump">{analyticsText || 'Run "My Performance" after ending an interview to view analytics.'}</pre>
+        {analytics ? (
+          <div className="ic3-analytics-dashboard">
+            <div className="ic3-analytics-overall-card">
+              <h3>Overall score</h3>
+              <strong>{analytics.overall_score}/100</strong>
+            </div>
+            <div className="ic3-analytics-metric-card">
+              <h3>Technical competency</h3>
+              <p className="ic3-analytics-metric-score">{analytics.technical_competency?.score ?? 0}/100</p>
+              <p>{analytics.technical_competency?.summary || 'No summary available.'}</p>
+            </div>
+            <div className="ic3-analytics-metric-card">
+              <h3>Communication</h3>
+              <p className="ic3-analytics-metric-score">{analytics.communication?.score ?? 0}/100</p>
+              <p>{analytics.communication?.summary || 'No summary available.'}</p>
+            </div>
+            <div className="ic3-analytics-metric-card">
+              <h3>Areas of improvement</h3>
+              {(analytics.areas_of_improvement || []).length ? (
+                <ul>
+                  {analytics.areas_of_improvement.map((item, index) => (
+                    <li key={`${index}-${item.slice(0, 24)}`}>{item}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No improvement areas identified.</p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <p className="ic3-response-analytics-empty">Run "My Performance" after ending an interview to view analytics.</p>
+        )}
       </aside>
     </main>
   )

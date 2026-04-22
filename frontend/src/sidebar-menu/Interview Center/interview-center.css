@@ -633,13 +633,6 @@
   background: color-mix(in srgb, var(--ic3-accent) 32%, var(--ic3-surface));
 }
 
-.ic3-response-analytics-dump {
-  margin-top: 0.6rem;
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-size: 0.68rem;
-}
-
 .ic3-chat-empty-state {
   position: relative;
   display: grid;
@@ -1090,11 +1083,65 @@
   pointer-events: auto;
 }
 
-.ic3-response-rail p {
+.ic3-response-rail > p {
   margin: 0;
   font-size: 1.25rem;
   font-weight: 700;
   text-align: center;
+}
+
+.ic3-analytics-dashboard {
+  margin-top: 0.8rem;
+  width: 100%;
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+}
+
+.ic3-analytics-overall-card,
+.ic3-analytics-metric-card {
+  border: 1px solid var(--ic3-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ic3-accent-soft) 9%, var(--ic3-surface-soft));
+  padding: 0.55rem;
+}
+
+.ic3-analytics-overall-card h3,
+.ic3-analytics-metric-card h3 {
+  margin: 0;
+  font-size: 0.68rem;
+  color: var(--ic3-muted);
+}
+
+.ic3-analytics-overall-card strong {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+}
+
+.ic3-analytics-metric-card p,
+.ic3-analytics-metric-card li {
+  margin: 0.28rem 0 0;
+  font-size: 0.65rem;
+  line-height: 1.4;
+}
+
+.ic3-analytics-metric-score {
+  font-size: 0.8rem !important;
+  font-weight: 700;
+  color: var(--ic3-text);
+}
+
+.ic3-analytics-metric-card ul {
+  margin: 0.3rem 0 0;
+  padding-left: 1rem;
+}
+
+.ic3-response-analytics-empty {
+  margin-top: 0.7rem !important;
+  font-size: 0.7rem !important;
+  color: var(--ic3-muted);
+  text-align: left !important;
 }
 
 @keyframes ic3-spin {
