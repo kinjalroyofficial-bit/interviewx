@@ -1172,6 +1172,21 @@ def start_voice_interview_session(
         raise HTTPException(status_code=500, detail="OpenAI did not return a client secret")
 
     interview_id = f"voice_{secrets.token_hex(8)}"
+    voice_session = InterviewSession(
+        id=interview_id,
+        user_id=user.id,
+        selected_mode=payload.selected_mode,
+        input_type="voice",
+        selected_topics=json.dumps(
+            [
+                {"topic": topic.topic, "difficulty": topic.difficulty}
+                for topic in payload.selected_topics
+            ]
+        ),
+        status="active",
+    )
+    db.add(voice_session)
+    db.commit()
     print_interview_trace(
         "start_voice_session.completed",
         username=clean_username,

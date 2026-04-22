@@ -50,6 +50,24 @@ export default function InterviewSetupFloating({ activeInterview, username, onSe
   const [appliedTopics, setAppliedTopics] = useState(() => (
     []
   ))
+  const persistSetup = (nextSelectedMode, nextInputType, nextSelectedTopics) => {
+    const payload = {
+      selectedMode: nextSelectedMode,
+      inputType: nextInputType,
+      selectedTopics: nextSelectedTopics
+    }
+    if (onSetupChange) {
+      onSetupChange({
+        selectedMode: payload.selectedMode,
+        inputType: payload.inputType,
+        selectedTopics: payload.selectedTopics.map((topicConfig) => ({
+          topic: topicConfig.topic,
+          difficulty: topicConfig.difficulty
+        }))
+      })
+    }
+    localStorage.setItem(storageKey, JSON.stringify(payload))
+  }
   const handleTopicToggle = (topic) => {
     setTopicSelections((currentSelections) => ({
       ...currentSelections,
@@ -79,6 +97,7 @@ export default function InterviewSetupFloating({ activeInterview, username, onSe
       }))
 
     setAppliedTopics(nextAppliedTopics)
+    persistSetup(selectedMode, inputType, nextAppliedTopics)
     setIsBrowseModalOpen(false)
   }
 
@@ -89,7 +108,13 @@ export default function InterviewSetupFloating({ activeInterview, username, onSe
 
   const handleModeSubmit = () => {
     setSelectedMode(pendingMode)
+    persistSetup(pendingMode, inputType, appliedTopics)
     setIsModeModalOpen(false)
+  }
+
+  const handleInputTypeChange = (nextInputType) => {
+    setInputType(nextInputType)
+    persistSetup(selectedMode, nextInputType, appliedTopics)
   }
 
   useEffect(() => {
@@ -128,24 +153,8 @@ export default function InterviewSetupFloating({ activeInterview, username, onSe
   }, [storageKey, defaultDifficulty])
 
   useEffect(() => {
-    if (!onSetupChange) return
-    onSetupChange({
-      selectedMode,
-      inputType,
-      selectedTopics: appliedTopics.map((topicConfig) => ({
-        topic: topicConfig.topic,
-        difficulty: topicConfig.difficulty
-      }))
-    })
-    localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        selectedMode,
-        inputType,
-        selectedTopics: appliedTopics
-      })
-    )
-  }, [selectedMode, inputType, appliedTopics, onSetupChange, storageKey])
+    persistSetup(selectedMode, inputType, appliedTopics)
+  }, [selectedMode, inputType, appliedTopics, storageKey])
 
   return (
     <>
@@ -178,14 +187,14 @@ export default function InterviewSetupFloating({ activeInterview, username, onSe
           <button
             type="button"
             className={`ic3-input-option ${inputType === 'text' ? 'is-active' : ''}`}
-            onClick={() => setInputType('text')}
+            onClick={() => handleInputTypeChange('text')}
           >
             Text
           </button>
           <button
             type="button"
             className={`ic3-input-option ${inputType === 'voice' ? 'is-active' : ''}`}
-            onClick={() => setInputType('voice')}
+            onClick={() => handleInputTypeChange('voice')}
           >
             Voice
           </button>
