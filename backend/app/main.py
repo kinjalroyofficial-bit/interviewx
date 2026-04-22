@@ -232,6 +232,27 @@ def print_interview_trace(event: str, **details) -> None:
     print(f"[InterviewTrace][{timestamp}] {event} | {serialized}", flush=True)
 
 
+def extract_realtime_client_secret(response_payload: dict) -> str:
+    if not isinstance(response_payload, dict):
+        return ""
+
+    nested_client_secret = response_payload.get("client_secret")
+    if isinstance(nested_client_secret, str) and nested_client_secret.strip():
+        return nested_client_secret.strip()
+    if isinstance(nested_client_secret, dict):
+        for key in ("value", "secret", "token", "client_secret"):
+            candidate = nested_client_secret.get(key)
+            if isinstance(candidate, str) and candidate.strip():
+                return candidate.strip()
+
+    for key in ("client_secret_value", "value", "secret", "token"):
+        candidate = response_payload.get(key)
+        if isinstance(candidate, str) and candidate.strip():
+            return candidate.strip()
+
+    return ""
+
+
 def is_interview_end_signal(response_text: str) -> bool:
     normalized_text = (response_text or "").strip().lower()
     if not normalized_text:
@@ -1186,9 +1207,46 @@ def start_voice_interview_session(
         )
         raise HTTPException(status_code=500, detail="Failed to initialize voice interview session")
 
-    client_secret = ((data.get("client_secret") or {}).get("value") or "").strip()
+    client_secret = extract_realtime_client_secret(data)
+    session_id = data.get("id")
+    expires_at = data.get("expires_at")
     if not client_secret:
-        print_interview_trace("start_voice_session.empty_client_secret", username=clean_username)
+        print_interview_trace(
+            "start_voice_session.empty_client_secret.primary",
+            username=clean_username,
+            response_keys=list(data.keys()) if isinstance(data, dict) else [],
+        )
+        legacy_payload = request_payload.get("session", {})
+        try:
+            with httpx.Client(timeout=15.0) as http_client:
+                legacy_response = http_client.post(
+                    "https://api.openai.com/v1/realtime/sessions",
+                    headers={
+                        "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                        "Content-Type": "application/json",
+                    },
+                    json=legacy_payload,
+                )
+                legacy_response.raise_for_status()
+                legacy_data = legacy_response.json()
+                client_secret = extract_realtime_client_secret(legacy_data)
+                session_id = session_id or legacy_data.get("id")
+                expires_at = expires_at or legacy_data.get("expires_at")
+                if not client_secret:
+                    print_interview_trace(
+                        "start_voice_session.empty_client_secret.legacy",
+                        username=clean_username,
+                        response_keys=list(legacy_data.keys()) if isinstance(legacy_data, dict) else [],
+                    )
+        except Exception as legacy_exc:
+            print_interview_trace(
+                "start_voice_session.legacy_fallback_failed",
+                username=clean_username,
+                error=str(legacy_exc),
+                error_type=type(legacy_exc).__name__,
+            )
+
+    if not client_secret:
         raise HTTPException(status_code=500, detail="OpenAI did not return a client secret")
 
     interview_id = f"voice_{secrets.token_hex(8)}"
@@ -1217,8 +1275,8 @@ def start_voice_interview_session(
         interview_id=interview_id,
         model=realtime_model,
         client_secret=client_secret,
-        expires_at=data.get("expires_at"),
-        session_id=data.get("id"),
+        expires_at=expires_at,
+        session_id=session_id,
     )
 
 
