@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { endInterview, evaluateAnswerQuality, evaluateInterview, getInterviewHistory, nextInterviewQuestion, startInterview } from '../../api'
+import { useEffect, useRef, useState } from 'react'
+import { endInterview, evaluateAnswerQuality, evaluateInterview, getInterviewHistory, nextInterviewQuestion, startInterview, startVoiceInterviewSession } from '../../api'
 import ChatComposer from './components/ChatComposer'
 import ChatHeader from './components/ChatHeader'
 import CurrentInterviewCard from './components/CurrentInterviewCard'
@@ -36,6 +36,13 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     inputType: 'text',
     selectedTopics: []
   })
+  const [voiceStatusMessage, setVoiceStatusMessage] = useState('')
+  const [voiceSpeakerState, setVoiceSpeakerState] = useState({ user: false, assistant: false })
+  const peerConnectionRef = useRef(null)
+  const dataChannelRef = useRef(null)
+  const localAudioStreamRef = useRef(null)
+  const remoteAudioElementRef = useRef(null)
+  const voiceStateTimersRef = useRef({ user: null, assistant: null })
   const fallbackInterview = {
     id: '',
     title: 'Current Interview',
@@ -55,6 +62,10 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     if (!currentUsername) return
     loadInterviewHistory('')
   }, [currentUsername])
+
+  useEffect(() => () => {
+    stopVoiceInterviewSession()
+  }, [])
 
   async function loadInterviewHistory(nextActiveInterviewId = '') {
     try {
@@ -115,6 +126,203 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     return `${(durationMs / 1000).toFixed(2)} s`
   }
 
+  function stopVoiceInterviewSession() {
+    console.info('[VoiceInterview] Stopping realtime session and media tracks.')
+    if (voiceStateTimersRef.current.user) {
+      clearTimeout(voiceStateTimersRef.current.user)
+      voiceStateTimersRef.current.user = null
+    }
+    if (voiceStateTimersRef.current.assistant) {
+      clearTimeout(voiceStateTimersRef.current.assistant)
+      voiceStateTimersRef.current.assistant = null
+    }
+    if (dataChannelRef.current) {
+      try {
+        dataChannelRef.current.close()
+      } catch (error) {
+        console.warn('[VoiceInterview] Failed to close data channel', error)
+      }
+      dataChannelRef.current = null
+    }
+    if (peerConnectionRef.current) {
+      try {
+        peerConnectionRef.current.close()
+      } catch (error) {
+        console.warn('[VoiceInterview] Failed to close peer connection', error)
+      }
+      peerConnectionRef.current = null
+    }
+    if (localAudioStreamRef.current) {
+      localAudioStreamRef.current.getTracks().forEach((track) => track.stop())
+      localAudioStreamRef.current = null
+    }
+    if (remoteAudioElementRef.current) {
+      remoteAudioElementRef.current.pause()
+      remoteAudioElementRef.current.srcObject = null
+      remoteAudioElementRef.current = null
+    }
+    setVoiceSpeakerState({ user: false, assistant: false })
+  }
+
+  function pulseSpeaker(speakerKey) {
+    setVoiceSpeakerState((current) => ({ ...current, [speakerKey]: true }))
+    if (voiceStateTimersRef.current[speakerKey]) {
+      clearTimeout(voiceStateTimersRef.current[speakerKey])
+    }
+    voiceStateTimersRef.current[speakerKey] = setTimeout(() => {
+      setVoiceSpeakerState((current) => ({ ...current, [speakerKey]: false }))
+      voiceStateTimersRef.current[speakerKey] = null
+    }, 420)
+  }
+
+  async function ensureMicrophoneAccess() {
+    if (localAudioStreamRef.current) return localAudioStreamRef.current
+    console.info('[VoiceInterview] Requesting microphone permissions.')
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true
+      }
+    })
+    localAudioStreamRef.current = stream
+    return stream
+  }
+
+  function appendVoiceMessage(role, textValue) {
+    const cleanText = (textValue || '').trim()
+    if (!cleanText) return
+    setLiveInterview((currentInterview) => {
+      if (!currentInterview) return currentInterview
+      const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      return {
+        ...currentInterview,
+        messages: [
+          ...currentInterview.messages,
+          {
+            id: `${currentInterview.id}-${role}-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`,
+            author: role,
+            text: cleanText,
+            time: timestamp
+          }
+        ]
+      }
+    })
+  }
+
+  function handleRealtimeServerEvent(parsedMessage) {
+    if (!parsedMessage || typeof parsedMessage !== 'object') return
+    if (parsedMessage.type === 'session.created') {
+      console.info('[VoiceInterview] session.created received, applying transcription settings.')
+      const sessionUpdateEvent = {
+        type: 'session.update',
+        session: {
+          input_audio_transcription: {
+            model: 'gpt-4o-mini-transcribe',
+            language: 'en'
+          }
+        }
+      }
+      dataChannelRef.current?.send(JSON.stringify(sessionUpdateEvent))
+      dataChannelRef.current?.send(JSON.stringify({ type: 'response.create' }))
+      return
+    }
+    if (parsedMessage.type === 'conversation.item.input_audio_transcription.completed') {
+      pulseSpeaker('user')
+      appendVoiceMessage('user', parsedMessage.transcript || '')
+      return
+    }
+    if (parsedMessage.type === 'response.output_text.delta' || parsedMessage.type === 'response.output_audio.delta') {
+      pulseSpeaker('assistant')
+      return
+    }
+    if (parsedMessage.type === 'response.done') {
+      pulseSpeaker('assistant')
+      const outputItems = parsedMessage?.response?.output || []
+      outputItems.forEach((item) => {
+        if (item.type !== 'message' || !Array.isArray(item.content)) return
+        item.content.forEach((contentPart) => {
+          appendVoiceMessage('assistant', contentPart.transcript || contentPart.text || '')
+        })
+      })
+      return
+    }
+    if (parsedMessage.type === 'error') {
+      const message = parsedMessage?.error?.message || 'Realtime voice error.'
+      console.error('[VoiceInterview] OpenAI realtime error event', parsedMessage)
+      setSendAnswerError(message)
+    }
+  }
+
+  async function initializeVoiceRealtimeConnection(ephemeralKey, modelName) {
+    const stream = await ensureMicrophoneAccess()
+    const peerConnection = new RTCPeerConnection()
+    peerConnectionRef.current = peerConnection
+
+    const remoteAudioElement = new Audio()
+    remoteAudioElement.autoplay = true
+    remoteAudioElementRef.current = remoteAudioElement
+    peerConnection.ontrack = (event) => {
+      remoteAudioElement.srcObject = event.streams[0]
+    }
+    peerConnection.onconnectionstatechange = () => {
+      console.info('[VoiceInterview] Peer connection state:', peerConnection.connectionState)
+      if (peerConnection.connectionState === 'failed') {
+        setSendAnswerError('Voice connection failed. Please end and restart the interview.')
+      }
+    }
+    peerConnection.addTrack(stream.getTracks()[0], stream)
+
+    const dataChannel = peerConnection.createDataChannel('oai-events')
+    dataChannelRef.current = dataChannel
+    dataChannel.onopen = () => {
+      console.info('[VoiceInterview] Data channel open.')
+      setVoiceStatusMessage('Voice interview connected. Speak naturally to continue.')
+    }
+    dataChannel.onclose = () => {
+      console.info('[VoiceInterview] Data channel closed.')
+    }
+    dataChannel.onerror = (event) => {
+      console.error('[VoiceInterview] Data channel error', event)
+    }
+    dataChannel.onmessage = (event) => {
+      try {
+        const parsedMessage = JSON.parse(event.data)
+        handleRealtimeServerEvent(parsedMessage)
+      } catch (error) {
+        console.warn('[VoiceInterview] Failed to parse realtime message', error)
+      }
+    }
+
+    const offer = await peerConnection.createOffer()
+    await peerConnection.setLocalDescription(offer)
+
+    const handshakeHeaders = {
+      Authorization: `Bearer ${ephemeralKey}`,
+      'Content-Type': 'application/sdp'
+    }
+    let sdpText = ''
+    let sdpResponse = await fetch('https://api.openai.com/v1/realtime/calls', {
+      method: 'POST',
+      body: offer.sdp,
+      headers: handshakeHeaders
+    })
+    if (!sdpResponse.ok) {
+      console.warn('[VoiceInterview] /v1/realtime/calls failed, retrying with legacy endpoint.')
+      sdpResponse = await fetch(`https://api.openai.com/v1/realtime?model=${encodeURIComponent(modelName)}`, {
+        method: 'POST',
+        body: offer.sdp,
+        headers: handshakeHeaders
+      })
+    }
+    if (!sdpResponse.ok) {
+      const rawBody = await sdpResponse.text()
+      throw new Error(`Realtime SDP handshake failed (${sdpResponse.status}): ${rawBody}`)
+    }
+    sdpText = await sdpResponse.text()
+    await peerConnection.setRemoteDescription({ type: 'answer', sdp: sdpText })
+  }
+
   async function handleStartInterview() {
     if (!currentUsername) {
       setStartInterviewError('Please log in again before starting the interview.')
@@ -123,8 +331,40 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
 
     setIsStartingInterview(true)
     setStartInterviewError('')
+    setSendAnswerError('')
     const requestStart = Date.now()
     try {
+      if (currentSetup.inputType === 'voice') {
+        setVoiceStatusMessage('Preparing microphone and voice session...')
+        await ensureMicrophoneAccess()
+        const voiceData = await startVoiceInterviewSession({
+          username: currentUsername,
+          selected_mode: currentSetup.selectedMode,
+          selected_topics: currentSetup.selectedTopics
+        })
+        await initializeVoiceRealtimeConnection(voiceData.client_secret, voiceData.model)
+        const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        setLiveInterview({
+          id: voiceData.interview_id,
+          title: 'Live Voice Interview',
+          interviewEnded: false,
+          lastResponseId: null,
+          transcriptFilePath: null,
+          isVoice: true,
+          messages: [
+            {
+              id: `${voiceData.interview_id}-voice-ready`,
+              author: 'assistant',
+              text: 'Voice interview is ready. I will start with a question.',
+              time: nowTime,
+              responseTimeLabel: `response ${formatResponseTime(Date.now() - requestStart)}`
+            }
+          ]
+        })
+        setHasLiveInterviewEnded(false)
+        setAnswerQualityCards([])
+        return
+      }
       const data = await startInterview({
         username: currentUsername,
         selected_mode: currentSetup.selectedMode,
@@ -139,6 +379,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         interviewEnded: false,
         lastResponseId: data.response_id || null,
         transcriptFilePath: null,
+        isVoice: false,
         messages: [
           {
             id: `${data.interview_id}-q1`,
@@ -161,6 +402,10 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
 
   async function handleSendAnswer() {
     if (!liveInterview || liveInterview.interviewEnded || isSendingAnswer) return
+    if (liveInterview.isVoice) {
+      setSendAnswerError('Voice interview uses microphone input directly. Text composer is disabled.')
+      return
+    }
     const answer = composerValue.trim()
     if (!answer) return
 
@@ -263,6 +508,8 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   async function handleEndInterview() {
     if (!liveInterview) return
     if (liveInterview.interviewEnded) {
+      stopVoiceInterviewSession()
+      setVoiceStatusMessage('')
       setComposerValue('')
       setLiveInterview(null)
       setActiveInterviewId('')
@@ -272,6 +519,19 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setSendAnswerError('')
     setIsEndingInterview(true)
     try {
+      if (liveInterview.isVoice) {
+        stopVoiceInterviewSession()
+        setLiveInterview((currentInterview) => {
+          if (!currentInterview) return currentInterview
+          return {
+            ...currentInterview,
+            interviewEnded: true
+          }
+        })
+        setHasLiveInterviewEnded(true)
+        setVoiceStatusMessage('Voice interview ended.')
+        return
+      }
       await endInterview({ interview_id: liveInterview.id, transcript_turns: [] })
       setLiveInterview((currentInterview) => {
         if (!currentInterview) return currentInterview
@@ -291,6 +551,10 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
 
   function handleCloseInterview() {
     if (!liveInterview) return
+    if (liveInterview.isVoice) {
+      stopVoiceInterviewSession()
+      setVoiceStatusMessage('')
+    }
     setComposerValue('')
     setLiveInterview(null)
     setActiveInterviewId('')
@@ -384,6 +648,21 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         <ChatHeader interview={liveInterview || activeInterview || defaultChatInterview} />
         {liveInterview ? (
           <>
+            {liveInterview.isVoice ? (
+              <section className="ic3-voice-speakers" aria-label="Voice activity indicators">
+                <article className="ic3-voice-speaker-card">
+                  <div className={`ic3-voice-blob is-assistant ${voiceSpeakerState.assistant ? 'is-active' : ''}`} />
+                  <p>Interviewer</p>
+                </article>
+                <article className="ic3-voice-speaker-card">
+                  <div className={`ic3-voice-blob is-user ${voiceSpeakerState.user ? 'is-active' : ''}`} />
+                  <p>You</p>
+                </article>
+              </section>
+            ) : null}
+            {liveInterview.isVoice && voiceStatusMessage ? (
+              <p className="ic3-voice-status">{voiceStatusMessage}</p>
+            ) : null}
             <MessagePane messages={liveInterview.messages} />
             {hasLiveInterviewEnded ? (
               <button
@@ -408,18 +687,22 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
                 type="button"
                 className="ic3-end-interview-floating-button is-secondary"
                 onClick={handleMyPerformance}
-                disabled={isEvaluating}
+                disabled={isEvaluating || liveInterview.isVoice}
               >
                 {isEvaluating ? 'Evaluating...' : 'My Performance'}
               </button>
             ) : null}
-            <ChatComposer
-              value={composerValue}
-              onChange={setComposerValue}
-              onSend={handleSendAnswer}
-              disabled={isSendingAnswer || isEndingInterview || liveInterview.interviewEnded}
-              placeholder={liveInterview.interviewEnded ? 'Interview ended.' : (isSendingAnswer ? 'Sending...' : 'Type your answer...')}
-            />
+            {liveInterview.isVoice ? (
+              <div className="ic3-voice-composer-note">Microphone streaming is active. Speak naturally; text input is disabled in voice mode.</div>
+            ) : (
+              <ChatComposer
+                value={composerValue}
+                onChange={setComposerValue}
+                onSend={handleSendAnswer}
+                disabled={isSendingAnswer || isEndingInterview || liveInterview.interviewEnded}
+                placeholder={liveInterview.interviewEnded ? 'Interview ended.' : (isSendingAnswer ? 'Sending...' : 'Type your answer...')}
+              />
+            )}
             {sendAnswerError ? <p>{sendAnswerError}</p> : null}
             {liveInterview.transcriptFilePath ? <p>Transcript file: {liveInterview.transcriptFilePath}</p> : null}
           </>

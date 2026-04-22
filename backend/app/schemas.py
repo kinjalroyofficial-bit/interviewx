@@ -60,6 +60,20 @@ class StartInterviewResponse(BaseModel):
     response_id: str | None = None
 
 
+class StartVoiceInterviewSessionRequest(BaseModel):
+    username: str
+    selected_mode: str | None = None
+    selected_topics: list[TopicDifficultyInput] = Field(default_factory=list)
+
+
+class StartVoiceInterviewSessionResponse(BaseModel):
+    interview_id: str
+    model: str
+    client_secret: str
+    expires_at: int | None = None
+    session_id: str | None = None
+
+
 class InterviewTurnRequest(BaseModel):
     interview_id: str
     answer: str

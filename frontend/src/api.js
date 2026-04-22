@@ -101,6 +101,23 @@ export async function startInterview(payload) {
   return response.json()
 }
 
+export async function startVoiceInterviewSession(payload) {
+  const response = await fetch(`${API_BASE_URL}/interview/voice/session`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to start voice interview (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
+
 export async function nextInterviewQuestion(payload) {
   const response = await fetch(`${API_BASE_URL}/interview/next-question`, {
     method: 'POST',

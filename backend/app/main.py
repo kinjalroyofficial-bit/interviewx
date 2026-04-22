@@ -24,6 +24,7 @@ import secrets
 import json
 import random
 import re
+import httpx
 from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
@@ -45,6 +46,8 @@ from app.schemas import (
     GoogleAuthRequest,
     StartInterviewRequest,
     StartInterviewResponse,
+    StartVoiceInterviewSessionRequest,
+    StartVoiceInterviewSessionResponse,
     PromptPreviewRequest,
     PromptPreviewResponse,
     UserProfileResponse,
@@ -631,6 +634,60 @@ Interview start instruction:
 - If and only if all interview goals are fully completed, return this exact keyword: {INTERVIEW_END_KEYWORD}
 """
 
+def build_voice_realtime_instructions(user: User, selected_mode: str, selected_topics: list) -> str:
+    mode_type = detect_mode_type(selected_mode)
+    profile_name = user.full_name or user.username
+    years = user.years_of_experience or "Not specified"
+    technologies = user.technologies_worked_on or "Not specified"
+    project_details = user.project_details or "Not specified"
+    selected_topics_text = (
+        "\n".join(
+            f"- Topic: {topic_entry.topic} | Difficulty: {topic_entry.difficulty}"
+            for topic_entry in selected_topics
+        )
+        if selected_topics
+        else "- No topics selected"
+    )
+
+    common_context = f"""You are InterviewX AI interviewer for a realtime voice interview.
+
+Candidate Profile:
+- Username: {user.username}
+- Name: {profile_name}
+- Years of Experience: {years}
+- Technologies Worked On: {technologies}
+- Project Details: {project_details}
+
+Interview Setup:
+- Selected Mode: {selected_mode}
+- Topic/Difficulty Selections:
+{selected_topics_text}
+
+Global Instructions:
+1) Ask only one question at a time.
+2) Keep responses concise and voice-friendly.
+3) Maintain a professional, encouraging tone.
+4) If coding mode is selected, follow topic-oriented behavior strictly.
+5) Start the interview immediately with the first question.
+"""
+
+    if mode_type == "conversational":
+        return f"""{common_context}
+
+Mode-specific Instructions (Free-Flowing / Conversational):
+1) Do not rely on fixed seed questions.
+2) Adapt questions dynamically from candidate profile and prior answers.
+3) Keep the flow natural with progressive depth.
+"""
+
+    return f"""{common_context}
+
+Mode-specific Instructions (Topic-Oriented + Coding):
+1) Keep questions constrained to the selected topics and difficulty levels.
+2) Ask follow-up depth questions only after candidate answers.
+3) Treat coding mode with the same topic-oriented framing.
+"""
+
 
 def detect_mode_type(selected_mode: str) -> str:
     mode_normalized = (selected_mode or "").strip().lower()
@@ -1037,6 +1094,97 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(status_code=500, detail="Failed to start interview")
+
+
+@app.post("/interview/voice/session", response_model=StartVoiceInterviewSessionResponse)
+def start_voice_interview_session(
+    payload: StartVoiceInterviewSessionRequest,
+    db: Session = Depends(get_db),
+) -> StartVoiceInterviewSessionResponse:
+    clean_username = payload.username.strip()
+    print_interview_trace(
+        "start_voice_session.received",
+        username=clean_username,
+        selected_mode=payload.selected_mode,
+        selected_topics_count=len(payload.selected_topics or []),
+    )
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        print_interview_trace("start_voice_session.user_not_found", username=clean_username)
+        raise HTTPException(status_code=404, detail="User not found")
+
+    realtime_model = os.getenv("OPENAI_REALTIME_MODEL", "gpt-realtime")
+    instructions = build_voice_realtime_instructions(
+        user=user,
+        selected_mode=payload.selected_mode or "Free-Flowing - Conversational",
+        selected_topics=payload.selected_topics or [],
+    )
+    request_payload = {
+        "session": {
+            "type": "realtime",
+            "model": realtime_model,
+            "instructions": instructions,
+            "audio": {
+                "input": {
+                    "turn_detection": {
+                        "type": "server_vad",
+                        "threshold": 0.75,
+                        "prefix_padding_ms": 50,
+                        "silence_duration_ms": 500,
+                        "create_response": True,
+                    }
+                },
+                "output": {"voice": "shimmer"},
+            },
+        }
+    }
+    print_interview_trace(
+        "start_voice_session.request_openai",
+        username=clean_username,
+        model=realtime_model,
+    )
+    try:
+        with httpx.Client(timeout=15.0) as http_client:
+            response = http_client.post(
+                "https://api.openai.com/v1/realtime/client_secrets",
+                headers={
+                    "Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}",
+                    "Content-Type": "application/json",
+                },
+                json=request_payload,
+            )
+            response.raise_for_status()
+            data = response.json()
+    except Exception as exc:
+        logger.error("Failed to create voice realtime client secret: %s", str(exc))
+        print_interview_trace(
+            "start_voice_session.openai_failed",
+            username=clean_username,
+            model=realtime_model,
+            error=str(exc),
+            error_type=type(exc).__name__,
+        )
+        raise HTTPException(status_code=500, detail="Failed to initialize voice interview session")
+
+    client_secret = ((data.get("client_secret") or {}).get("value") or "").strip()
+    if not client_secret:
+        print_interview_trace("start_voice_session.empty_client_secret", username=clean_username)
+        raise HTTPException(status_code=500, detail="OpenAI did not return a client secret")
+
+    interview_id = f"voice_{secrets.token_hex(8)}"
+    print_interview_trace(
+        "start_voice_session.completed",
+        username=clean_username,
+        interview_id=interview_id,
+        model=realtime_model,
+    )
+    return StartVoiceInterviewSessionResponse(
+        interview_id=interview_id,
+        model=realtime_model,
+        client_secret=client_secret,
+        expires_at=data.get("expires_at"),
+        session_id=data.get("id"),
+    )
 
 
 @app.post("/interview/next-question", response_model=InterviewTurnResponse)
