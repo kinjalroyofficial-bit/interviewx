@@ -249,6 +249,13 @@
   font-size: 0.76rem;
 }
 
+.ic3-current-card-placeholder {
+  min-height: 36px;
+  border: 1px dashed color-mix(in srgb, var(--ic3-accent-soft) 45%, var(--ic3-border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ic3-accent-soft) 8%, var(--ic3-surface-soft));
+}
+
 .ic3-kv-list {
   display: flex;
   justify-content: space-between;
@@ -640,6 +647,13 @@
   background: var(--ic3-surface-soft);
   min-height: 0;
   padding: 0.8rem;
+}
+
+.ic3-chat-empty-setup {
+  width: min(100%, 560px);
+  display: grid;
+  gap: 0.56rem;
+  justify-items: start;
 }
 
 .ic3-start-interview-button {

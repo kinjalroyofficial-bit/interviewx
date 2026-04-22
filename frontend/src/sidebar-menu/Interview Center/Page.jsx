@@ -4,6 +4,7 @@ import ChatComposer from './components/ChatComposer'
 import ChatHeader from './components/ChatHeader'
 import CurrentInterviewCard from './components/CurrentInterviewCard'
 import InterviewHistoryPanel from './components/InterviewHistoryPanel'
+import InterviewSetupFloating from './components/InterviewSetupFloating'
 import MessagePane from './components/MessagePane'
 import RightPlaceholderPanel from './components/RightPlaceholderPanel'
 import ThemeToggle from './components/ThemeToggle'
@@ -364,9 +365,8 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         />
         {historyError ? <p>{historyError}</p> : null}
         <CurrentInterviewCard
-          activeInterview={activeInterview || fallbackInterview}
           username={currentUsername}
-          onSetupChange={setCurrentSetup}
+          currentSetup={currentSetup}
         />
       </section>
 
@@ -421,6 +421,13 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           </>
         ) : (
           <div className="ic3-chat-empty-state">
+            <div className="ic3-chat-empty-setup">
+              <InterviewSetupFloating
+                activeInterview={activeInterview || fallbackInterview}
+                username={currentUsername}
+                onSetupChange={setCurrentSetup}
+              />
+            </div>
             <button
               type="button"
               className="ic3-start-interview-button"
