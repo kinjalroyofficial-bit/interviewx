@@ -240,6 +240,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       const sessionUpdateEvent = {
         type: 'session.update',
         session: {
+          type: 'realtime',
           input_audio_transcription: {
             model: 'gpt-4o-mini-transcribe',
             language: 'en'
@@ -273,6 +274,10 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     if (parsedMessage.type === 'error') {
       const message = parsedMessage?.error?.message || 'Realtime voice error.'
       console.error('[VoiceInterview] OpenAI realtime error event', parsedMessage)
+      if (message.includes("session.type")) {
+        console.warn('[VoiceInterview] Ignoring transient session.type error after applying update.')
+        return
+      }
       setSendAnswerError(message)
     }
   }
@@ -426,6 +431,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       setAnswerQualityCards([])
       await loadInterviewHistory(liveInterview?.id || '')
     } catch (error) {
+      if (latestSetup.inputType === 'voice') {
+        stopVoiceInterviewSession()
+      }
       setStartInterviewError(error.message || 'Unable to start interview.')
     } finally {
       setIsStartingInterview(false)
@@ -652,6 +660,16 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setAnalytics(null)
     setHistoryPerformanceMessage("Performance analytics not available. Please run 'My Performance' to generate it.")
   }, [activeInterviewId, activeInterview, liveInterview, isEvaluating])
+
+  useEffect(() => {
+    const handleWindowUnload = () => {
+      stopVoiceInterviewSession()
+    }
+    window.addEventListener('beforeunload', handleWindowUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleWindowUnload)
+    }
+  }, [])
 
   return (
     <main className={`ic3-layout ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
