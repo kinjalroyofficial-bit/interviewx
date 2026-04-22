@@ -56,6 +56,8 @@ from app.schemas import (
     InterviewHistoryRequest,
     InterviewEvaluationRequest,
     InterviewEvaluationResponse,
+    AnswerQualityRequest,
+    AnswerQualityResponse,
 )
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -114,6 +116,31 @@ Scoring Rules:
 - Scores must be between 0 and 100.
 - Summaries should be short and precise.
 - Base evaluation strictly on provided transcript and profile.
+"""
+ANSWER_QUALITY_PROMPT_TEMPLATE = """
+You are an interview communication evaluator.
+
+Your task is to analyze the candidate's answer based on:
+
+1. Grammar correctness
+2. Clarity and positioning of the answer (how well the answer is structured and expressed)
+
+Guidelines:
+
+* Be concise and practical
+* If the answer is already good, DO NOT criticize unnecessarily
+* Only suggest improvements if they are meaningful
+* Avoid over-analysis
+
+Return output in the following JSON format:
+
+{{
+"status": "good" | "needs_improvement",
+"feedback": "Short actionable feedback (1-3 lines max)"
+}}
+
+Candidate answer:
+{answer}
 """
 
 app.add_middleware(
@@ -1250,6 +1277,39 @@ def evaluate_interview(payload: InterviewEvaluationRequest, db: Session = Depend
     except json.JSONDecodeError as exc:
         raise HTTPException(status_code=500, detail=f"Stored analytics is invalid JSON: {exc}") from exc
     return normalize_evaluation_payload(stored_payload)
+
+
+@app.post("/interview/answer-quality", response_model=AnswerQualityResponse)
+def evaluate_answer_quality(payload: AnswerQualityRequest) -> AnswerQualityResponse:
+    answer = (payload.answer or "").strip()
+    if not answer:
+        raise HTTPException(status_code=400, detail="answer is required")
+
+    prompt = ANSWER_QUALITY_PROMPT_TEMPLATE.format(answer=answer)
+    quality_model = os.getenv("OPENAI_MODEL", "gpt-5.4-nano")
+    response = client.responses.create(
+        model=quality_model,
+        input=prompt,
+    )
+    response_text = extract_response_text(response)
+    if not response_text:
+        return AnswerQualityResponse(
+            status="good",
+            feedback="Answer is clear overall. Keep this concise structure.",
+        )
+    try:
+        quality_json = json.loads(response_text)
+    except json.JSONDecodeError:
+        return AnswerQualityResponse(
+            status="needs_improvement",
+            feedback="Improve sentence clarity and structure. Use direct, concise points.",
+        )
+
+    status = str(quality_json.get("status", "needs_improvement")).strip().lower()
+    if status not in {"good", "needs_improvement"}:
+        status = "needs_improvement"
+    feedback = str(quality_json.get("feedback", "")).strip() or "Improve sentence clarity and structure."
+    return AnswerQualityResponse(status=status, feedback=feedback)
 
 
 def build_interview_history_response(username: str, db: Session) -> InterviewHistoryResponse:

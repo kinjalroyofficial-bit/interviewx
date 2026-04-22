@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { endInterview, evaluateInterview, getInterviewHistory, nextInterviewQuestion, startInterview } from '../../api'
+import { endInterview, evaluateAnswerQuality, evaluateInterview, getInterviewHistory, nextInterviewQuestion, startInterview } from '../../api'
 import ChatComposer from './components/ChatComposer'
 import ChatHeader from './components/ChatHeader'
 import CurrentInterviewCard from './components/CurrentInterviewCard'
@@ -27,6 +27,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [analyticsError, setAnalyticsError] = useState('')
   const [analyticsPending, setAnalyticsPending] = useState(false)
   const [historyPerformanceMessage, setHistoryPerformanceMessage] = useState('')
+  const [answerQualityCards, setAnswerQualityCards] = useState([])
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [currentSetup, setCurrentSetup] = useState({
     selectedMode: 'Free-Flowing - Conversational',
@@ -90,6 +91,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setAnalyticsError('')
     setAnalyticsPending(false)
     setHistoryPerformanceMessage('')
+    setAnswerQualityCards([])
     await loadInterviewHistory(interviewId)
   }
 
@@ -140,6 +142,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
           }
         ]
       })
+      setAnswerQualityCards([])
       await loadInterviewHistory(liveInterview?.id || '')
     } catch (error) {
       setStartInterviewError(error.message || 'Unable to start interview.')
@@ -173,6 +176,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       }
     })
     setComposerValue('')
+    triggerAnswerQualityEvaluation(answer)
 
     try {
       const requestStart = Date.now()
@@ -207,6 +211,25 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       setSendAnswerError(error.message || 'Unable to send answer.')
     } finally {
       setIsSendingAnswer(false)
+    }
+  }
+
+  async function triggerAnswerQualityEvaluation(answerText) {
+    const cleanAnswer = (answerText || '').trim()
+    if (!cleanAnswer) return
+    try {
+      const result = await evaluateAnswerQuality({ answer: cleanAnswer })
+      setAnswerQualityCards((cards) => [
+        {
+          id: `aq-${Date.now()}`,
+          status: result.status || 'needs_improvement',
+          feedback: result.feedback || '',
+          createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        },
+        ...cards
+      ])
+    } catch {
+      // Keep this evaluation non-blocking and session-only.
     }
   }
 
@@ -395,41 +418,61 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       <RightPlaceholderPanel />
 
       <aside className={`ic3-panel ic3-response-rail ${sidebarCollapsed ? 'is-visible' : ''}`} aria-label="Response analytics">
-        <p>Response Analytics</p>
-        {analyticsError ? <p>{analyticsError}</p> : null}
-        {analyticsPending ? <p className="ic3-response-analytics-empty">Interview analytics is being generated. Please wait...</p> : null}
-        {analytics ? (
-          <div className="ic3-analytics-dashboard">
-            <div className="ic3-analytics-overall-card">
-              <h3>Overall score</h3>
-              <strong>{analytics.overall_score}/100</strong>
+        <section className="ic3-answer-quality-panel">
+          <p>Answer Quality Insights</p>
+          {answerQualityCards.length ? (
+            <div className="ic3-answer-quality-list">
+              {answerQualityCards.map((card) => (
+                <article key={card.id} className="ic3-answer-quality-card">
+                  <header>
+                    <strong>{card.status === 'good' ? 'Good' : 'Needs improvement'}</strong>
+                    <time>{card.createdAt}</time>
+                  </header>
+                  <p>{card.feedback}</p>
+                </article>
+              ))}
             </div>
-            <div className="ic3-analytics-metric-card">
-              <h3>Technical competency</h3>
-              <p className="ic3-analytics-metric-score">{analytics.technical_competency?.score ?? 0}/100</p>
-              <p>{analytics.technical_competency?.summary || 'No summary available.'}</p>
+          ) : (
+            <p className="ic3-response-analytics-empty">Answer quality insights will appear after you submit answers.</p>
+          )}
+        </section>
+        <section className="ic3-performance-analytics-panel">
+          <p>Response Analytics</p>
+          {analyticsError ? <p>{analyticsError}</p> : null}
+          {analyticsPending ? <p className="ic3-response-analytics-empty">Interview analytics is being generated. Please wait...</p> : null}
+          {analytics ? (
+            <div className="ic3-analytics-dashboard">
+              <div className="ic3-analytics-overall-card">
+                <h3>Overall score</h3>
+                <strong>{analytics.overall_score}/100</strong>
+              </div>
+              <div className="ic3-analytics-metric-card">
+                <h3>Technical competency</h3>
+                <p className="ic3-analytics-metric-score">{analytics.technical_competency?.score ?? 0}/100</p>
+                <p>{analytics.technical_competency?.summary || 'No summary available.'}</p>
+              </div>
+              <div className="ic3-analytics-metric-card">
+                <h3>Communication</h3>
+                <p className="ic3-analytics-metric-score">{analytics.communication?.score ?? 0}/100</p>
+                <p>{analytics.communication?.summary || 'No summary available.'}</p>
+              </div>
+              <div className="ic3-analytics-metric-card">
+                <h3>Areas of improvement</h3>
+                {(analytics.areas_of_improvement || []).length ? (
+                  <ul>
+                    {analytics.areas_of_improvement.map((item, index) => (
+                      <li key={`${index}-${item.slice(0, 24)}`}>{item}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No improvement areas identified.</p>
+                )}
+              </div>
             </div>
-            <div className="ic3-analytics-metric-card">
-              <h3>Communication</h3>
-              <p className="ic3-analytics-metric-score">{analytics.communication?.score ?? 0}/100</p>
-              <p>{analytics.communication?.summary || 'No summary available.'}</p>
-            </div>
-            <div className="ic3-analytics-metric-card">
-              <h3>Areas of improvement</h3>
-              {(analytics.areas_of_improvement || []).length ? (
-                <ul>
-                  {analytics.areas_of_improvement.map((item, index) => (
-                    <li key={`${index}-${item.slice(0, 24)}`}>{item}</li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No improvement areas identified.</p>
-              )}
-            </div>
-          </div>
-        ) : (
-          <p className="ic3-response-analytics-empty">Run "My Performance" after ending an interview to view analytics.</p>
-        )}
+          ) : (
+            <p className="ic3-response-analytics-empty">Run "My Performance" after ending an interview to view analytics.</p>
+          )}
+        </section>
       </aside>
     </main>
   )

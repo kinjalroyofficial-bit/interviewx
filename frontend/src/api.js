@@ -118,6 +118,23 @@ export async function nextInterviewQuestion(payload) {
   return response.json()
 }
 
+export async function evaluateAnswerQuality(payload) {
+  const response = await fetch(`${API_BASE_URL}/interview/answer-quality`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to evaluate answer quality (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
+
 export async function getLastOpenAIPayload() {
   const response = await fetch(`${API_BASE_URL}/interview/debug/last-openai-payload`)
 

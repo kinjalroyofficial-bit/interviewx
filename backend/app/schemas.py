@@ -120,3 +120,12 @@ class InterviewEvaluationResponse(BaseModel):
     technical_competency: InterviewEvaluationMetric
     communication: InterviewEvaluationMetric
     areas_of_improvement: list[str] = Field(default_factory=list)
+
+
+class AnswerQualityRequest(BaseModel):
+    answer: str
+
+
+class AnswerQualityResponse(BaseModel):
+    status: str
+    feedback: str
