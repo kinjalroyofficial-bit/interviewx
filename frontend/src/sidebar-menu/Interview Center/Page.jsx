@@ -86,6 +86,8 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
 
   async function handleSelectInterview(interviewId) {
     if (!interviewId || !currentUsername) return
+    setLiveInterview(null)
+    setComposerValue('')
     setActiveInterviewId('')
     setAnalytics(null)
     setAnalyticsError('')
