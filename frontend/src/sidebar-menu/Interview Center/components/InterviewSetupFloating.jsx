@@ -101,6 +101,9 @@ export default function InterviewSetupFloating({ activeInterview, username, onSe
         setSelectedMode(parsed.selectedMode)
         setPendingMode(parsed.selectedMode)
       }
+      if (parsed?.inputType === 'text' || parsed?.inputType === 'voice') {
+        setInputType(parsed.inputType)
+      }
       if (Array.isArray(parsed?.selectedTopics)) {
         const nextTopics = parsed.selectedTopics
           .filter((entry) => entry && typeof entry.topic === 'string' && typeof entry.difficulty === 'string')
@@ -128,6 +131,7 @@ export default function InterviewSetupFloating({ activeInterview, username, onSe
     if (!onSetupChange) return
     onSetupChange({
       selectedMode,
+      inputType,
       selectedTopics: appliedTopics.map((topicConfig) => ({
         topic: topicConfig.topic,
         difficulty: topicConfig.difficulty
@@ -137,10 +141,11 @@ export default function InterviewSetupFloating({ activeInterview, username, onSe
       storageKey,
       JSON.stringify({
         selectedMode,
+        inputType,
         selectedTopics: appliedTopics
       })
     )
-  }, [selectedMode, appliedTopics, onSetupChange, storageKey])
+  }, [selectedMode, inputType, appliedTopics, onSetupChange, storageKey])
 
   return (
     <>

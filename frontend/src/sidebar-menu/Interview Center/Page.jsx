@@ -33,6 +33,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const [isEvaluating, setIsEvaluating] = useState(false)
   const [currentSetup, setCurrentSetup] = useState({
     selectedMode: 'Free-Flowing - Conversational',
+    inputType: 'text',
     selectedTopics: []
   })
   const fallbackInterview = {
@@ -127,6 +128,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       const data = await startInterview({
         username: currentUsername,
         selected_mode: currentSetup.selectedMode,
+        input_type: currentSetup.inputType,
         selected_topics: currentSetup.selectedTopics
       })
       const responseTimeLabel = `response ${formatResponseTime(Date.now() - requestStart)}`

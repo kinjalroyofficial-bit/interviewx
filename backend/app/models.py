@@ -44,6 +44,7 @@ class InterviewSession(Base):
     id = Column(String, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     selected_mode = Column(String, nullable=True)
+    input_type = Column(String, nullable=True)
     selected_topics = Column(Text, nullable=True)
     status = Column(String, nullable=False, default="active")
     transcript_json = Column(Text, nullable=True)

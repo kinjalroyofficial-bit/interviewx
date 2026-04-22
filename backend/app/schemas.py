@@ -50,6 +50,7 @@ class PromptPreviewResponse(BaseModel):
 class StartInterviewRequest(BaseModel):
     username: str
     selected_mode: str | None = None
+    input_type: str | None = "text"
     selected_topics: list[TopicDifficultyInput] = Field(default_factory=list)
 
 
@@ -92,6 +93,7 @@ class InterviewHistoryItem(BaseModel):
     interview_id: str
     status: str
     selected_mode: str | None = None
+    input_type: str | None = None
     created_at: str | None = None
     ended_at: str | None = None
     transcript_turns: list[InterviewTranscriptTurn] = Field(default_factory=list)

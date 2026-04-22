@@ -167,6 +167,7 @@ def ensure_interview_session_transcript_columns() -> None:
         print_interview_trace("db_schema.ensure_columns.started", table="interview_sessions")
         db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS transcript_json TEXT"))
         db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS performance_analytics_json TEXT"))
+        db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS input_type VARCHAR"))
         db.commit()
         print_interview_trace("db_schema.ensure_columns.completed", table="interview_sessions")
     except Exception as exc:
@@ -906,6 +907,7 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
             "start_interview.received",
             username=clean_username,
             selected_mode=payload.selected_mode,
+            input_type=payload.input_type,
             selected_topics_count=len(payload.selected_topics or []),
         )
         user = db.query(User).filter(User.username == clean_username).first()
@@ -982,6 +984,7 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
             id=interview_id,
             user_id=user.id,
             selected_mode=payload.selected_mode,
+            input_type=payload.input_type,
             selected_topics=json.dumps(
                 [
                     {"topic": topic.topic, "difficulty": topic.difficulty}
@@ -1397,6 +1400,7 @@ def build_interview_history_response(username: str, db: Session) -> InterviewHis
                 interview_id=session.id,
                 status=session.status,
                 selected_mode=session.selected_mode,
+                input_type=session.input_type,
                 created_at=session.created_at.isoformat() if session.created_at else None,
                 ended_at=session.ended_at.isoformat() if session.ended_at else None,
                 transcript_turns=transcript_turns,
