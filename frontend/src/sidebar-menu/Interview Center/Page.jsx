@@ -696,9 +696,10 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         <h1>Interview Center</h1>
         <div className="ic3-header-actions">
           <ThemeToggle checked={isLightTheme} onChange={handleThemeToggle} />
-          <div className="ic3-header-button">
-  Credits: {credits}
-</div>
+          <div className="ic3-credit-pill" role="status" aria-live="polite">
+            <span className="ic3-credit-pill__label">Credits</span>
+            <span className="ic3-credit-pill__value">{credits.toLocaleString()}</span>
+          </div>
         </div>
       </header>
 

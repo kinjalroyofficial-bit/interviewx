@@ -77,15 +77,33 @@
   align-items: center;
 }
 
-.ic3-header-button {
-  min-height: 30px;
-  padding: 0 0.7rem;
-  border-radius: 9px;
-  border: 1px solid color-mix(in srgb, var(--ic3-accent-soft) 65%, var(--ic3-border));
-  background: var(--ic3-surface-soft);
+.ic3-credit-pill {
+  min-height: 34px;
+  padding: 0.3rem 0.78rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--ic3-accent-soft) 58%, var(--ic3-border));
+  background:
+    radial-gradient(circle at 20% 20%, color-mix(in srgb, #fff 28%, transparent) 0%, transparent 46%),
+    linear-gradient(120deg, color-mix(in srgb, var(--ic3-accent) 30%, var(--ic3-surface-soft)) 0%, var(--ic3-surface-soft) 100%);
   color: var(--ic3-text);
-  font-size: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  box-shadow: 0 8px 18px rgba(14, 24, 46, 0.22);
+}
+
+.ic3-credit-pill__label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.6rem;
+  color: color-mix(in srgb, var(--ic3-text) 72%, var(--ic3-muted));
   font-weight: 700;
+}
+
+.ic3-credit-pill__value {
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .ic3-theme-toggle {

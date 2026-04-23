@@ -66,6 +66,7 @@ from app.schemas import (
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 app = FastAPI(title="InterviewX API", version="0.1.0")
 logger = logging.getLogger("interviewx.auth")
+SIGNUP_CREDIT_BONUS = 1000
 QUESTION_REPOSITORY_PATH = Path(__file__).resolve().parent / "knowledge_repository" / "tech_questions.json"
 LAST_OPENAI_PAYLOAD: dict = {}
 LAST_OPENAI_RESPONSE: dict = {}
@@ -824,6 +825,7 @@ def signup(payload: AuthRequest, db: Session = Depends(get_db)) -> AuthResponse:
         password=payload.password,
         email=user_email,
         auth_provider="local",
+        credits=SIGNUP_CREDIT_BONUS,
     )
     db.add(user)
     db.commit()
@@ -912,6 +914,7 @@ def google_login(payload: GoogleAuthRequest, db: Session = Depends(get_db)) -> A
             google_id=google_subject,
             password=secrets.token_urlsafe(24),
             auth_provider="google",
+            credits=SIGNUP_CREDIT_BONUS,
         )
         db.add(user)
 

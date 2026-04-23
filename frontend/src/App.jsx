@@ -206,7 +206,7 @@ export default function App() {
   }, [showAuthPanel, currentUser])
 
   const ctaText = useMemo(
-    () => (currentUser ? `Welcome back, ${currentUser}!` : 'Get 100 free credits to start your journey.'),
+    () => (currentUser ? `Welcome back, ${currentUser}!` : 'Get 1000 free credits to start your journey.'),
     [currentUser]
   )
 
