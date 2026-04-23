@@ -316,6 +316,39 @@ def compute_purchase_amounts(base_price_credits: int, coupon: Coupon | None) -> 
     }
 
 
+def resolve_payment_username(customer_details) -> str:
+    raw_username = (
+        customer_details.username
+        or customer_details.userId
+        or customer_details.userID
+        or ""
+    )
+    return raw_username.strip()
+
+
+def resolve_purchase_summary(purchase_summary) -> object:
+    if isinstance(purchase_summary, list):
+        return purchase_summary[0] if purchase_summary else None
+    return purchase_summary
+
+
+def compute_legacy_purchase_amounts(base_price_rupees: int, coupon_percent: int) -> dict[str, int]:
+    safe_base_price = max(0, int(base_price_rupees))
+    gst_amount_rupees = round(safe_base_price * PAYMENT_GST_RATE)
+    gross_amount_rupees = safe_base_price + gst_amount_rupees
+    safe_coupon_percent = max(0, min(100, int(coupon_percent)))
+    discount_rupees = round(gross_amount_rupees * (safe_coupon_percent / 100))
+    final_amount_rupees = max(1, gross_amount_rupees - discount_rupees)
+    return {
+        "credits_to_add": safe_base_price,
+        "base_amount_rupees": safe_base_price,
+        "gst_amount_rupees": gst_amount_rupees,
+        "gross_amount_rupees": gross_amount_rupees,
+        "discount_rupees": discount_rupees,
+        "final_amount_rupees": final_amount_rupees,
+    }
+
+
 def merge_transaction_description(transaction: Transaction, patch_payload: dict) -> None:
     existing_payload = {}
     if transaction.description:
@@ -334,9 +367,9 @@ def create_payment(payload: CreatePaymentRequest, db: Session = Depends(get_db))
     if not PHONEPE_MERCHANT_ID or not PHONEPE_API_KEY or not PHONEPE_SALT_INDEX:
         raise HTTPException(status_code=500, detail="PhonePe credentials are not configured")
 
-    username = payload.customerDetails.username.strip()
+    username = resolve_payment_username(payload.customerDetails)
     if not username:
-        raise HTTPException(status_code=400, detail="customerDetails.username is required")
+        raise HTTPException(status_code=400, detail="customerDetails.username (or userId) is required")
 
     user = db.query(User).filter(User.username == username).first()
     if not user:
@@ -351,7 +384,23 @@ def create_payment(payload: CreatePaymentRequest, db: Session = Depends(get_db))
             .first()
         )
 
-    purchase_amounts = compute_purchase_amounts(payload.purchaseSummary.base_price, coupon)
+    purchase_summary = resolve_purchase_summary(payload.purchaseSummary)
+    if not purchase_summary:
+        raise HTTPException(status_code=400, detail="purchaseSummary is required")
+
+    base_price_value = purchase_summary.base_price
+    if base_price_value is None and purchase_summary.price is not None:
+        base_price_value = purchase_summary.price
+    if base_price_value is None:
+        raise HTTPException(status_code=400, detail="purchaseSummary.base_price (or price) is required")
+
+    use_legacy_pricing = purchase_summary.price is not None
+    if use_legacy_pricing:
+        coupon_percent = coupon.discount_percent if coupon else 0
+        purchase_amounts = compute_legacy_purchase_amounts(base_price_value, coupon_percent)
+    else:
+        purchase_amounts = compute_purchase_amounts(base_price_value, coupon)
+
     final_amount_paise = purchase_amounts["final_amount_rupees"] * 100
     if final_amount_paise <= 0:
         raise HTTPException(status_code=400, detail="Final amount must be greater than zero")
@@ -415,6 +464,7 @@ def create_payment(payload: CreatePaymentRequest, db: Session = Depends(get_db))
                 "username": username,
                 "coupon_code": coupon.code if coupon else None,
                 "pricing": purchase_amounts,
+                "pricing_mode": "legacy_php_compatible" if use_legacy_pricing else "credits_based",
                 "phonepe_response": phonepe_payload,
             }
         ),

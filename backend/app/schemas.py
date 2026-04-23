@@ -149,16 +149,22 @@ class AnswerQualityResponse(BaseModel):
 
 
 class PaymentCustomerDetails(BaseModel):
-    username: str
+    username: str | None = None
+    userId: str | None = None
+    userID: str | None = None
 
 
 class PaymentPurchaseSummary(BaseModel):
-    base_price: int
+    base_price: int | None = None
+    price: int | None = None
+    quantity: int | None = None
+    name: str | None = None
+    coupon: str | None = None
 
 
 class CreatePaymentRequest(BaseModel):
     customerDetails: PaymentCustomerDetails
-    purchaseSummary: PaymentPurchaseSummary
+    purchaseSummary: PaymentPurchaseSummary | list[PaymentPurchaseSummary]
     couponCode: str | None = None
 
 
