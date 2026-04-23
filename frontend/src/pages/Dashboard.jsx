@@ -129,32 +129,56 @@ export default function Dashboard() {
     setIsCreatingPayment(true)
     setPaymentError('')
     try {
-      const paymentInitUrl = '/payments/interviewx_backend.php'
-      const formData = new FormData()
-      formData.append('customerDetails', JSON.stringify({ username: currentUser }))
-      formData.append('purchaseSummary', JSON.stringify([{ base_price: selectedCredits }]))
-      formData.append('couponCode', couponCode.trim())
+      const customerDetails = { username: currentUser }
+      const purchaseSummary = [{ base_price: selectedCredits }]
+      const coupon = couponCode.trim()
 
-      const response = await fetch(paymentInitUrl, {
-        method: 'POST',
-        body: formData
-      })
+      const phpEndpoint = '/payments/interviewx_backend.php'
+      const phpFormData = new FormData()
+      phpFormData.append('customerDetails', JSON.stringify(customerDetails))
+      phpFormData.append('purchaseSummary', JSON.stringify(purchaseSummary))
+      phpFormData.append('couponCode', coupon)
 
-      const rawResponse = await response.text()
       let data = null
+      let lastError = null
+
       try {
+        const response = await fetch(phpEndpoint, {
+          method: 'POST',
+          body: phpFormData
+        })
+        const rawResponse = await response.text()
         data = rawResponse ? JSON.parse(rawResponse) : {}
-      } catch {
-        const snippet = rawResponse.slice(0, 120).trim()
-        throw new Error(
-          `Payment endpoint did not return JSON. Received: ${snippet || '<empty>'}. ` +
-          'Please verify /payments/interviewx_backend.php is reachable on this host.'
-        )
+
+        if (!response.ok) {
+          throw new Error(data?.detail || data?.message || `Unable to create payment (${response.status})`)
+        }
+      } catch (error) {
+        lastError = error
       }
 
-      if (!response.ok) {
-        throw new Error(data?.detail || data?.message || `Unable to create payment (${response.status})`)
+      if (!data?.url) {
+        const pythonResponse = await fetch('/api/create-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerDetails,
+            purchaseSummary: purchaseSummary[0],
+            couponCode: coupon || null
+          })
+        })
+        const pythonData = await pythonResponse.json()
+        if (!pythonResponse.ok) {
+          throw new Error(
+            pythonData?.detail ||
+            pythonData?.message ||
+            lastError?.message ||
+            `Unable to create payment (${pythonResponse.status})`
+          )
+        }
+        data = pythonData
       }
+
       if (!data?.url) {
         throw new Error('Payment URL not returned from backend.')
       }
