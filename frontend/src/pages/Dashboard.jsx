@@ -77,14 +77,15 @@ export default function Dashboard() {
   async function refreshCreditsForUser(username) {
     if (!username) return
     try {
-      const redirectParams = new URLSearchParams({
-        source: 'interviewx_app',
-        username: currentUser,
-        credits: String(selectedCredits),
-        coupon: couponCode.trim()
-      })
-
-      window.location.href = `https://koviki.com/pricing.php?${redirectParams.toString()}`
+      const response = await fetch(`/api/user/credits?username=${encodeURIComponent(username)}`)
+      if (!response.ok) return
+      const payload = await response.json()
+      const nextCredits = Number(payload?.credits ?? 0)
+      if (!Number.isFinite(nextCredits)) return
+      setCredits(nextCredits)
+      if (creditsStorageKey) {
+        localStorage.setItem(creditsStorageKey, String(nextCredits))
+      }
     } catch (error) {
       console.error('Failed to load credits', error)
     }
@@ -92,7 +93,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!currentUser) return
-
     refreshCreditsForUser(currentUser)
   }, [currentUser])
 
