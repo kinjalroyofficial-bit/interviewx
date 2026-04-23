@@ -129,7 +129,7 @@ export default function Dashboard() {
     setIsCreatingPayment(true)
     setPaymentError('')
     try {
-      const paymentInitUrl = import.meta.env.VITE_PAYMENT_INIT_URL || '/payments/interviewx_backend.php'
+      const paymentInitUrl = '/payments/interviewx_backend.php'
       const formData = new FormData()
       formData.append('customerDetails', JSON.stringify({ username: currentUser }))
       formData.append('purchaseSummary', JSON.stringify([{ base_price: selectedCredits }]))
