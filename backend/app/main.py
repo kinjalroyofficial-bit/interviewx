@@ -175,6 +175,8 @@ def ensure_interview_session_transcript_columns() -> None:
         db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS transcript_json TEXT"))
         db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS performance_analytics_json TEXT"))
         db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS input_type VARCHAR"))
+        db.execute(sql_text("ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS credits_deducted BOOLEAN DEFAULT FALSE"))
+        db.execute(sql_text("UPDATE interview_sessions SET credits_deducted = FALSE WHERE credits_deducted IS NULL"))
         db.commit()
         print_interview_trace("db_schema.ensure_columns.completed", table="interview_sessions")
     except Exception as exc:
@@ -434,17 +436,22 @@ def apply_credit_deduction_for_session(
     session: InterviewSession,
     interview_id: str,
 ) -> None:
+    if session.credits_deducted:
+        return
     if not session.user_id:
+        session.credits_deducted = True
         return
 
     user = db.query(User).filter(User.id == session.user_id).first()
     if not user:
+        session.credits_deducted = True
         return
 
     deduction = calculate_credit_deduction_for_session(session)
     current_credits = user.credits or 0
     updated_credits = max(0, current_credits - deduction)
     user.credits = updated_credits
+    session.credits_deducted = True
     print_interview_trace(
         "interview.credit_deduction_applied",
         interview_id=interview_id,
@@ -1134,6 +1141,7 @@ def start_interview(payload: StartInterviewRequest, db: Session = Depends(get_db
                 ]
             ),
             status="active",
+            credits_deducted=False,
         )
         db.add(session)
         append_turn_to_session_transcript(
@@ -1326,6 +1334,7 @@ def start_voice_interview_session(
             ]
         ),
         status="active",
+        credits_deducted=False,
     )
     db.add(voice_session)
     db.commit()
@@ -1594,6 +1603,13 @@ def evaluate_interview(payload: InterviewEvaluationRequest, db: Session = Depend
     session = db.query(InterviewSession).filter(InterviewSession.id == interview_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Interview session not found")
+    if session.status == "ended" and not session.credits_deducted:
+        apply_credit_deduction_for_session(
+            db=db,
+            session=session,
+            interview_id=interview_id,
+        )
+        db.commit()
     if not session.performance_analytics_json:
         raise HTTPException(status_code=409, detail="Interview analytics is being generated. Please wait...")
     try:

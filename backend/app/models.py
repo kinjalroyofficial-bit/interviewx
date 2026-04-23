@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -50,6 +50,7 @@ class InterviewSession(Base):
     status = Column(String, nullable=False, default="active")
     transcript_json = Column(Text, nullable=True)
     performance_analytics_json = Column(Text, nullable=True)
+    credits_deducted = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     ended_at = Column(DateTime(timezone=True), nullable=True)
     updated_at = Column(
