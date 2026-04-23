@@ -429,6 +429,38 @@ def calculate_credit_deduction_for_session(session: InterviewSession) -> int:
     return max(0, int(math.floor(raw_deduction)))
 
 
+def apply_credit_deduction_for_session(
+    db: Session,
+    session: InterviewSession,
+    interview_id: str,
+) -> None:
+    if not session.user_id:
+        return
+
+    user = db.query(User).filter(User.id == session.user_id).first()
+    if not user:
+        return
+
+    deduction = calculate_credit_deduction_for_session(session)
+    current_credits = user.credits or 0
+    updated_credits = max(0, current_credits - deduction)
+    user.credits = updated_credits
+    print_interview_trace(
+        "interview.credit_deduction_applied",
+        interview_id=interview_id,
+        user_id=session.user_id,
+        input_type=session.input_type,
+        duration_seconds=(
+            max(0.0, (session.ended_at - session.created_at).total_seconds())
+            if session.created_at and session.ended_at
+            else 0.0
+        ),
+        deduction=deduction,
+        previous_credits=current_credits,
+        updated_credits=updated_credits,
+    )
+
+
 def load_session_transcript_turns(session: InterviewSession) -> list[dict]:
     if not session.transcript_json:
         return []
@@ -1422,6 +1454,11 @@ def get_next_question(
                 session,
                 transcript_turns=transcript_turns,
             )
+            apply_credit_deduction_for_session(
+                db=db,
+                session=session,
+                interview_id=interview_id,
+            )
         db.commit()
         if interview_ended:
             background_tasks.add_task(evaluate_and_store_interview_performance, interview_id)
@@ -1507,6 +1544,12 @@ def end_interview(
     session = db.query(InterviewSession).filter(InterviewSession.id == interview_id).first()
     if not session:
         raise HTTPException(status_code=404, detail="Interview session not found")
+    if session.status == "ended":
+        return EndInterviewResponse(
+            interview_id=interview_id,
+            interview_ended=True,
+            transcript_file_path=None,
+        )
     if payload.transcript_turns:
         transcript_turns = [turn.model_dump() for turn in payload.transcript_turns]
     else:
@@ -1516,27 +1559,11 @@ def end_interview(
         session,
         transcript_turns=transcript_turns,
     )
-    if session.user_id:
-        user = db.query(User).filter(User.id == session.user_id).first()
-        if user:
-            deduction = calculate_credit_deduction_for_session(session)
-            current_credits = user.credits or 0
-            updated_credits = max(0, current_credits - deduction)
-            user.credits = updated_credits
-            print_interview_trace(
-                "end_interview.credit_deduction_applied",
-                interview_id=interview_id,
-                user_id=session.user_id,
-                input_type=session.input_type,
-                duration_seconds=(
-                    max(0.0, (session.ended_at - session.created_at).total_seconds())
-                    if session.created_at and session.ended_at
-                    else 0.0
-                ),
-                deduction=deduction,
-                previous_credits=current_credits,
-                updated_credits=updated_credits,
-            )
+    apply_credit_deduction_for_session(
+        db=db,
+        session=session,
+        interview_id=interview_id,
+    )
     commit_start = perf_counter()
     db.commit()
     print_interview_trace(
