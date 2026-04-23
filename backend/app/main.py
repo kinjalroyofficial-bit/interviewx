@@ -28,11 +28,13 @@ import re
 import base64
 import hashlib
 import httpx
+from urllib.parse import parse_qs
 from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
 
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
@@ -79,7 +81,7 @@ PHONEPE_BASE_URL = os.getenv("PHONEPE_BASE_URL", "https://api.phonepe.com/apis/h
 PHONEPE_MERCHANT_ID = os.getenv("PHONEPE_MERCHANT_ID", "")
 PHONEPE_API_KEY = os.getenv("PHONEPE_API_KEY", "")
 PHONEPE_SALT_INDEX = os.getenv("PHONEPE_SALT_INDEX", "")
-PAYMENT_REDIRECT_URL = os.getenv("PAYMENT_REDIRECT_URL", "http://localhost:8000/payment-confirmation")
+PAYMENT_REDIRECT_URL = os.getenv("PAYMENT_REDIRECT_URL", "http://localhost:8000/payment-confirmation/page")
 PAYMENT_CALLBACK_URL = os.getenv("PAYMENT_CALLBACK_URL", PAYMENT_REDIRECT_URL)
 PRICE_PER_1000_CREDITS = int(os.getenv("PRICE_PER_1000_CREDITS", "499"))
 PAYMENT_GST_RATE = 0.18
@@ -458,6 +460,53 @@ def payment_confirmation(mtid: str, db: Session = Depends(get_db)) -> PaymentCon
         credits_added=credits_added,
         credits_balance=user.credits or 0,
     )
+
+
+@app.api_route("/payment-confirmation/page", methods=["GET", "POST"], response_class=HTMLResponse)
+async def payment_confirmation_page(
+    request: Request,
+    mtid: str | None = None,
+    db: Session = Depends(get_db),
+) -> HTMLResponse:
+    resolved_mtid = (mtid or "").strip() or request.query_params.get("mtid", "").strip()
+    if not resolved_mtid and request.method == "POST":
+        raw_body = (await request.body()).decode("utf-8")
+        parsed_form = parse_qs(raw_body)
+        resolved_mtid = (
+            (parsed_form.get("merchantTransactionId") or [None])[0]
+            or (parsed_form.get("transactionId") or [None])[0]
+            or ""
+        ).strip()
+
+    if not resolved_mtid:
+        return HTMLResponse(
+            "<h2>Payment confirmation failed</h2><p>Missing merchant transaction id (mtid).</p>",
+            status_code=400,
+        )
+
+    try:
+        confirmation = payment_confirmation(mtid=resolved_mtid, db=db)
+        state = confirmation.payment_state
+        state_color = "#0a8f3d" if state == "COMPLETED" else ("#d67b00" if state == "PENDING" else "#c53030")
+        html = f"""
+        <html>
+          <body style="font-family:Inter,Segoe UI,Arial,sans-serif;background:#f5f7ff;padding:24px;">
+            <div style="max-width:560px;margin:0 auto;background:#fff;border:1px solid #dbe4ff;border-radius:12px;padding:20px;">
+              <h2 style="margin-top:0;">Payment Status: <span style="color:{state_color};">{state}</span></h2>
+              <p><strong>Transaction ID:</strong> {resolved_mtid}</p>
+              <p><strong>Credits Added:</strong> {confirmation.credits_added}</p>
+              <p><strong>Current Credits:</strong> {confirmation.credits_balance}</p>
+              <a href="/dashboard" style="display:inline-block;margin-top:10px;padding:10px 14px;border-radius:10px;background:#29407b;color:#fff;text-decoration:none;">Back to Dashboard</a>
+            </div>
+          </body>
+        </html>
+        """
+        return HTMLResponse(html)
+    except HTTPException as exc:
+        return HTMLResponse(
+            f"<h2>Payment confirmation failed</h2><p>{exc.detail}</p>",
+            status_code=exc.status_code,
+        )
 
 
 def normalize_profile_value(value: str | None) -> str | None:
