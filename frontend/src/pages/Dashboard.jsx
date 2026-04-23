@@ -129,18 +129,15 @@ export default function Dashboard() {
     setIsCreatingPayment(true)
     setPaymentError('')
     try {
-      const response = await fetch('/api/create-payment', {
+      const paymentInitUrl = import.meta.env.VITE_PAYMENT_INIT_URL || '/payments/interviewx_backend.php'
+      const formData = new FormData()
+      formData.append('customerDetails', JSON.stringify({ username: currentUser }))
+      formData.append('purchaseSummary', JSON.stringify([{ base_price: selectedCredits }]))
+      formData.append('couponCode', couponCode.trim())
+
+      const response = await fetch(paymentInitUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerDetails: {
-            username: currentUser
-          },
-          purchaseSummary: {
-            base_price: selectedCredits
-          },
-          couponCode: couponCode.trim() || null
-        })
+        body: formData
       })
       const data = await response.json()
       if (!response.ok) {
