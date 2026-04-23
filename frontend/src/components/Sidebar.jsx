@@ -86,7 +86,7 @@ function MenuNode({ item, depth, collapsed, openPaths, selectedPath, onItemClick
   )
 }
 
-export default function Sidebar({ menu, greetingText, displayName, username, onLeafSelect, collapsed: controlledCollapsed, onCollapsedChange }) {
+export default function Sidebar({ menu, greetingText, displayName, username, onLeafSelect, collapsed: controlledCollapsed, onCollapsedChange, onLogout }) {
   const [internalCollapsed, setInternalCollapsed] = useState(false)
   const collapsed = typeof controlledCollapsed === 'boolean' ? controlledCollapsed : internalCollapsed
   const [openPaths, setOpenPaths] = useState(() => new Set(['awareness']))
@@ -224,9 +224,14 @@ export default function Sidebar({ menu, greetingText, displayName, username, onL
         {!collapsed ? (
           <div className="sidebar-profile-content">
             <p className="sidebar-greeting">{greetingText}</p>
-            <button type="button" className="sidebar-profile-update-button" onClick={openProfileModal}>
-              Update My Profile
-            </button>
+            <div className="sidebar-profile-actions">
+              <button type="button" className="sidebar-profile-update-button" onClick={openProfileModal}>
+                Update My Profile
+              </button>
+              <button type="button" className="sidebar-profile-update-button is-logout" onClick={onLogout}>
+                Sign Out
+              </button>
+            </div>
           </div>
         ) : null}
       </footer>

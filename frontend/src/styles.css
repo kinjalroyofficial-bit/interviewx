@@ -202,6 +202,10 @@ body,
   overflow: auto;
 }
 
+.dashboard-main > .dashboard-topbar {
+  grid-column: 1 / -1;
+}
+
 .dashboard-workspace-column {
   min-width: 0;
 }
@@ -216,7 +220,7 @@ body,
 
 .dashboard-main.is-interview-center .dashboard-workspace-column {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: minmax(0, 1fr);
   min-height: 0;
   overflow: hidden;
 }
@@ -242,6 +246,12 @@ body,
   display: grid;
   gap: 0.4rem;
   min-width: 0;
+}
+
+.sidebar-profile-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .sidebar-avatar {
@@ -276,6 +286,11 @@ body,
   font-size: 0.72rem;
   font-weight: 700;
   cursor: pointer;
+}
+
+.sidebar-profile-update-button.is-logout {
+  border-color: #ffffff47;
+  background: #ffffff14;
 }
 
 .sidebar-modal-backdrop {
@@ -377,13 +392,40 @@ body,
 
 .dashboard-title {
   margin: 0.2rem 0 0;
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 .dashboard-top-actions {
   display: flex;
   gap: 0.55rem;
   align-items: center;
+}
+
+.dashboard-credit-pill {
+  min-height: 34px;
+  padding: 0.3rem 0.78rem;
+  border-radius: 999px;
+  border: 1px solid #8ea8ff7d;
+  background: linear-gradient(120deg, #324d89a1 0%, #1a2a5273 100%);
+  color: #eaf0ff;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.48rem;
+  box-shadow: 0 8px 18px rgba(14, 24, 46, 0.22);
+}
+
+.dashboard-credit-pill__label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.6rem;
+  color: #ced9ff;
+  font-weight: 700;
+}
+
+.dashboard-credit-pill__value {
+  font-size: 0.86rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .dashboard-content-card {
@@ -451,6 +493,11 @@ body,
   color: #1e2b4e;
 }
 
+.dashboard-theme-light .sidebar-profile-update-button.is-logout {
+  border-color: #9eb2da;
+  background: #edf3ff;
+}
+
 .dashboard-theme-light .sidebar-modal {
   border-color: #bac9e8;
   background: #f6f9ff;
@@ -503,6 +550,17 @@ body,
   color: #22345b;
   background: #edf2ff;
   border-color: #9eb2e1;
+}
+
+.dashboard-theme-light .dashboard-credit-pill {
+  border-color: #9eb2da;
+  background: linear-gradient(120deg, #e4ecff 0%, #dbe6ff 100%);
+  color: #1e2b4e;
+  box-shadow: 0 6px 14px rgba(126, 151, 198, 0.22);
+}
+
+.dashboard-theme-light .dashboard-credit-pill__label {
+  color: #476092;
 }
 
 .dashboard-theme-light .sidebar-collapse-toggle {

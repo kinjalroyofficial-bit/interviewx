@@ -7,14 +7,11 @@ import InterviewHistoryPanel from './components/InterviewHistoryPanel'
 import InterviewSetupFloating from './components/InterviewSetupFloating'
 import MessagePane from './components/MessagePane'
 import RightPlaceholderPanel from './components/RightPlaceholderPanel'
-import ThemeToggle from './components/ThemeToggle'
 import './interview-center.css'
 
 export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const currentUsername = localStorage.getItem('interviewx-user') || ''
-  const [isLightTheme, setIsLightTheme] = useState(false)
   const [interviews, setInterviews] = useState([])
-  const [credits, setCredits] = useState(0)
 
   const [activeInterviewId, setActiveInterviewId] = useState('')
   const [liveInterview, setLiveInterview] = useState(null)
@@ -54,29 +51,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   const defaultChatInterview = { title: 'My Interview' }
 
   useEffect(() => {
-    const shell = document.querySelector('.dashboard-shell')
-    if (!shell) return
-    setIsLightTheme(shell.classList.contains('dashboard-theme-light'))
-  }, [])
-
-  useEffect(() => {
     if (!currentUsername) return
     loadInterviewHistory('')
   }, [currentUsername])
-
-  useEffect(() => {
-  if (!currentUsername) return
-
-  fetch(`/api/user/credits?username=${currentUsername}`)
-    .then(res => res.json())
-    .then(data => {
-      setCredits(data.credits || 0)
-    })
-    .catch(err => {
-      console.error("Credits fetch failed", err)
-    })
-
-}, [currentUsername])
 
   useEffect(() => () => {
     stopVoiceInterviewSession()
@@ -125,15 +102,6 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setHistoryPerformanceMessage('')
     setAnswerQualityCards([])
     await loadInterviewHistory(interviewId)
-  }
-
-  function handleThemeToggle() {
-    const shell = document.querySelector('.dashboard-shell')
-    if (!shell) return
-
-    const nextIsLight = !shell.classList.contains('dashboard-theme-light')
-    shell.classList.toggle('dashboard-theme-light', nextIsLight)
-    setIsLightTheme(nextIsLight)
   }
 
   function formatResponseTime(durationMs) {
@@ -691,18 +659,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   }, [])
 
   return (
-    <main className={`ic3-layout ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
-      <header className="ic3-workspace-header">
-        <h1>Interview Center</h1>
-        <div className="ic3-header-actions">
-          <ThemeToggle checked={isLightTheme} onChange={handleThemeToggle} />
-          <div className="ic3-credit-pill" role="status" aria-live="polite">
-            <span className="ic3-credit-pill__label">Credits</span>
-            <span className="ic3-credit-pill__value">{credits.toLocaleString()}</span>
-          </div>
-        </div>
-      </header>
-
+    <main className={`ic3-layout ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''} is-embedded`}>
       <section className="ic3-left-stack">
         <InterviewHistoryPanel
           interviews={interviews}
