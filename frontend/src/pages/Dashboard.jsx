@@ -139,11 +139,23 @@ export default function Dashboard() {
         method: 'POST',
         body: formData
       })
-      const data = await response.json()
+
+      const rawResponse = await response.text()
+      let data = null
+      try {
+        data = rawResponse ? JSON.parse(rawResponse) : {}
+      } catch {
+        const snippet = rawResponse.slice(0, 120).trim()
+        throw new Error(
+          `Payment endpoint did not return JSON. Received: ${snippet || '<empty>'}. ` +
+          'Please verify /payments/interviewx_backend.php is reachable on this host.'
+        )
+      }
+
       if (!response.ok) {
         throw new Error(data?.detail || data?.message || `Unable to create payment (${response.status})`)
       }
-      if (!data.url) {
+      if (!data?.url) {
         throw new Error('Payment URL not returned from backend.')
       }
       window.location.href = data.url
