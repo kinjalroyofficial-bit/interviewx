@@ -92,21 +92,14 @@ export default function Dashboard() {
 
         {isInterviewCenterActive ? <InterviewCenterPage sidebarCollapsed={isSidebarCollapsed} /> : null}
 
-        <div className="dashboard-workspace-column">
-          <section className="dashboard-content-card">
-            {isInterviewCenterActive ? (
-              <>
-                <h2>Interview Center Overview</h2>
-                <p>Your interview chat workspace is now docked to the left. Continue your session there.</p>
-              </>
-            ) : (
-              <>
-                <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>
-                <p>{activeLeafLabel ? 'Pick another module from the left menu to switch context.' : 'Select a module from the left menu to begin.'}</p>
-              </>
-            )}
-          </section>
-        </div>
+        {!isInterviewCenterActive ? (
+          <div className="dashboard-workspace-column">
+            <section className="dashboard-content-card">
+              <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>
+              <p>{activeLeafLabel ? 'Pick another module from the left menu to switch context.' : 'Select a module from the left menu to begin.'}</p>
+            </section>
+          </div>
+        ) : null}
       </section>
     </main>
   )

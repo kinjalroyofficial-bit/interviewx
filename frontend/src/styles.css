@@ -212,17 +212,14 @@ body,
 
 .dashboard-main.is-interview-center {
   display: grid;
-  grid-template-columns: 330px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   align-items: stretch;
   overflow: hidden;
 }
 
 .dashboard-main.is-interview-center .dashboard-workspace-column {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr);
-  min-height: 0;
-  overflow: hidden;
+  display: none;
 }
 
 .dashboard-main.is-interview-center .dashboard-content-card {
