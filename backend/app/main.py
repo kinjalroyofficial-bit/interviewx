@@ -22,6 +22,7 @@ import os
 import secrets
 
 import json
+import math
 import random
 import re
 import httpx
@@ -67,6 +68,8 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 app = FastAPI(title="InterviewX API", version="0.1.0")
 logger = logging.getLogger("interviewx.auth")
 SIGNUP_CREDIT_BONUS = 1000
+TEXT_CREDIT_RATE_PER_SECOND = float(os.getenv("TEXT_CREDIT_RATE_PER_SECOND", "0.5"))
+VOICE_CREDIT_RATE_PER_SECOND = float(os.getenv("VOICE_CREDIT_RATE_PER_SECOND", "1.5"))
 QUESTION_REPOSITORY_PATH = Path(__file__).resolve().parent / "knowledge_repository" / "tech_questions.json"
 LAST_OPENAI_PAYLOAD: dict = {}
 LAST_OPENAI_RESPONSE: dict = {}
@@ -410,6 +413,20 @@ def finalize_interview(
         duration_ms=round((perf_counter() - finalize_start) * 1000, 2),
     )
     return None
+
+
+def calculate_credit_deduction_for_session(session: InterviewSession) -> int:
+    if not session.created_at or not session.ended_at:
+        return 0
+
+    duration_seconds = max(
+        0.0,
+        (session.ended_at - session.created_at).total_seconds(),
+    )
+    input_type = (session.input_type or "text").strip().lower()
+    rate_per_second = VOICE_CREDIT_RATE_PER_SECOND if input_type == "voice" else TEXT_CREDIT_RATE_PER_SECOND
+    raw_deduction = duration_seconds * rate_per_second
+    return max(0, int(math.floor(raw_deduction)))
 
 
 def load_session_transcript_turns(session: InterviewSession) -> list[dict]:
@@ -1499,6 +1516,27 @@ def end_interview(
         session,
         transcript_turns=transcript_turns,
     )
+    if session.user_id:
+        user = db.query(User).filter(User.id == session.user_id).first()
+        if user:
+            deduction = calculate_credit_deduction_for_session(session)
+            current_credits = user.credits or 0
+            updated_credits = max(0, current_credits - deduction)
+            user.credits = updated_credits
+            print_interview_trace(
+                "end_interview.credit_deduction_applied",
+                interview_id=interview_id,
+                user_id=session.user_id,
+                input_type=session.input_type,
+                duration_seconds=(
+                    max(0.0, (session.ended_at - session.created_at).total_seconds())
+                    if session.created_at and session.ended_at
+                    else 0.0
+                ),
+                deduction=deduction,
+                previous_credits=current_credits,
+                updated_credits=updated_credits,
+            )
     commit_start = perf_counter()
     db.commit()
     print_interview_trace(
