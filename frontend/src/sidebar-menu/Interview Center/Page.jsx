@@ -488,6 +488,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false, onCredit
         }
       })
       await loadInterviewHistory(liveInterview?.id || '')
+      if (nextInterviewEnded && typeof onCreditsUpdated === 'function') {
+        await onCreditsUpdated()
+      }
     } catch (error) {
       console.error('nextInterviewQuestion failed', {
         interviewId: liveInterview.id,
