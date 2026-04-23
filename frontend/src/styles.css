@@ -400,7 +400,7 @@ body,
 
 .dashboard-credit-pill {
   min-height: 34px;
-  padding: 0.3rem 0.78rem;
+  padding: 0.24rem 0.42rem 0.24rem 0.78rem;
   border-radius: 999px;
   border: 1px solid #8ea8ff7d;
   background: linear-gradient(120deg, #324d89a1 0%, #1a2a5273 100%);
@@ -409,6 +409,7 @@ body,
   align-items: center;
   gap: 0.48rem;
   box-shadow: 0 8px 18px rgba(14, 24, 46, 0.22);
+  max-width: 100%;
 }
 
 .dashboard-credit-pill__label {
@@ -423,6 +424,125 @@ body,
   font-size: 0.86rem;
   font-weight: 800;
   line-height: 1;
+}
+
+.dashboard-credit-pill__purchase-button {
+  min-height: 26px;
+  padding: 0 0.68rem;
+  border-radius: 999px;
+  border: 1px solid #d5deff5c;
+  background: #f0f4ff24;
+  color: #f5f8ff;
+  font-size: 0.66rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dashboard-purchase-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: #00000085;
+  display: grid;
+  place-items: center;
+  z-index: 120;
+  padding: 0.75rem;
+}
+
+.dashboard-purchase-modal {
+  width: min(440px, 100%);
+  border-radius: 14px;
+  border: 1px solid #ffffff33;
+  background: #101b38;
+  color: #f1f5ff;
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dashboard-purchase-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard-purchase-modal__header h3 {
+  margin: 0;
+}
+
+.dashboard-purchase-modal__close {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid #ffffff40;
+  background: #ffffff14;
+  color: inherit;
+  cursor: pointer;
+}
+
+.dashboard-purchase-modal__field {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  color: #d1dcff;
+}
+
+.dashboard-purchase-modal__field select,
+.dashboard-purchase-modal__field input {
+  min-height: 36px;
+  border-radius: 10px;
+  border: 1px solid #ffffff36;
+  background: #0c1633;
+  color: #f2f6ff;
+  padding: 0 0.6rem;
+}
+
+.dashboard-purchase-modal__pricing {
+  border: 1px solid #ffffff24;
+  border-radius: 12px;
+  padding: 0.62rem;
+  display: grid;
+  gap: 0.35rem;
+  background: #ffffff08;
+}
+
+.dashboard-purchase-modal__pricing p {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+}
+
+.dashboard-purchase-modal__pricing p.is-total {
+  margin-top: 0.18rem;
+  padding-top: 0.36rem;
+  border-top: 1px dashed #ffffff2d;
+  font-size: 0.84rem;
+}
+
+.dashboard-purchase-modal__coupon-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem;
+}
+
+.dashboard-purchase-modal__coupon-row button,
+.dashboard-purchase-modal__cta {
+  min-height: 36px;
+  border-radius: 10px;
+  border: 1px solid #8ea8ff7d;
+  background: #1a2a5273;
+  color: #eef3ff;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0 0.8rem;
+}
+
+.dashboard-purchase-modal__status {
+  margin: 0;
+  font-size: 0.74rem;
+  color: #cad6ff;
 }
 
 .dashboard-content-card {
@@ -558,6 +678,50 @@ body,
 
 .dashboard-theme-light .dashboard-credit-pill__label {
   color: #476092;
+}
+
+.dashboard-theme-light .dashboard-credit-pill__purchase-button {
+  border-color: #9eb2da;
+  background: #ffffffa6;
+  color: #2a3a62;
+}
+
+.dashboard-theme-light .dashboard-purchase-modal {
+  border-color: #bac9e8;
+  background: #f6f9ff;
+  color: #1d2740;
+}
+
+.dashboard-theme-light .dashboard-purchase-modal__close {
+  border-color: #bac9e8;
+  background: #edf3ff;
+}
+
+.dashboard-theme-light .dashboard-purchase-modal__field {
+  color: #3b4f7d;
+}
+
+.dashboard-theme-light .dashboard-purchase-modal__field select,
+.dashboard-theme-light .dashboard-purchase-modal__field input {
+  border-color: #c3d1eb;
+  background: #ffffff;
+  color: #1d2740;
+}
+
+.dashboard-theme-light .dashboard-purchase-modal__pricing {
+  border-color: #c9d6ef;
+  background: #edf3ff;
+}
+
+.dashboard-theme-light .dashboard-purchase-modal__coupon-row button,
+.dashboard-theme-light .dashboard-purchase-modal__cta {
+  border-color: #9eb2da;
+  background: #dbe6ff;
+  color: #1e2b4e;
+}
+
+.dashboard-theme-light .dashboard-purchase-modal__status {
+  color: #4b6398;
 }
 
 .dashboard-theme-light .sidebar-collapse-toggle {

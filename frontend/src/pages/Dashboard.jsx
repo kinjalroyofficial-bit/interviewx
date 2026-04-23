@@ -5,6 +5,10 @@ import { sidebarMenu } from '../config/sidebarMenu'
 import InterviewCenterPage from '../sidebar-menu/Interview Center/Page'
 
 export default function Dashboard() {
+  const CREDIT_PURCHASE_OPTIONS = [1000, 2000, 3000, 4000, 5000]
+  const BASE_PRICE_PER_1000_CREDITS = 499
+  const GST_RATE = 0.18
+
   const navigate = useNavigate()
   const [theme, setTheme] = useState('dark')
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -16,6 +20,15 @@ export default function Dashboard() {
     const cachedCredits = Number(localStorage.getItem(`interviewx-credits-${currentUser}`) || 0)
     return Number.isFinite(cachedCredits) ? cachedCredits : 0
   })
+  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false)
+  const [selectedCredits, setSelectedCredits] = useState(1000)
+  const [baseAmount, setBaseAmount] = useState(0)
+  const [gstAmount, setGstAmount] = useState(0)
+  const [discountAmount, setDiscountAmount] = useState(0)
+  const [totalAmount, setTotalAmount] = useState(0)
+  const [couponCode, setCouponCode] = useState('')
+  const [couponApplied, setCouponApplied] = useState(false)
+  const [couponStatus, setCouponStatus] = useState('')
   const displayName = currentUser ? currentUser.split('@')[0] : ''
   const greetingText = useMemo(() => {
     const hour = new Date().getHours()
@@ -39,6 +52,19 @@ export default function Dashboard() {
   const isInterviewCenterActive = activeLeafLabel === 'Interview Center'
   const workspaceTitle = activeLeafLabel || 'My Workspace'
 
+  useEffect(() => {
+    const base = (selectedCredits / 1000) * BASE_PRICE_PER_1000_CREDITS
+    const discount = couponApplied ? Math.round(base * 0.1) : 0
+    const discountedBase = Math.max(0, base - discount)
+    const gst = Math.round(discountedBase * GST_RATE)
+    const total = discountedBase + gst
+
+    setBaseAmount(base)
+    setDiscountAmount(discount)
+    setGstAmount(gst)
+    setTotalAmount(total)
+  }, [selectedCredits, couponApplied])
+
   async function refreshCreditsForUser(username) {
     if (!username) return
     try {
@@ -58,6 +84,31 @@ export default function Dashboard() {
 
     refreshCreditsForUser(currentUser)
   }, [currentUser])
+
+  function openPurchaseModal() {
+    setIsPurchaseModalOpen(true)
+    setCouponStatus('')
+  }
+
+  function closePurchaseModal() {
+    setIsPurchaseModalOpen(false)
+  }
+
+  function applyCoupon() {
+    const normalizedCode = couponCode.trim().toUpperCase()
+    if (!normalizedCode) {
+      setCouponApplied(false)
+      setCouponStatus('Please enter a coupon code.')
+      return
+    }
+    if (normalizedCode === 'SAVE10') {
+      setCouponApplied(true)
+      setCouponStatus('Coupon applied: 10% off base amount (placeholder).')
+      return
+    }
+    setCouponApplied(false)
+    setCouponStatus('Invalid coupon code (placeholder validation).')
+  }
 
   return (
     <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''} ${isSidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
@@ -84,6 +135,9 @@ export default function Dashboard() {
             <div className="dashboard-credit-pill" role="status" aria-live="polite">
               <span className="dashboard-credit-pill__label">Credits</span>
               <span className="dashboard-credit-pill__value">{credits.toLocaleString()}</span>
+              <button type="button" className="dashboard-credit-pill__purchase-button" onClick={openPurchaseModal}>
+                Purchase
+              </button>
             </div>
           </div>
         </header>
@@ -104,6 +158,67 @@ export default function Dashboard() {
           </div>
         ) : null}
       </section>
+
+      {isPurchaseModalOpen ? (
+        <div className="dashboard-purchase-modal-backdrop" role="presentation" onClick={closePurchaseModal}>
+          <section
+            className="dashboard-purchase-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Purchase credits"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="dashboard-purchase-modal__header">
+              <h3>Purchase Credits</h3>
+              <button type="button" className="dashboard-purchase-modal__close" onClick={closePurchaseModal}>
+                ✕
+              </button>
+            </div>
+
+            <label className="dashboard-purchase-modal__field">
+              <span>Credits Selected</span>
+              <select
+                value={selectedCredits}
+                onChange={(event) => {
+                  setSelectedCredits(Number(event.target.value))
+                  setCouponApplied(false)
+                  setCouponStatus('')
+                }}
+              >
+                {CREDIT_PURCHASE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option.toLocaleString()} Credits</option>
+                ))}
+              </select>
+            </label>
+
+            <div className="dashboard-purchase-modal__pricing">
+              <p><span>Credits Selected</span><strong>{selectedCredits.toLocaleString()}</strong></p>
+              <p><span>Base Amount</span><strong>₹{baseAmount.toLocaleString()}</strong></p>
+              <p><span>Discount</span><strong>-₹{discountAmount.toLocaleString()}</strong></p>
+              <p><span>GST (18%)</span><strong>₹{gstAmount.toLocaleString()}</strong></p>
+              <p className="is-total"><span>Total Amount</span><strong>₹{totalAmount.toLocaleString()}</strong></p>
+            </div>
+
+            <label className="dashboard-purchase-modal__field">
+              <span>Enter Coupon Code</span>
+              <div className="dashboard-purchase-modal__coupon-row">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(event) => setCouponCode(event.target.value)}
+                  placeholder="Enter Coupon Code"
+                />
+                <button type="button" onClick={applyCoupon}>Apply</button>
+              </div>
+            </label>
+            {couponStatus ? <p className="dashboard-purchase-modal__status">{couponStatus}</p> : null}
+
+            <button type="button" className="dashboard-purchase-modal__cta">
+              Proceed to Pay
+            </button>
+          </section>
+        </div>
+      ) : null}
     </main>
   )
 }
