@@ -25,6 +25,8 @@ import json
 import math
 import random
 import re
+import base64
+import hashlib
 import httpx
 from datetime import datetime, timezone
 from pathlib import Path
@@ -38,7 +40,7 @@ from sqlalchemy import text as sql_text
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models import InterviewSession, User, UserProfileUpdateLog
+from app.models import Coupon, InterviewSession, Transaction, User, UserProfileUpdateLog
 from app.schemas import (
     AuthRequest,
     AuthResponse,
@@ -62,6 +64,9 @@ from app.schemas import (
     InterviewEvaluationResponse,
     AnswerQualityRequest,
     AnswerQualityResponse,
+    CreatePaymentRequest,
+    CreatePaymentResponse,
+    PaymentConfirmationResponse,
 )
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -70,6 +75,14 @@ logger = logging.getLogger("interviewx.auth")
 SIGNUP_CREDIT_BONUS = 1000
 TEXT_CREDIT_RATE_PER_SECOND = float(os.getenv("TEXT_CREDIT_RATE_PER_SECOND", "0.5"))
 VOICE_CREDIT_RATE_PER_SECOND = float(os.getenv("VOICE_CREDIT_RATE_PER_SECOND", "1.5"))
+PHONEPE_BASE_URL = os.getenv("PHONEPE_BASE_URL", "https://api.phonepe.com/apis/hermes")
+PHONEPE_MERCHANT_ID = os.getenv("PHONEPE_MERCHANT_ID", "")
+PHONEPE_API_KEY = os.getenv("PHONEPE_API_KEY", "")
+PHONEPE_SALT_INDEX = os.getenv("PHONEPE_SALT_INDEX", "")
+PAYMENT_REDIRECT_URL = os.getenv("PAYMENT_REDIRECT_URL", "http://localhost:8000/payment-confirmation")
+PAYMENT_CALLBACK_URL = os.getenv("PAYMENT_CALLBACK_URL", PAYMENT_REDIRECT_URL)
+PRICE_PER_1000_CREDITS = int(os.getenv("PRICE_PER_1000_CREDITS", "499"))
+PAYMENT_GST_RATE = 0.18
 QUESTION_REPOSITORY_PATH = Path(__file__).resolve().parent / "knowledge_repository" / "tech_questions.json"
 LAST_OPENAI_PAYLOAD: dict = {}
 LAST_OPENAI_RESPONSE: dict = {}
@@ -192,9 +205,62 @@ def ensure_interview_session_transcript_columns() -> None:
         db.close()
 
 
+def ensure_payment_tables() -> None:
+    db = SessionLocal()
+    try:
+        db.execute(
+            sql_text(
+                """
+                CREATE TABLE IF NOT EXISTS transactions (
+                    id SERIAL PRIMARY KEY,
+                    merchant_transaction_id VARCHAR UNIQUE NOT NULL,
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    amount INTEGER NOT NULL,
+                    credits_to_add INTEGER NOT NULL DEFAULT 0,
+                    payment_status VARCHAR NOT NULL DEFAULT 'INITIATED',
+                    description TEXT,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+                """
+            )
+        )
+        db.execute(
+            sql_text(
+                """
+                CREATE TABLE IF NOT EXISTS coupons (
+                    id SERIAL PRIMARY KEY,
+                    code VARCHAR UNIQUE NOT NULL,
+                    discount_percent INTEGER NOT NULL DEFAULT 0,
+                    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+                """
+            )
+        )
+        db.execute(
+            sql_text(
+                """
+                INSERT INTO coupons (code, discount_percent, is_active)
+                VALUES
+                    ('INTERVIEWX10', 10, TRUE),
+                    ('INTERVIEWX20', 20, TRUE),
+                    ('INTERVIEWX30', 30, TRUE)
+                ON CONFLICT (code) DO NOTHING
+                """
+            )
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
 @app.on_event("startup")
 def startup_schema_sync() -> None:
     ensure_interview_session_transcript_columns()
+    ensure_payment_tables()
 
 
 @app.get("/")
@@ -217,6 +283,181 @@ def get_user_credits(username: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     
     return {"credits": user.credits}
+
+
+def build_phonepe_pay_x_verify(request_base64: str) -> str:
+    checksum = hashlib.sha256(
+        f"{request_base64}/pg/v1/pay{PHONEPE_API_KEY}".encode("utf-8")
+    ).hexdigest()
+    return f"{checksum}###{PHONEPE_SALT_INDEX}"
+
+
+def build_phonepe_status_x_verify(merchant_id: str, merchant_transaction_id: str) -> str:
+    status_path = f"/pg/v1/status/{merchant_id}/{merchant_transaction_id}"
+    checksum = hashlib.sha256(f"{status_path}{PHONEPE_API_KEY}".encode("utf-8")).hexdigest()
+    return f"{checksum}###{PHONEPE_SALT_INDEX}"
+
+
+def compute_purchase_amounts(base_price_credits: int, coupon: Coupon | None) -> dict[str, int]:
+    safe_credits = max(0, int(base_price_credits))
+    base_amount_rupees = round((safe_credits / 1000) * PRICE_PER_1000_CREDITS)
+    gst_amount_rupees = round(base_amount_rupees * PAYMENT_GST_RATE)
+    discount_percent = max(0, min(100, coupon.discount_percent if coupon else 0))
+    discount_rupees = round(base_amount_rupees * (discount_percent / 100))
+    final_amount_rupees = max(0, base_amount_rupees + gst_amount_rupees - discount_rupees)
+    return {
+        "credits_to_add": safe_credits,
+        "base_amount_rupees": base_amount_rupees,
+        "gst_amount_rupees": gst_amount_rupees,
+        "discount_rupees": discount_rupees,
+        "final_amount_rupees": final_amount_rupees,
+    }
+
+
+@app.post("/create-payment", response_model=CreatePaymentResponse)
+def create_payment(payload: CreatePaymentRequest, db: Session = Depends(get_db)) -> CreatePaymentResponse:
+    if not PHONEPE_MERCHANT_ID or not PHONEPE_API_KEY or not PHONEPE_SALT_INDEX:
+        raise HTTPException(status_code=500, detail="PhonePe credentials are not configured")
+
+    username = payload.customerDetails.username.strip()
+    if not username:
+        raise HTTPException(status_code=400, detail="customerDetails.username is required")
+
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    coupon = None
+    if payload.couponCode and payload.couponCode.strip():
+        normalized_coupon = payload.couponCode.strip().upper()
+        coupon = (
+            db.query(Coupon)
+            .filter(Coupon.code == normalized_coupon, Coupon.is_active.is_(True))
+            .first()
+        )
+
+    purchase_amounts = compute_purchase_amounts(payload.purchaseSummary.base_price, coupon)
+    final_amount_paise = purchase_amounts["final_amount_rupees"] * 100
+    if final_amount_paise <= 0:
+        raise HTTPException(status_code=400, detail="Final amount must be greater than zero")
+
+    merchant_transaction_id = f"txn_{secrets.token_hex(10)}"
+    redirect_url = f"{PAYMENT_REDIRECT_URL}?mtid={merchant_transaction_id}"
+    callback_url = f"{PAYMENT_CALLBACK_URL}?mtid={merchant_transaction_id}"
+    payment_data = {
+        "merchantId": PHONEPE_MERCHANT_ID,
+        "merchantTransactionId": merchant_transaction_id,
+        "merchantUserId": str(user.id),
+        "amount": final_amount_paise,
+        "redirectUrl": redirect_url,
+        "redirectMode": "POST",
+        "callbackUrl": callback_url,
+        "paymentInstrument": {"type": "PAY_PAGE"},
+    }
+    payload_base64 = base64.b64encode(json.dumps(payment_data).encode("utf-8")).decode("utf-8")
+    x_verify = build_phonepe_pay_x_verify(payload_base64)
+
+    try:
+        with httpx.Client(timeout=15.0) as http_client:
+            phonepe_response = http_client.post(
+                f"{PHONEPE_BASE_URL}/pg/v1/pay",
+                json={"request": payload_base64},
+                headers={
+                    "Content-Type": "application/json",
+                    "X-VERIFY": x_verify,
+                    "X-MERCHANT-ID": PHONEPE_MERCHANT_ID,
+                },
+            )
+            phonepe_response.raise_for_status()
+            phonepe_payload = phonepe_response.json()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"PhonePe payment creation failed: {exc}")
+
+    redirect_info = (((phonepe_payload or {}).get("data") or {}).get("instrumentResponse") or {}).get("redirectInfo") or {}
+    redirect_url_from_phonepe = redirect_info.get("url")
+    if not redirect_url_from_phonepe:
+        raise HTTPException(status_code=502, detail="PhonePe response missing redirect URL")
+
+    transaction = Transaction(
+        merchant_transaction_id=merchant_transaction_id,
+        user_id=user.id,
+        amount=final_amount_paise,
+        credits_to_add=purchase_amounts["credits_to_add"],
+        payment_status="INITIATED",
+        description=json.dumps(
+            {
+                "username": username,
+                "coupon_code": coupon.code if coupon else None,
+                "pricing": purchase_amounts,
+                "phonepe_response": phonepe_payload,
+            }
+        ),
+    )
+    db.add(transaction)
+    db.commit()
+
+    return CreatePaymentResponse(
+        status="success",
+        url=redirect_url_from_phonepe,
+        mtid=merchant_transaction_id,
+    )
+
+
+@app.get("/payment-confirmation", response_model=PaymentConfirmationResponse)
+def payment_confirmation(mtid: str, db: Session = Depends(get_db)) -> PaymentConfirmationResponse:
+    clean_mtid = (mtid or "").strip()
+    if not clean_mtid:
+        raise HTTPException(status_code=400, detail="mtid is required")
+    if not PHONEPE_MERCHANT_ID or not PHONEPE_API_KEY or not PHONEPE_SALT_INDEX:
+        raise HTTPException(status_code=500, detail="PhonePe credentials are not configured")
+
+    transaction = db.query(Transaction).filter(Transaction.merchant_transaction_id == clean_mtid).first()
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    x_verify = build_phonepe_status_x_verify(PHONEPE_MERCHANT_ID, clean_mtid)
+    try:
+        with httpx.Client(timeout=15.0) as http_client:
+            status_response = http_client.get(
+                f"{PHONEPE_BASE_URL}/pg/v1/status/{PHONEPE_MERCHANT_ID}/{clean_mtid}",
+                headers={
+                    "Content-Type": "application/json",
+                    "X-VERIFY": x_verify,
+                    "X-MERCHANT-ID": PHONEPE_MERCHANT_ID,
+                },
+            )
+            status_response.raise_for_status()
+            status_payload = status_response.json()
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"PhonePe status check failed: {exc}")
+
+    payment_state = str((((status_payload or {}).get("data") or {}).get("state") or "PENDING")).upper()
+    credits_added = 0
+    user = db.query(User).filter(User.id == transaction.user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User linked to transaction not found")
+
+    if payment_state == "COMPLETED":
+        if transaction.payment_status != "CREDITED":
+            user.credits = (user.credits or 0) + (transaction.credits_to_add or 0)
+            transaction.payment_status = "CREDITED"
+            credits_added = transaction.credits_to_add or 0
+            db.commit()
+    elif payment_state in {"FAILED", "PAYMENT_ERROR"}:
+        if transaction.payment_status != "CREDITED":
+            transaction.payment_status = "FAILED"
+            db.commit()
+    else:
+        if transaction.payment_status != "CREDITED":
+            transaction.payment_status = "PENDING"
+            db.commit()
+
+    return PaymentConfirmationResponse(
+        status="success",
+        payment_state=payment_state,
+        credits_added=credits_added,
+        credits_balance=user.credits or 0,
+    )
 
 
 def normalize_profile_value(value: str | None) -> str | None:

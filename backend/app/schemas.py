@@ -146,3 +146,30 @@ class AnswerQualityRequest(BaseModel):
 class AnswerQualityResponse(BaseModel):
     status: str
     feedback: str
+
+
+class PaymentCustomerDetails(BaseModel):
+    username: str
+
+
+class PaymentPurchaseSummary(BaseModel):
+    base_price: int
+
+
+class CreatePaymentRequest(BaseModel):
+    customerDetails: PaymentCustomerDetails
+    purchaseSummary: PaymentPurchaseSummary
+    couponCode: str | None = None
+
+
+class CreatePaymentResponse(BaseModel):
+    status: str
+    url: str
+    mtid: str
+
+
+class PaymentConfirmationResponse(BaseModel):
+    status: str
+    payment_state: str
+    credits_added: int = 0
+    credits_balance: int | None = None

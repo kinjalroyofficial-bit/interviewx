@@ -35,6 +35,8 @@ export default function Dashboard() {
   const [couponApplied, setCouponApplied] = useState(false)
   const [couponDiscountRate, setCouponDiscountRate] = useState(0)
   const [couponStatus, setCouponStatus] = useState('')
+  const [isCreatingPayment, setIsCreatingPayment] = useState(false)
+  const [paymentError, setPaymentError] = useState('')
   const displayName = currentUser ? currentUser.split('@')[0] : ''
   const greetingText = useMemo(() => {
     const hour = new Date().getHours()
@@ -99,6 +101,7 @@ export default function Dashboard() {
 
   function closePurchaseModal() {
     setIsPurchaseModalOpen(false)
+    setPaymentError('')
   }
 
   function applyCoupon() {
@@ -119,6 +122,39 @@ export default function Dashboard() {
     setCouponApplied(false)
     setCouponDiscountRate(0)
     setCouponStatus('Invalid coupon code.')
+  }
+
+  async function handleProceedToPay() {
+    if (!currentUser || isCreatingPayment) return
+    setIsCreatingPayment(true)
+    setPaymentError('')
+    try {
+      const response = await fetch('/api/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerDetails: {
+            username: currentUser
+          },
+          purchaseSummary: {
+            base_price: selectedCredits
+          },
+          couponCode: couponCode.trim() || null
+        })
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data?.detail || `Unable to create payment (${response.status})`)
+      }
+      if (!data.url) {
+        throw new Error('Payment URL not returned from backend.')
+      }
+      window.location.href = data.url
+    } catch (error) {
+      setPaymentError(error.message || 'Unable to proceed to payment.')
+    } finally {
+      setIsCreatingPayment(false)
+    }
   }
 
   return (
@@ -228,9 +264,15 @@ export default function Dashboard() {
             </p>
             {couponStatus ? <p className="dashboard-purchase-modal__status">{couponStatus}</p> : null}
 
-            <button type="button" className="dashboard-purchase-modal__cta">
-              Proceed to Pay
+            <button
+              type="button"
+              className="dashboard-purchase-modal__cta"
+              onClick={handleProceedToPay}
+              disabled={isCreatingPayment}
+            >
+              {isCreatingPayment ? 'Redirecting...' : 'Proceed to Pay'}
             </button>
+            {paymentError ? <p className="dashboard-purchase-modal__status">{paymentError}</p> : null}
           </section>
         </div>
       ) : null}
