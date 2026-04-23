@@ -316,6 +316,19 @@ def compute_purchase_amounts(base_price_credits: int, coupon: Coupon | None) -> 
     }
 
 
+def merge_transaction_description(transaction: Transaction, patch_payload: dict) -> None:
+    existing_payload = {}
+    if transaction.description:
+        try:
+            existing_payload = json.loads(transaction.description)
+        except json.JSONDecodeError:
+            existing_payload = {"raw_description": transaction.description}
+    if not isinstance(existing_payload, dict):
+        existing_payload = {"raw_description": str(existing_payload)}
+    existing_payload.update(patch_payload)
+    transaction.description = json.dumps(existing_payload)
+
+
 @app.post("/create-payment", response_model=CreatePaymentResponse)
 def create_payment(payload: CreatePaymentRequest, db: Session = Depends(get_db)) -> CreatePaymentResponse:
     if not PHONEPE_MERCHANT_ID or not PHONEPE_API_KEY or not PHONEPE_SALT_INDEX:
@@ -377,6 +390,14 @@ def create_payment(payload: CreatePaymentRequest, db: Session = Depends(get_db))
 
     redirect_info = (((phonepe_payload or {}).get("data") or {}).get("instrumentResponse") or {}).get("redirectInfo") or {}
     redirect_url_from_phonepe = redirect_info.get("url")
+    phonepe_success = bool((phonepe_payload or {}).get("success"))
+    if not phonepe_success:
+        failure_code = (phonepe_payload or {}).get("code")
+        failure_message = (phonepe_payload or {}).get("message")
+        raise HTTPException(
+            status_code=502,
+            detail=f"PhonePe create-payment rejected (code={failure_code}, message={failure_message})",
+        )
     if not redirect_url_from_phonepe:
         raise HTTPException(status_code=502, detail="PhonePe response missing redirect URL")
 
@@ -454,12 +475,50 @@ def payment_confirmation(mtid: str, db: Session = Depends(get_db)) -> PaymentCon
             transaction.payment_status = "PENDING"
             db.commit()
 
+    merge_transaction_description(
+        transaction,
+        {
+            "last_payment_state": payment_state,
+            "last_status_payload": status_payload,
+            "last_checked_at": datetime.now(timezone.utc).isoformat(),
+        },
+    )
+    db.commit()
+
     return PaymentConfirmationResponse(
         status="success",
         payment_state=payment_state,
         credits_added=credits_added,
         credits_balance=user.credits or 0,
     )
+
+
+@app.get("/payment-debug/{mtid}")
+def payment_debug(mtid: str, db: Session = Depends(get_db)) -> dict:
+    clean_mtid = (mtid or "").strip()
+    if not clean_mtid:
+        raise HTTPException(status_code=400, detail="mtid is required")
+
+    transaction = db.query(Transaction).filter(Transaction.merchant_transaction_id == clean_mtid).first()
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    description_payload = {}
+    if transaction.description:
+        try:
+            description_payload = json.loads(transaction.description)
+        except json.JSONDecodeError:
+            description_payload = {"raw_description": transaction.description}
+
+    return {
+        "merchant_transaction_id": transaction.merchant_transaction_id,
+        "user_id": transaction.user_id,
+        "amount_paise": transaction.amount,
+        "credits_to_add": transaction.credits_to_add,
+        "payment_status": transaction.payment_status,
+        "description": description_payload,
+        "created_at": transaction.created_at.isoformat() if transaction.created_at else None,
+    }
 
 
 @app.api_route("/payment-confirmation/page", methods=["GET", "POST"], response_class=HTMLResponse)
