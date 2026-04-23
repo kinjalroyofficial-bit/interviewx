@@ -170,7 +170,7 @@ export default function Dashboard() {
             <div className="dashboard-credit-pill" role="status" aria-live="polite">
               <span className="dashboard-credit-pill__label">Credits</span>
               <span className="dashboard-credit-pill__value">{credits.toLocaleString()}</span>
-              <button type="button" className="dashboard-credit-pill__purchase-button" onClick={openPurchaseModal}>
+              <button type="button" className="dashboard-credit-pill__purchase-button" onClick={handleProceedToPay}>
                 Purchase
               </button>
             </div>
