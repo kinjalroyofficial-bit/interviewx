@@ -9,7 +9,7 @@ import MessagePane from './components/MessagePane'
 import RightPlaceholderPanel from './components/RightPlaceholderPanel'
 import './interview-center.css'
 
-export default function InterviewCenterPage({ sidebarCollapsed = false }) {
+export default function InterviewCenterPage({ sidebarCollapsed = false, onCreditsUpdated = null }) {
   const currentUsername = localStorage.getItem('interviewx-user') || ''
   const [interviews, setInterviews] = useState([])
 
@@ -547,6 +547,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
     setIsEndingInterview(true)
     try {
       if (liveInterview.isVoice) {
+        await endInterview({ interview_id: liveInterview.id, transcript_turns: [] })
         stopVoiceInterviewSession()
         setLiveInterview((currentInterview) => {
           if (!currentInterview) return currentInterview
@@ -557,6 +558,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
         })
         setHasLiveInterviewEnded(true)
         setVoiceStatusMessage('Voice interview ended.')
+        if (typeof onCreditsUpdated === 'function') {
+          await onCreditsUpdated()
+        }
         return
       }
       await endInterview({ interview_id: liveInterview.id, transcript_turns: [] })
@@ -569,6 +573,9 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
       })
       setHasLiveInterviewEnded(true)
       await loadInterviewHistory()
+      if (typeof onCreditsUpdated === 'function') {
+        await onCreditsUpdated()
+      }
     } catch (error) {
       setSendAnswerError(error.message || 'Unable to end interview.')
     } finally {

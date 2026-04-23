@@ -39,26 +39,24 @@ export default function Dashboard() {
   const isInterviewCenterActive = activeLeafLabel === 'Interview Center'
   const workspaceTitle = activeLeafLabel || 'My Workspace'
 
+  async function refreshCreditsForUser(username) {
+    if (!username) return
+    try {
+      const response = await fetch(`/api/user/credits?username=${username}`)
+      const data = await response.json()
+      const nextCredits = Number(data.credits || 0)
+      const safeCredits = Number.isFinite(nextCredits) ? nextCredits : 0
+      setCredits(safeCredits)
+      localStorage.setItem(`interviewx-credits-${username}`, String(safeCredits))
+    } catch (error) {
+      console.error('Failed to load credits', error)
+    }
+  }
+
   useEffect(() => {
     if (!currentUser) return
 
-    let isCancelled = false
-    fetch(`/api/user/credits?username=${currentUser}`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (isCancelled) return
-        const nextCredits = Number(data.credits || 0)
-        const safeCredits = Number.isFinite(nextCredits) ? nextCredits : 0
-        setCredits(safeCredits)
-        localStorage.setItem(`interviewx-credits-${currentUser}`, String(safeCredits))
-      })
-      .catch((error) => {
-        console.error('Failed to load credits', error)
-      })
-
-    return () => {
-      isCancelled = true
-    }
+    refreshCreditsForUser(currentUser)
   }, [currentUser])
 
   return (
@@ -90,7 +88,12 @@ export default function Dashboard() {
           </div>
         </header>
 
-        {isInterviewCenterActive ? <InterviewCenterPage sidebarCollapsed={isSidebarCollapsed} /> : null}
+        {isInterviewCenterActive ? (
+          <InterviewCenterPage
+            sidebarCollapsed={isSidebarCollapsed}
+            onCreditsUpdated={() => refreshCreditsForUser(currentUser)}
+          />
+        ) : null}
 
         {!isInterviewCenterActive ? (
           <div className="dashboard-workspace-column">
