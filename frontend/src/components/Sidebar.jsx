@@ -89,7 +89,7 @@ function MenuNode({ item, depth, collapsed, openPaths, selectedPath, onItemClick
 export default function Sidebar({ menu, greetingText, displayName, username, onLeafSelect, collapsed: controlledCollapsed, onCollapsedChange, onLogout }) {
   const [internalCollapsed, setInternalCollapsed] = useState(false)
   const collapsed = typeof controlledCollapsed === 'boolean' ? controlledCollapsed : internalCollapsed
-  const [openPaths, setOpenPaths] = useState(() => new Set(['awareness']))
+  const [openPaths, setOpenPaths] = useState(() => new Set())
   const [selectedPath, setSelectedPath] = useState('awareness')
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const [profileForm, setProfileForm] = useState({
