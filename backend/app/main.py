@@ -369,18 +369,21 @@ def create_payment(payload: CreatePaymentRequest, db: Session = Depends(get_db))
         "callbackUrl": callback_url,
         "paymentInstrument": {"type": "PAY_PAGE"},
     }
-    payload_base64 = base64.b64encode(json.dumps(payment_data).encode("utf-8")).decode("utf-8")
+    payload_json = json.dumps(payment_data, separators=(",", ":"), sort_keys=True)
+    payload_base64 = base64.b64encode(payload_json.encode("utf-8")).decode("utf-8")
     x_verify = build_phonepe_pay_x_verify(payload_base64)
 
     try:
         with httpx.Client(timeout=15.0) as http_client:
+            request_body = json.dumps({"request": payload_base64})
+
             phonepe_response = http_client.post(
                 f"{PHONEPE_BASE_URL}/pg/v1/pay",
-                json={"request": payload_base64},
+                content=request_body,   # 👈 IMPORTANT (not json=)
                 headers={
                     "Content-Type": "application/json",
                     "X-VERIFY": x_verify,
-                    "X-MERCHANT-ID": PHONEPE_MERCHANT_ID,
+                    "accept": "application/json",   # 👈 add this
                 },
             )
             phonepe_response.raise_for_status()
