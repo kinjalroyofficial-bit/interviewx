@@ -545,6 +545,12 @@ body,
   color: #cad6ff;
 }
 
+.dashboard-purchase-modal__coupon-hint {
+  margin: -0.18rem 0 0;
+  font-size: 0.68rem;
+  color: #aebeea;
+}
+
 .dashboard-content-card {
   margin-top: 1.35rem;
   border-radius: 18px;
@@ -722,6 +728,10 @@ body,
 
 .dashboard-theme-light .dashboard-purchase-modal__status {
   color: #4b6398;
+}
+
+.dashboard-theme-light .dashboard-purchase-modal__coupon-hint {
+  color: #6883b8;
 }
 
 .dashboard-theme-light .sidebar-collapse-toggle {

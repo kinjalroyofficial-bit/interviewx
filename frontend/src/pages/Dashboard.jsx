@@ -5,9 +5,14 @@ import { sidebarMenu } from '../config/sidebarMenu'
 import InterviewCenterPage from '../sidebar-menu/Interview Center/Page'
 
 export default function Dashboard() {
-  const CREDIT_PURCHASE_OPTIONS = [1000, 2000, 3000, 4000, 5000]
+  const CREDIT_PURCHASE_OPTIONS = [5, 10, 1000, 2000, 3000, 4000, 5000]
   const BASE_PRICE_PER_1000_CREDITS = 499
   const GST_RATE = 0.18
+  const COUPON_DISCOUNT_RATES = {
+    INTERVIEWX10: 0.10,
+    INTERVIEWX20: 0.20,
+    INTERVIEWX30: 0.30
+  }
 
   const navigate = useNavigate()
   const [theme, setTheme] = useState('dark')
@@ -28,6 +33,7 @@ export default function Dashboard() {
   const [totalAmount, setTotalAmount] = useState(0)
   const [couponCode, setCouponCode] = useState('')
   const [couponApplied, setCouponApplied] = useState(false)
+  const [couponDiscountRate, setCouponDiscountRate] = useState(0)
   const [couponStatus, setCouponStatus] = useState('')
   const displayName = currentUser ? currentUser.split('@')[0] : ''
   const greetingText = useMemo(() => {
@@ -53,8 +59,9 @@ export default function Dashboard() {
   const workspaceTitle = activeLeafLabel || 'My Workspace'
 
   useEffect(() => {
-    const base = (selectedCredits / 1000) * BASE_PRICE_PER_1000_CREDITS
-    const discount = couponApplied ? Math.round(base * 0.1) : 0
+    const unitPricePerCredit = BASE_PRICE_PER_1000_CREDITS / 1000
+    const base = Math.round(selectedCredits * unitPricePerCredit)
+    const discount = couponApplied ? Math.round(base * couponDiscountRate) : 0
     const discountedBase = Math.max(0, base - discount)
     const gst = Math.round(discountedBase * GST_RATE)
     const total = discountedBase + gst
@@ -63,7 +70,7 @@ export default function Dashboard() {
     setDiscountAmount(discount)
     setGstAmount(gst)
     setTotalAmount(total)
-  }, [selectedCredits, couponApplied])
+  }, [selectedCredits, couponApplied, couponDiscountRate])
 
   async function refreshCreditsForUser(username) {
     if (!username) return
@@ -98,16 +105,20 @@ export default function Dashboard() {
     const normalizedCode = couponCode.trim().toUpperCase()
     if (!normalizedCode) {
       setCouponApplied(false)
+      setCouponDiscountRate(0)
       setCouponStatus('Please enter a coupon code.')
       return
     }
-    if (normalizedCode === 'SAVE10') {
+    const matchedDiscountRate = COUPON_DISCOUNT_RATES[normalizedCode]
+    if (matchedDiscountRate) {
       setCouponApplied(true)
-      setCouponStatus('Coupon applied: 10% off base amount (placeholder).')
+      setCouponDiscountRate(matchedDiscountRate)
+      setCouponStatus(`Coupon applied: ${Math.round(matchedDiscountRate * 100)}% off base amount.`)
       return
     }
     setCouponApplied(false)
-    setCouponStatus('Invalid coupon code (placeholder validation).')
+    setCouponDiscountRate(0)
+    setCouponStatus('Invalid coupon code.')
   }
 
   return (
@@ -182,6 +193,7 @@ export default function Dashboard() {
                 onChange={(event) => {
                   setSelectedCredits(Number(event.target.value))
                   setCouponApplied(false)
+                  setCouponDiscountRate(0)
                   setCouponStatus('')
                 }}
               >
@@ -211,6 +223,9 @@ export default function Dashboard() {
                 <button type="button" onClick={applyCoupon}>Apply</button>
               </div>
             </label>
+            <p className="dashboard-purchase-modal__coupon-hint">
+              Available codes: INTERVIEWX10, INTERVIEWX20, INTERVIEWX30
+            </p>
             {couponStatus ? <p className="dashboard-purchase-modal__status">{couponStatus}</p> : null}
 
             <button type="button" className="dashboard-purchase-modal__cta">
