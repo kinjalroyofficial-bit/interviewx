@@ -41,8 +41,9 @@ if ($basePrice <= 0) {
     exit;
 }
 
-$gstAmount = (int)round(($basePrice * 18) / 100);
-$amountRupees = $basePrice + $gstAmount;
+$pricing = ix_compute_amounts($basePrice);
+$gstAmount = $pricing['gst_amount_rupees'];
+$amountRupees = $pricing['final_amount_rupees'];
 $amountPaise = $amountRupees * 100;
 $merchantTransactionId = uniqid('IXT', false);
 
@@ -55,8 +56,8 @@ try {
         exit;
     }
 
-    $redirectUrl = 'https://interviewx-v3.koviki.com/payments/interviewxconfirmation.php?mtid=' . $merchantTransactionId;
-    $callbackUrl = 'https://interviewx-v3.koviki.com/payments/pay-callback.php?mtid=' . $merchantTransactionId;
+    $redirectUrl = IX_PAYMENT_REDIRECT_URL . '?mtid=' . $merchantTransactionId;
+    $callbackUrl = IX_PAYMENT_CALLBACK_URL . '?mtid=' . $merchantTransactionId;
 
     $paymentData = [
         'merchantId' => IX_PHONEPE_MERCHANT_ID,
@@ -128,7 +129,8 @@ try {
     }
     $paymentStatus = 'INITIATED';
     $descriptionJson = json_encode($description);
-    $insert->bind_param('siiiss', $merchantTransactionId, $userId, $amountPaise, $basePrice, $paymentStatus, $descriptionJson);
+    $creditsToAdd = (int)$pricing['credits_to_add'];
+    $insert->bind_param('siiiss', $merchantTransactionId, $userId, $amountPaise, $creditsToAdd, $paymentStatus, $descriptionJson);
     $insert->execute();
     $insert->close();
 

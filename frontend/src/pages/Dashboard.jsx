@@ -141,7 +141,7 @@ export default function Dashboard() {
       })
       const data = await response.json()
       if (!response.ok) {
-        throw new Error(data?.detail || `Unable to create payment (${response.status})`)
+        throw new Error(data?.detail || data?.message || `Unable to create payment (${response.status})`)
       }
       if (!data.url) {
         throw new Error('Payment URL not returned from backend.')

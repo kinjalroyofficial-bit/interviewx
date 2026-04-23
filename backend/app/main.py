@@ -401,8 +401,7 @@ def create_payment(payload: CreatePaymentRequest, db: Session = Depends(get_db))
     else:
         purchase_amounts = compute_purchase_amounts(base_price_value, coupon)
 
-    final_amount_paise=1200
-    # final_amount_paise = purchase_amounts["final_amount_rupees"] * 100
+    final_amount_paise = purchase_amounts["final_amount_rupees"] * 100
     if final_amount_paise <= 0:
         raise HTTPException(status_code=400, detail="Final amount must be greater than zero")
 

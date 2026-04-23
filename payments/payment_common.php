@@ -7,6 +7,10 @@ const IX_PHONEPE_API_KEY = '80e4eefc-ddd9-4fab-b6d7-971e9a9df27a';
 const IX_PHONEPE_SALT_INDEX = 1;
 const IX_PHONEPE_PAY_URL = 'https://api.phonepe.com/apis/hermes/pg/v1/pay';
 const IX_PHONEPE_STATUS_BASE = 'https://api.phonepe.com/apis/hermes/pg/v1/status';
+const IX_PAYMENT_REDIRECT_URL = 'https://interviewx-v3.koviki.com/payments/interviewxconfirmation.php';
+const IX_PAYMENT_CALLBACK_URL = 'https://interviewx-v3.koviki.com/payments/pay-callback.php';
+const IX_PRICE_PER_1000_CREDITS = 499;
+const IX_PAYMENT_GST_RATE = 0.18;
 
 // Hardcoded connection defaults for immediate production wiring.
 const IX_DB_HOST = '127.0.0.1';
@@ -81,4 +85,20 @@ function ix_fetch_phonepe_status(string $merchantTransactionId): array
 
     $payload = json_decode((string)$response, true);
     return is_array($payload) ? $payload : [];
+}
+
+
+function ix_compute_amounts(int $creditsRequested): array
+{
+    $credits = max(0, $creditsRequested);
+    $baseAmountRupees = (int)round(($credits / 1000) * IX_PRICE_PER_1000_CREDITS);
+    $gstAmountRupees = (int)round($baseAmountRupees * IX_PAYMENT_GST_RATE);
+    $finalAmountRupees = max(1, $baseAmountRupees + $gstAmountRupees);
+
+    return [
+        'credits_to_add' => $credits,
+        'base_amount_rupees' => $baseAmountRupees,
+        'gst_amount_rupees' => $gstAmountRupees,
+        'final_amount_rupees' => $finalAmountRupees,
+    ];
 }
