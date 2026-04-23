@@ -77,12 +77,14 @@ export default function Dashboard() {
   async function refreshCreditsForUser(username) {
     if (!username) return
     try {
-      const response = await fetch(`/api/user/credits?username=${username}`)
-      const data = await response.json()
-      const nextCredits = Number(data.credits || 0)
-      const safeCredits = Number.isFinite(nextCredits) ? nextCredits : 0
-      setCredits(safeCredits)
-      localStorage.setItem(`interviewx-credits-${username}`, String(safeCredits))
+      const redirectParams = new URLSearchParams({
+        source: 'interviewx_app',
+        username: currentUser,
+        credits: String(selectedCredits),
+        coupon: couponCode.trim()
+      })
+
+      window.location.href = `https://koviki.com/pricing.php?${redirectParams.toString()}`
     } catch (error) {
       console.error('Failed to load credits', error)
     }
@@ -129,60 +131,13 @@ export default function Dashboard() {
     setIsCreatingPayment(true)
     setPaymentError('')
     try {
-      const customerDetails = { username: currentUser }
-      const purchaseSummary = [{ base_price: selectedCredits }]
-      const coupon = couponCode.trim()
-
-      const phpEndpoint = '/payments/interviewx_backend.php'
-      const phpFormData = new FormData()
-      phpFormData.append('customerDetails', JSON.stringify(customerDetails))
-      phpFormData.append('purchaseSummary', JSON.stringify(purchaseSummary))
-      phpFormData.append('couponCode', coupon)
-
-      let data = null
-      let lastError = null
-
-      try {
-        const response = await fetch(phpEndpoint, {
-          method: 'POST',
-          body: phpFormData
-        })
-        const rawResponse = await response.text()
-        data = rawResponse ? JSON.parse(rawResponse) : {}
-
-        if (!response.ok) {
-          throw new Error(data?.detail || data?.message || `Unable to create payment (${response.status})`)
-        }
-      } catch (error) {
-        lastError = error
-      }
-
-      if (!data?.url) {
-        const pythonResponse = await fetch('/api/create-payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            customerDetails,
-            purchaseSummary: purchaseSummary[0],
-            couponCode: coupon || null
-          })
-        })
-        const pythonData = await pythonResponse.json()
-        if (!pythonResponse.ok) {
-          throw new Error(
-            pythonData?.detail ||
-            pythonData?.message ||
-            lastError?.message ||
-            `Unable to create payment (${pythonResponse.status})`
-          )
-        }
-        data = pythonData
-      }
-
-      if (!data?.url) {
-        throw new Error('Payment URL not returned from backend.')
-      }
-      window.location.href = data.url
+      const redirectParams = new URLSearchParams({
+        source: 'interviewx_app',
+        username: currentUser,
+        credits: String(selectedCredits),
+        coupon: couponCode.trim()
+      })
+      window.location.href = `https://koviki.com/pricing.php?${redirectParams.toString()}`
     } catch (error) {
       setPaymentError(error.message || 'Unable to proceed to payment.')
     } finally {
