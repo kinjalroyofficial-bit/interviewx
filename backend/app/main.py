@@ -401,24 +401,34 @@ def create_payment(payload: CreatePaymentRequest, db: Session = Depends(get_db))
     else:
         purchase_amounts = compute_purchase_amounts(base_price_value, coupon)
 
-    final_amount_paise = purchase_amounts["final_amount_rupees"] * 100
+    final_amount_paise=1200
+    # final_amount_paise = purchase_amounts["final_amount_rupees"] * 100
     if final_amount_paise <= 0:
         raise HTTPException(status_code=400, detail="Final amount must be greater than zero")
 
-    merchant_transaction_id = f"txn_{secrets.token_hex(10)}"
+    merchant_transaction_id = f"IXT{secrets.token_hex(7)}"
     redirect_url = f"{PAYMENT_REDIRECT_URL}?mtid={merchant_transaction_id}"
     callback_url = f"{PAYMENT_CALLBACK_URL}?mtid={merchant_transaction_id}"
+    print("DEBUG PHONEPE_BASE_URL:", os.getenv("PHONEPE_BASE_URL"))
+    print("DEBUG MERCHANT_ID:", os.getenv("PHONEPE_MERCHANT_ID"))
+    print("DEBUG REDIRECT_URL:", os.getenv("PAYMENT_REDIRECT_URL"))
     payment_data = {
         "merchantId": PHONEPE_MERCHANT_ID,
         "merchantTransactionId": merchant_transaction_id,
-        "merchantUserId": str(user.id),
+        "merchantUserId": str(user.id), 
         "amount": final_amount_paise,
         "redirectUrl": redirect_url,
         "redirectMode": "POST",
         "callbackUrl": callback_url,
-        "paymentInstrument": {"type": "PAY_PAGE"},
+        "mobileNumber": "9830829341",
+        "paymentInstrument": {
+            "type": "PAY_PAGE"
+        },
     }
-    payload_json = json.dumps(payment_data, separators=(",", ":"), sort_keys=True)
+    payload_json = json.dumps(payment_data, separators=(',', ':'))
+    import sys
+    print("PYTHON PAYMENT DATA:", json.dumps(payment_data, indent=2), flush=True)
+    sys.stdout.flush()
     payload_base64 = base64.b64encode(payload_json.encode("utf-8")).decode("utf-8")
     x_verify = build_phonepe_pay_x_verify(payload_base64)
 
