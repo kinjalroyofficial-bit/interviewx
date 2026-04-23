@@ -659,7 +659,7 @@ export default function InterviewCenterPage({ sidebarCollapsed = false }) {
   }, [])
 
   return (
-    <main className={`ic3-layout ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''} is-embedded`}>
+    <main className={`ic3-layout ${sidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
       <section className="ic3-left-stack">
         <InterviewHistoryPanel
           interviews={interviews}

@@ -34,10 +34,6 @@
   transition: grid-template-columns 180ms ease;
 }
 
-.ic3-layout.is-embedded {
-  grid-template-rows: minmax(0, 1fr);
-}
-
 .ic3-layout.is-sidebar-collapsed {
   grid-template-columns: var(--ic3-history-col) var(--ic3-chat-col) var(--ic3-insights-col) var(--ic3-response-rail-width);
 }
