@@ -94,7 +94,7 @@ body{background:#f6f7fb;font-family:Segoe UI;}
 </div>
 <hr>
 <div class="d-grid gap-2">
-<a href="https://interviewx.koviki.com/portal" class="btn btn-primary btn-lg">Go to InterviewX</a>
+<a href="https://interviewx-v3.koviki.com/dashboard" class="btn btn-primary btn-lg">Go to InterviewX</a>
 <?php if($paymentStatus === 'FAILED'){ ?><a href="https://koviki.com/pricing" class="btn btn-outline-danger">Retry Payment</a><?php } ?>
 </div>
 </div></div></div></div>

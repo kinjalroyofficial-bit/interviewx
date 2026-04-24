@@ -274,7 +274,32 @@ def root() -> dict[str, str]:
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
-    
+
+@app.post("/payment/initiate")
+def payment_initiate(data: dict, db: Session = Depends(get_db)):
+    merchant_transaction_id = data.get("merchantTransactionId")
+    user_id = data.get("userId")
+    amount = data.get("amount")
+    credits = data.get("credits")
+
+    if not merchant_transaction_id:
+        raise HTTPException(status_code=400, detail="mtid missing")
+
+    transaction = Transaction(
+        merchant_transaction_id=merchant_transaction_id,
+        user_id=int(user_id),
+        amount=int(amount),
+        credits_to_add=int(credits),
+        payment_status="INITIATED",
+        description=json.dumps(data),
+    )
+
+    db.add(transaction)
+    db.commit()
+
+    return {"status": "saved"}
+
+
 @app.get("/user/credits")
 @app.get("/api/user/credits")
 def get_user_credits(username: str, db: Session = Depends(get_db)):
