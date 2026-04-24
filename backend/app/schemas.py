@@ -179,3 +179,55 @@ class PaymentConfirmationResponse(BaseModel):
     payment_state: str
     credits_added: int = 0
     credits_balance: int | None = None
+
+
+class QuantumQuestQuestion(BaseModel):
+    question_id: int
+    question_text: str
+    options: list[str] = Field(default_factory=list)
+    question_topic: str | None = None
+    difficulty: str | None = None
+
+
+class QuantumQuestQuestionsResponse(BaseModel):
+    questions: list[QuantumQuestQuestion] = Field(default_factory=list)
+    available_topics: list[str] = Field(default_factory=list)
+    available_difficulties: list[str] = Field(default_factory=list)
+
+
+class QuantumQuestSubmitRequest(BaseModel):
+    username: str
+    question_ids: list[int] = Field(default_factory=list)
+    selected_answers: list[int] = Field(default_factory=list)
+    topic: str | None = None
+    difficulty: str | None = None
+
+
+class QuantumQuestResultItem(BaseModel):
+    question_id: int
+    selected_answer: int
+    correct_answer: int
+    is_correct: bool
+    explanation: str | None = None
+
+
+class QuantumQuestSubmitResponse(BaseModel):
+    attempt_id: int
+    total_questions: int
+    correct_answers: int
+    score_percentage: int
+    results: list[QuantumQuestResultItem] = Field(default_factory=list)
+
+
+class QuantumQuestPerformanceItem(BaseModel):
+    attempt_id: int
+    topic: str | None = None
+    difficulty: str | None = None
+    total_questions: int
+    correct_answers: int
+    score_percentage: int
+    created_at: str | None = None
+
+
+class QuantumQuestPerformanceResponse(BaseModel):
+    attempts: list[QuantumQuestPerformanceItem] = Field(default_factory=list)

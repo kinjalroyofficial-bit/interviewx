@@ -38,11 +38,11 @@ from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
-from sqlalchemy import text as sql_text
+from sqlalchemy import func, text as sql_text
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models import Coupon, InterviewSession, Transaction, User, UserProfileUpdateLog
+from app.models import Coupon, InterviewSession, QQData, QuantumQuestAttempt, Transaction, User, UserProfileUpdateLog
 from app.schemas import (
     AuthRequest,
     AuthResponse,
@@ -69,6 +69,13 @@ from app.schemas import (
     CreatePaymentRequest,
     CreatePaymentResponse,
     PaymentConfirmationResponse,
+    QuantumQuestPerformanceItem,
+    QuantumQuestPerformanceResponse,
+    QuantumQuestQuestion,
+    QuantumQuestQuestionsResponse,
+    QuantumQuestResultItem,
+    QuantumQuestSubmitRequest,
+    QuantumQuestSubmitResponse,
 )
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -259,10 +266,39 @@ def ensure_payment_tables() -> None:
         db.close()
 
 
+def ensure_quantum_quest_tables() -> None:
+    db = SessionLocal()
+    try:
+        db.execute(
+            sql_text(
+                """
+                CREATE TABLE IF NOT EXISTS quantum_quest_attempts (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    topic VARCHAR NULL,
+                    difficulty VARCHAR NULL,
+                    total_questions INTEGER NOT NULL DEFAULT 0,
+                    correct_answers INTEGER NOT NULL DEFAULT 0,
+                    score_percentage INTEGER NOT NULL DEFAULT 0,
+                    answers_json TEXT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+                """
+            )
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
 @app.on_event("startup")
 def startup_schema_sync() -> None:
     ensure_interview_session_transcript_columns()
     ensure_payment_tables()
+    ensure_quantum_quest_tables()
 
 
 @app.get("/")
@@ -314,6 +350,161 @@ def get_user_credits(username: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     
     return {"credits": user.credits}
+
+
+@app.get("/api/quantum-quest/questions", response_model=QuantumQuestQuestionsResponse)
+@app.get("/quantum-quest/questions", response_model=QuantumQuestQuestionsResponse)
+def get_quantum_quest_questions(
+    topic: str | None = None,
+    difficulty: str | None = None,
+    limit: int = 10,
+    db: Session = Depends(get_db),
+) -> QuantumQuestQuestionsResponse:
+    safe_limit = max(1, min(limit, 25))
+    topic_value = (topic or "").strip()
+    difficulty_value = (difficulty or "").strip()
+
+    query = db.query(QQData)
+    if topic_value:
+        query = query.filter(QQData.question_topic == topic_value)
+    if difficulty_value:
+        query = query.filter(QQData.difficulty == difficulty_value)
+
+    questions = query.order_by(func.random()).limit(safe_limit).all()
+    payload = [
+        QuantumQuestQuestion(
+            question_id=question.question_id,
+            question_text=question.question_text,
+            options=[question.answer1, question.answer2, question.answer3, question.answer4],
+            question_topic=question.question_topic,
+            difficulty=question.difficulty,
+        )
+        for question in questions
+    ]
+
+    topics = [
+        row[0]
+        for row in db.query(QQData.question_topic)
+        .filter(QQData.question_topic.isnot(None), QQData.question_topic != "")
+        .distinct()
+        .order_by(QQData.question_topic.asc())
+        .all()
+    ]
+    difficulties = [
+        row[0]
+        for row in db.query(QQData.difficulty)
+        .filter(QQData.difficulty.isnot(None), QQData.difficulty != "")
+        .distinct()
+        .order_by(QQData.difficulty.asc())
+        .all()
+    ]
+
+    return QuantumQuestQuestionsResponse(
+        questions=payload,
+        available_topics=topics,
+        available_difficulties=difficulties,
+    )
+
+
+@app.post("/api/quantum-quest/submit", response_model=QuantumQuestSubmitResponse)
+@app.post("/quantum-quest/submit", response_model=QuantumQuestSubmitResponse)
+def submit_quantum_quest_answers(
+    payload: QuantumQuestSubmitRequest,
+    db: Session = Depends(get_db),
+) -> QuantumQuestSubmitResponse:
+    username = payload.username.strip()
+    if not username:
+        raise HTTPException(status_code=400, detail="username is required")
+    if not payload.question_ids:
+        raise HTTPException(status_code=400, detail="question_ids must not be empty")
+    if len(payload.question_ids) != len(payload.selected_answers):
+        raise HTTPException(status_code=400, detail="question_ids and selected_answers length mismatch")
+    if any(answer < 1 or answer > 4 for answer in payload.selected_answers):
+        raise HTTPException(status_code=400, detail="selected_answers must be between 1 and 4")
+
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    questions = db.query(QQData).filter(QQData.question_id.in_(payload.question_ids)).all()
+    questions_by_id = {question.question_id: question for question in questions}
+
+    results: list[QuantumQuestResultItem] = []
+    correct_answers = 0
+    for question_id, selected_answer in zip(payload.question_ids, payload.selected_answers):
+        question = questions_by_id.get(question_id)
+        if not question:
+            continue
+        is_correct = selected_answer == int(question.correct_answer_number or 0)
+        if is_correct:
+            correct_answers += 1
+        results.append(
+            QuantumQuestResultItem(
+                question_id=question_id,
+                selected_answer=selected_answer,
+                correct_answer=int(question.correct_answer_number or 0),
+                is_correct=is_correct,
+                explanation=question.explanation,
+            )
+        )
+
+    total_questions = len(results)
+    if total_questions == 0:
+        raise HTTPException(status_code=400, detail="No valid questions found for submission")
+    score_percentage = round((correct_answers / total_questions) * 100)
+    saved_attempt = QuantumQuestAttempt(
+        user_id=user.id,
+        topic=(payload.topic or "").strip() or None,
+        difficulty=(payload.difficulty or "").strip() or None,
+        total_questions=total_questions,
+        correct_answers=correct_answers,
+        score_percentage=score_percentage,
+        answers_json=json.dumps([item.model_dump() for item in results]),
+    )
+    db.add(saved_attempt)
+    db.commit()
+    db.refresh(saved_attempt)
+
+    return QuantumQuestSubmitResponse(
+        attempt_id=saved_attempt.id,
+        total_questions=total_questions,
+        correct_answers=correct_answers,
+        score_percentage=score_percentage,
+        results=results,
+    )
+
+
+@app.get("/api/quantum-quest/performance", response_model=QuantumQuestPerformanceResponse)
+@app.get("/quantum-quest/performance", response_model=QuantumQuestPerformanceResponse)
+def get_quantum_quest_performance(username: str, db: Session = Depends(get_db)) -> QuantumQuestPerformanceResponse:
+    clean_username = (username or "").strip()
+    if not clean_username:
+        raise HTTPException(status_code=400, detail="username is required")
+
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    attempts = (
+        db.query(QuantumQuestAttempt)
+        .filter(QuantumQuestAttempt.user_id == user.id)
+        .order_by(QuantumQuestAttempt.created_at.desc())
+        .limit(20)
+        .all()
+    )
+    response_payload = [
+        QuantumQuestPerformanceItem(
+            attempt_id=attempt.id,
+            topic=attempt.topic,
+            difficulty=attempt.difficulty,
+            total_questions=attempt.total_questions,
+            correct_answers=attempt.correct_answers,
+            score_percentage=attempt.score_percentage,
+            created_at=attempt.created_at.isoformat() if attempt.created_at else None,
+        )
+        for attempt in attempts
+    ]
+    return QuantumQuestPerformanceResponse(attempts=response_payload)
 
 
 def build_phonepe_pay_x_verify(request_base64: str) -> str:

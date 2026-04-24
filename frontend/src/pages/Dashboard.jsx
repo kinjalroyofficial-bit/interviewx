@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { sidebarMenu } from '../config/sidebarMenu'
 import InterviewCenterPage from '../sidebar-menu/Interview Center/Page'
+import QuantumQuestPage from '../sidebar-menu/Quantum Quest/Page'
 
 export default function Dashboard() {
   const CREDIT_PURCHASE_OPTIONS = [5, 10, 1000, 2000, 3000, 4000, 5000]
@@ -58,6 +59,7 @@ export default function Dashboard() {
   }
 
   const isInterviewCenterActive = activeLeafLabel === 'Interview Center'
+  const isQuantumQuestActive = activeLeafLabel === 'Quantum Quest'
   const workspaceTitle = activeLeafLabel || 'My Workspace'
 
   useEffect(() => {
@@ -184,7 +186,9 @@ export default function Dashboard() {
           />
         ) : null}
 
-        {!isInterviewCenterActive ? (
+        {isQuantumQuestActive ? <QuantumQuestPage /> : null}
+
+        {!isInterviewCenterActive && !isQuantumQuestActive ? (
           <div className="dashboard-workspace-column">
             <section className="dashboard-content-card">
               <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>

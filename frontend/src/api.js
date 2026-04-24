@@ -271,3 +271,47 @@ export async function getInterviewHistory(username) {
 
   throw new Error(`Failed to fetch interview history. ${failures.join(' | ')}${backendHint}`)
 }
+
+export async function getQuantumQuestQuestions({ topic = '', difficulty = '', limit = 10 } = {}) {
+  const params = new URLSearchParams()
+  if (topic) params.set('topic', topic)
+  if (difficulty) params.set('difficulty', difficulty)
+  params.set('limit', String(limit))
+  const response = await fetch(`${API_BASE_URL}/quantum-quest/questions?${params.toString()}`)
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to load quiz questions (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
+
+export async function submitQuantumQuest(payload) {
+  const response = await fetch(`${API_BASE_URL}/quantum-quest/submit`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to submit quiz (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
+
+export async function getQuantumQuestPerformance(username) {
+  const params = new URLSearchParams({ username })
+  const response = await fetch(`${API_BASE_URL}/quantum-quest/performance?${params.toString()}`)
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to load quiz performance (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}

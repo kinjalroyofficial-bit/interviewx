@@ -948,3 +948,47 @@ body,
     opacity: 1;
   }
 }
+
+.qq-wrapper {
+  display: grid;
+  gap: 1rem;
+}
+
+.qq-header-row,
+.qq-filters,
+.qq-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.qq-card,
+.qq-result-card,
+.qq-history-card {
+  background: rgba(13, 18, 36, 0.78);
+  border: 1px solid rgba(110, 140, 255, 0.35);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.dashboard-theme-light .qq-card,
+.dashboard-theme-light .qq-result-card,
+.dashboard-theme-light .qq-history-card {
+  background: #ffffff;
+  border-color: #cfd8ff;
+}
+
+.qq-card ul,
+.qq-history-card ul,
+.qq-result-card ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.qq-status {
+  margin: 0;
+  opacity: 0.92;
+}

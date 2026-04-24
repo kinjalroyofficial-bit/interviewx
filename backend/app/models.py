@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import BigInteger, Boolean, Column, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -81,4 +81,33 @@ class Transaction(Base):
     credits_to_add = Column(Integer, nullable=False, default=0)
     payment_status = Column(String, nullable=False, default="INITIATED")
     description = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class QQData(Base):
+    __tablename__ = "qq_data"
+
+    question_id = Column(BigInteger, primary_key=True, index=True)
+    question_text = Column(Text, nullable=False)
+    answer1 = Column(Text, nullable=False)
+    answer2 = Column(Text, nullable=False)
+    answer3 = Column(Text, nullable=False)
+    answer4 = Column(Text, nullable=False)
+    correct_answer_number = Column(Integer, nullable=False)
+    question_topic = Column(Text, nullable=True)
+    difficulty = Column(Text, nullable=True)
+    explanation = Column(Text, nullable=True)
+
+
+class QuantumQuestAttempt(Base):
+    __tablename__ = "quantum_quest_attempts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    topic = Column(String, nullable=True)
+    difficulty = Column(String, nullable=True)
+    total_questions = Column(Integer, nullable=False, default=0)
+    correct_answers = Column(Integer, nullable=False, default=0)
+    score_percentage = Column(Integer, nullable=False, default=0)
+    answers_json = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
