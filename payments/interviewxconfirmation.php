@@ -11,53 +11,38 @@ if ($transactionId === '') {
     die('Transaction ID missing');
 }
 
+$apiUrl = "https://interviewx-v3.koviki.com/api/payment-confirmation?mtid=" . $transactionId;
+
+$ch = curl_init($apiUrl);
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_TIMEOUT => 10
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+file_put_contents(__DIR__ . '/confirmation_debug.log', "FASTAPI CALL: " . $response . PHP_EOL, FILE_APPEND);
+
 $paymentStatus = 'UNKNOWN';
-$transactionType = '';
 $amount = 0.0;
-$responseCode = '';
 $message = 'Unknown response';
+$creditsAdded = 0;
 
-try {
-    $data = ix_fetch_phonepe_status($transactionId);
-    file_put_contents(__DIR__ . '/confirmation_debug.log', print_r($data, true));
+$fastapiData = json_decode($response, true);
 
-    $paymentStatus = (string)($data['data']['state'] ?? 'UNKNOWN');
-    $transactionType = (string)($data['data']['paymentInstrument']['type'] ?? '');
-    $amount = ((float)($data['data']['amount'] ?? 0)) / 100;
-    $responseCode = (string)($data['data']['responseCode'] ?? '');
-    $message = (string)($data['message'] ?? $message);
 
-    $db = ix_db();
-    $lookup = $db->prepare('SELECT user_id, credits_to_add, payment_status FROM transactions WHERE merchant_transaction_id = ? LIMIT 1');
-    $lookup->bind_param('s', $transactionId);
-    $lookup->execute();
-    $lookup->bind_result($userId, $creditsToAdd, $storedStatus);
-    $found = $lookup->fetch();
-    $lookup->close();
 
-    if ($found) {
-        if ($paymentStatus === 'COMPLETED' && $storedStatus !== 'CREDITED') {
-            $creditStmt = $db->prepare('UPDATE users SET credits = credits + ? WHERE id = ?');
-            $creditStmt->bind_param('ii', $creditsToAdd, $userId);
-            $creditStmt->execute();
-            $creditStmt->close();
+if (!$fastapiData) {
+    file_put_contents(__DIR__ . '/confirmation_debug.log', "FASTAPI JSON DECODE FAILED\n", FILE_APPEND);
+}
 
-            $mark = $db->prepare('UPDATE transactions SET payment_status = ?, amount = ?, description = JSON_SET(COALESCE(description, "{}"), "$.last_payment_state", ?, "$.transaction_type", ?) WHERE merchant_transaction_id = ?');
-            $status = 'CREDITED';
-            $amountPaise = (int)round($amount * 100);
-            $mark->bind_param('sisss', $status, $amountPaise, $paymentStatus, $transactionType, $transactionId);
-            $mark->execute();
-            $mark->close();
-        } elseif ($paymentStatus === 'FAILED') {
-            $mark = $db->prepare('UPDATE transactions SET payment_status = ? WHERE merchant_transaction_id = ?');
-            $status = 'FAILED';
-            $mark->bind_param('ss', $status, $transactionId);
-            $mark->execute();
-            $mark->close();
-        }
-    }
-} catch (Throwable $exception) {
-    file_put_contents(__DIR__ . '/confirmation_debug.log', $exception->getMessage() . PHP_EOL, FILE_APPEND);
+if ($fastapiData && isset($fastapiData['payment_state'])) {
+    $paymentStatus = $fastapiData['payment_state'];
+}
+
+if ($fastapiData && isset($fastapiData['credits_added'])) {
+    $creditsAdded = $fastapiData['credits_added'];
 }
 ?>
 <!DOCTYPE html>

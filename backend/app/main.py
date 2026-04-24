@@ -278,16 +278,21 @@ def health() -> dict[str, str]:
 @app.post("/payment/initiate")
 def payment_initiate(data: dict, db: Session = Depends(get_db)):
     merchant_transaction_id = data.get("merchantTransactionId")
-    user_id = data.get("userId")
+    email = data.get("email")
     amount = data.get("amount")
     credits = data.get("credits")
 
     if not merchant_transaction_id:
         raise HTTPException(status_code=400, detail="mtid missing")
 
+    user = db.query(User).filter(User.email == email).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
     transaction = Transaction(
         merchant_transaction_id=merchant_transaction_id,
-        user_id=int(user_id),
+        user_id=user.id,
         amount=int(amount),
         credits_to_add=int(credits),
         payment_status="INITIATED",
@@ -298,7 +303,6 @@ def payment_initiate(data: dict, db: Session = Depends(get_db)):
     db.commit()
 
     return {"status": "saved"}
-
 
 @app.get("/user/credits")
 @app.get("/api/user/credits")
