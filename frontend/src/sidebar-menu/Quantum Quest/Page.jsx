@@ -17,6 +17,28 @@ export default function QuantumQuestPage() {
   const [availableDifficulties, setAvailableDifficulties] = useState([])
   const [status, setStatus] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const normalizedTopics = useMemo(() => {
+    const seen = new Set()
+    return availableTopics.filter((item) => {
+      const key = String(item || '').trim().toLowerCase()
+      if (!key || seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+  }, [availableTopics])
+
+  const normalizedDifficulties = useMemo(() => {
+    const seen = new Set()
+    return availableDifficulties
+      .map((item) => String(item || '').trim())
+      .filter((item) => {
+        const key = item.toLowerCase()
+        if (!key || seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      .sort((a, b) => a.localeCompare(b))
+  }, [availableDifficulties])
 
   async function loadPerformance() {
     if (!username) return
@@ -91,107 +113,119 @@ export default function QuantumQuestPage() {
   return (
     <section className="qq-wrapper">
       <div className="qq-header-row">
-        <h2>Quantum Quest - MCQ Platform</h2>
-        <button type="button" onClick={loadQuestions} disabled={isLoading}>Refresh Questions</button>
+        <div>
+          <h2>Quantum Quest</h2>
+          <p className="qq-subtitle">MCQ practice arena with instant scoring and explanations.</p>
+        </div>
+        <button type="button" className="qq-button qq-button-secondary" onClick={loadQuestions} disabled={isLoading}>Refresh Questions</button>
       </div>
 
       <div className="qq-filters">
-        <label>
-          Topic
+        <label className="qq-field">
+          <span>Topic</span>
           <select value={topic} onChange={(event) => setTopic(event.target.value)}>
             <option value="">All topics</option>
-            {availableTopics.map((item) => <option key={item} value={item}>{item}</option>)}
+            {normalizedTopics.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
         </label>
 
-        <label>
-          Difficulty
+        <label className="qq-field">
+          <span>Difficulty</span>
           <select value={difficulty} onChange={(event) => setDifficulty(event.target.value)}>
             <option value="">All levels</option>
-            {availableDifficulties.map((item) => <option key={item} value={item}>{item}</option>)}
+            {normalizedDifficulties.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
         </label>
 
-        <label>
-          Question Count
+        <label className="qq-field">
+          <span>Question Count</span>
           <select value={questionCount} onChange={(event) => setQuestionCount(Number(event.target.value))}>
             {[5, 10, 15, 20].map((count) => <option key={count} value={count}>{count}</option>)}
           </select>
         </label>
 
-        <button type="button" onClick={loadQuestions} disabled={isLoading}>Start Quiz</button>
+        <button type="button" className="qq-button qq-button-primary" onClick={loadQuestions} disabled={isLoading}>Start Quiz</button>
       </div>
 
       {status ? <p className="qq-status">{status}</p> : null}
 
-      {activeQuestion ? (
-        <article className="qq-card">
-          <p className="qq-progress">Question {activeIndex + 1} / {questions.length} • Answered {answeredCount}</p>
-          <h3>{activeQuestion.question_text}</h3>
-          <ul>
-            {activeQuestion.options.map((option, index) => {
-              const optionNumber = index + 1
-              return (
-                <li key={`${activeQuestion.question_id}-${optionNumber}`}>
-                  <label>
-                    <input
-                      type="radio"
-                      name={`question-${activeQuestion.question_id}`}
-                      checked={selectedAnswers[activeQuestion.question_id] === optionNumber}
-                      onChange={() => setSelectedAnswers((prev) => ({ ...prev, [activeQuestion.question_id]: optionNumber }))}
-                    />
-                    <span>{option}</span>
-                  </label>
-                </li>
-              )
-            })}
-          </ul>
-
-          <div className="qq-nav-row">
-            <button type="button" disabled={activeIndex === 0} onClick={() => setActiveIndex((prev) => prev - 1)}>Previous</button>
-            {activeIndex < questions.length - 1 ? (
-              <button type="button" onClick={() => setActiveIndex((prev) => prev + 1)}>Next</button>
-            ) : (
-              <button type="button" onClick={handleSubmitQuiz} disabled={isLoading}>Submit Quiz</button>
-            )}
-          </div>
-        </article>
-      ) : null}
-
-      {quizResult ? (
-        <section className="qq-result-card">
-          <h3>Latest Result</h3>
-          <p>Score: <strong>{quizResult.score_percentage}%</strong> ({quizResult.correct_answers}/{quizResult.total_questions})</p>
-          <details>
-            <summary>View explanations</summary>
+      <div className="qq-content-grid">
+        {activeQuestion ? (
+          <article className="qq-card">
+            <p className="qq-progress">Question {activeIndex + 1} / {questions.length} • Answered {answeredCount}</p>
+            <h3>{activeQuestion.question_text}</h3>
             <ul>
-              {quizResult.results.map((item) => (
-                <li key={`result-${item.question_id}`}>
-                  Q#{item.question_id}: {item.is_correct ? 'Correct' : 'Incorrect'} | Correct option: {item.correct_answer}
-                  {item.explanation ? ` | ${item.explanation}` : ''}
-                </li>
-              ))}
+              {activeQuestion.options.map((option, index) => {
+                const optionNumber = index + 1
+                return (
+                  <li key={`${activeQuestion.question_id}-${optionNumber}`}>
+                    <label>
+                      <input
+                        type="radio"
+                        name={`question-${activeQuestion.question_id}`}
+                        checked={selectedAnswers[activeQuestion.question_id] === optionNumber}
+                        onChange={() => setSelectedAnswers((prev) => ({ ...prev, [activeQuestion.question_id]: optionNumber }))}
+                      />
+                      <span>{option}</span>
+                    </label>
+                  </li>
+                )
+              })}
             </ul>
-          </details>
-        </section>
-      ) : null}
 
-      <section className="qq-history-card">
-        <h3>Your Recent Quantum Quest Scores</h3>
-        {performance.length ? (
-          <ul>
-            {performance.map((item) => (
-              <li key={item.attempt_id}>
-                {item.created_at ? new Date(item.created_at).toLocaleString() : 'Unknown time'} - {item.score_percentage}% ({item.correct_answers}/{item.total_questions})
-                {item.topic ? ` | ${item.topic}` : ''}
-                {item.difficulty ? ` | ${item.difficulty}` : ''}
-              </li>
-            ))}
-          </ul>
+            <div className="qq-nav-row">
+              <button className="qq-button qq-button-secondary" type="button" disabled={activeIndex === 0} onClick={() => setActiveIndex((prev) => prev - 1)}>Previous</button>
+              {activeIndex < questions.length - 1 ? (
+                <button className="qq-button qq-button-primary" type="button" onClick={() => setActiveIndex((prev) => prev + 1)}>Next</button>
+              ) : (
+                <button className="qq-button qq-button-primary" type="button" onClick={handleSubmitQuiz} disabled={isLoading}>Submit Quiz</button>
+              )}
+            </div>
+          </article>
         ) : (
-          <p>No attempts yet.</p>
+          <article className="qq-card qq-card-empty">
+            <h3>No active quiz</h3>
+            <p>Use the filters above and click Start Quiz to begin.</p>
+          </article>
         )}
-      </section>
+
+        <aside className="qq-side-stack">
+          {quizResult ? (
+            <section className="qq-result-card">
+              <h3>Latest Result</h3>
+              <p>Score: <strong>{quizResult.score_percentage}%</strong> ({quizResult.correct_answers}/{quizResult.total_questions})</p>
+              <details>
+                <summary>View explanations</summary>
+                <ul>
+                  {quizResult.results.map((item) => (
+                    <li key={`result-${item.question_id}`}>
+                      Q#{item.question_id}: {item.is_correct ? 'Correct' : 'Incorrect'} | Correct option: {item.correct_answer}
+                      {item.explanation ? ` | ${item.explanation}` : ''}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </section>
+          ) : null}
+
+          <section className="qq-history-card">
+            <h3>Your Recent Quantum Quest Scores</h3>
+            {performance.length ? (
+              <ul>
+                {performance.map((item) => (
+                  <li key={item.attempt_id}>
+                    {item.created_at ? new Date(item.created_at).toLocaleString() : 'Unknown time'} - {item.score_percentage}% ({item.correct_answers}/{item.total_questions})
+                    {item.topic ? ` | ${item.topic}` : ''}
+                    {item.difficulty ? ` | ${item.difficulty}` : ''}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No attempts yet.</p>
+            )}
+          </section>
+        </aside>
+      </div>
     </section>
   )
 }

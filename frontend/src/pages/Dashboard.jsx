@@ -160,7 +160,7 @@ export default function Dashboard() {
         onLogout={handleLogout}
       />
 
-      <section className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''}`}>
+      <section className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''} ${isQuantumQuestActive ? 'is-quantum-quest' : ''}`}>
         <header className="dashboard-topbar">
           <div>
             <h1 className="dashboard-title">{workspaceTitle}</h1>

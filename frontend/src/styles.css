@@ -218,6 +218,14 @@ body,
   overflow: hidden;
 }
 
+.dashboard-main.is-quantum-quest {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  overflow: hidden;
+}
+
 .dashboard-main.is-interview-center .dashboard-workspace-column {
   display: none;
 }
@@ -951,7 +959,10 @@ body,
 
 .qq-wrapper {
   display: grid;
-  gap: 1rem;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 0.8rem;
+  min-height: 0;
+  height: 100%;
 }
 
 .qq-header-row,
@@ -963,6 +974,33 @@ body,
   flex-wrap: wrap;
 }
 
+.qq-header-row {
+  justify-content: space-between;
+}
+
+.qq-header-row h2 {
+  margin: 0;
+}
+
+.qq-subtitle {
+  margin: 0.25rem 0 0;
+  opacity: 0.78;
+}
+
+.qq-content-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 33%);
+  gap: 0.8rem;
+}
+
+.qq-side-stack {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.8rem;
+}
+
 .qq-card,
 .qq-result-card,
 .qq-history-card {
@@ -970,6 +1008,59 @@ body,
   border: 1px solid rgba(110, 140, 255, 0.35);
   border-radius: 14px;
   padding: 1rem;
+}
+
+.qq-card {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 0.7rem;
+}
+
+.qq-card h3 {
+  margin: 0;
+}
+
+.qq-card-empty {
+  place-content: center;
+}
+
+.qq-field {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.qq-field span {
+  opacity: 0.86;
+}
+
+.qq-field select {
+  min-width: 150px;
+}
+
+.qq-button {
+  border-radius: 10px;
+  border: 1px solid transparent;
+  padding: 0.48rem 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.qq-button-primary {
+  color: #eef3ff;
+  background: linear-gradient(135deg, #3e58ff 0%, #6f7cff 100%);
+}
+
+.qq-button-secondary {
+  color: #dfe6ff;
+  background: transparent;
+  border-color: #6f85d4;
+}
+
+.qq-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .dashboard-theme-light .qq-card,
@@ -988,7 +1079,28 @@ body,
   gap: 0.5rem;
 }
 
+.qq-card ul {
+  min-height: 0;
+  overflow: auto;
+  margin-top: 0;
+}
+
+.qq-history-card {
+  min-height: 0;
+  overflow: auto;
+}
+
 .qq-status {
   margin: 0;
   opacity: 0.92;
+}
+
+@media (max-width: 1120px) {
+  .qq-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .qq-side-stack {
+    grid-template-rows: auto auto;
+  }
 }
