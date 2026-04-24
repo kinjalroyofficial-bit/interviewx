@@ -978,13 +978,10 @@ body,
   justify-content: space-between;
 }
 
-.qq-header-row h2 {
-  margin: 0;
-}
-
 .qq-subtitle {
-  margin: 0.25rem 0 0;
+  margin: 0;
   opacity: 0.78;
+  font-size: 1.02rem;
 }
 
 .qq-content-grid {
@@ -997,7 +994,7 @@ body,
 .qq-side-stack {
   min-height: 0;
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
   gap: 0.8rem;
 }
 
@@ -1019,6 +1016,9 @@ body,
 
 .qq-card h3 {
   margin: 0;
+  font-size: 1.45rem;
+  line-height: 1.35;
+  font-weight: 700;
 }
 
 .qq-card-empty {
@@ -1036,7 +1036,19 @@ body,
 }
 
 .qq-field select {
-  min-width: 150px;
+  width: fit-content;
+  min-width: 11ch;
+  max-width: 22ch;
+  border-radius: 10px;
+  border: 1px solid #5066ad;
+  background: #0f1830;
+  color: #ecf1ff;
+  padding: 0.36rem 1.8rem 0.36rem 0.6rem;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #a8b7ef 50%), linear-gradient(135deg, #a8b7ef 50%, transparent 50%);
+  background-position: calc(100% - 16px) calc(50% - 3px), calc(100% - 10px) calc(50% - 3px);
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
 }
 
 .qq-button {
@@ -1063,11 +1075,41 @@ body,
   cursor: not-allowed;
 }
 
+.qq-range-wrap {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 140px;
+}
+
+.qq-range-wrap input[type='range'] {
+  width: 100%;
+  accent-color: #6f7cff;
+}
+
+.qq-range-values {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  font-size: 0.78rem;
+  opacity: 0.8;
+}
+
+.qq-range-values .is-active {
+  color: #9caeff;
+  font-weight: 700;
+}
+
 .dashboard-theme-light .qq-card,
 .dashboard-theme-light .qq-result-card,
 .dashboard-theme-light .qq-history-card {
   background: #ffffff;
   border-color: #cfd8ff;
+}
+
+.dashboard-theme-light .qq-field select {
+  background: #f8faff;
+  color: #15213f;
+  border-color: #9ab0f2;
+  background-image: linear-gradient(45deg, transparent 50%, #556db9 50%), linear-gradient(135deg, #556db9 50%, transparent 50%);
 }
 
 .qq-card ul,
@@ -1088,6 +1130,40 @@ body,
 .qq-history-card {
   min-height: 0;
   overflow: auto;
+}
+
+.qq-insights-card {
+  background: rgba(15, 25, 48, 0.72);
+  border: 1px solid rgba(120, 145, 255, 0.35);
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
+}
+
+.qq-insights-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.qq-insight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem 0.6rem;
+}
+
+.qq-insight-grid p {
+  margin: 0;
+  display: grid;
+  gap: 0.12rem;
+}
+
+.qq-insight-grid span {
+  font-size: 0.74rem;
+  opacity: 0.78;
+}
+
+.qq-insight-grid strong {
+  font-size: 0.95rem;
+  word-break: break-word;
 }
 
 .qq-status {

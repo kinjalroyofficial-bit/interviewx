@@ -4,6 +4,7 @@ import { getQuantumQuestPerformance, getQuantumQuestQuestions, submitQuantumQues
 const STORAGE_KEY = 'interviewx-user'
 
 export default function QuantumQuestPage() {
+  const QUESTION_COUNT_OPTIONS = [5, 10, 15, 20]
   const username = localStorage.getItem(STORAGE_KEY) || ''
   const [topic, setTopic] = useState('')
   const [difficulty, setDifficulty] = useState('')
@@ -81,6 +82,48 @@ export default function QuantumQuestPage() {
     () => Object.values(selectedAnswers).filter((value) => Number.isInteger(value)).length,
     [selectedAnswers]
   )
+  const questionCountIndex = Math.max(0, QUESTION_COUNT_OPTIONS.indexOf(questionCount))
+  const performanceInsights = useMemo(() => {
+    if (!performance.length) {
+      return {
+        totalAttempts: 0,
+        averageScore: 0,
+        bestScore: 0,
+        strongestTopic: 'N/A',
+        strongestDifficulty: 'N/A'
+      }
+    }
+
+    const totalAttempts = performance.length
+    const averageScore = Math.round(performance.reduce((sum, item) => sum + Number(item.score_percentage || 0), 0) / totalAttempts)
+    const bestScore = Math.max(...performance.map((item) => Number(item.score_percentage || 0)))
+    const topicScores = new Map()
+    const difficultyScores = new Map()
+
+    performance.forEach((item) => {
+      const score = Number(item.score_percentage || 0)
+      const topicKey = item.topic || 'Mixed'
+      const difficultyKey = item.difficulty || 'Mixed'
+      topicScores.set(topicKey, (topicScores.get(topicKey) || { total: 0, count: 0 }))
+      difficultyScores.set(difficultyKey, (difficultyScores.get(difficultyKey) || { total: 0, count: 0 }))
+      const topicBucket = topicScores.get(topicKey)
+      topicBucket.total += score
+      topicBucket.count += 1
+      const difficultyBucket = difficultyScores.get(difficultyKey)
+      difficultyBucket.total += score
+      difficultyBucket.count += 1
+    })
+
+    const strongestTopic = [...topicScores.entries()]
+      .map(([topicName, meta]) => ({ topicName, score: meta.total / meta.count }))
+      .sort((a, b) => b.score - a.score)[0]?.topicName || 'N/A'
+
+    const strongestDifficulty = [...difficultyScores.entries()]
+      .map(([difficultyName, meta]) => ({ difficultyName, score: meta.total / meta.count }))
+      .sort((a, b) => b.score - a.score)[0]?.difficultyName || 'N/A'
+
+    return { totalAttempts, averageScore, bestScore, strongestTopic, strongestDifficulty }
+  }, [performance])
 
   async function handleSubmitQuiz() {
     if (!username || !questions.length) return
@@ -114,7 +157,6 @@ export default function QuantumQuestPage() {
     <section className="qq-wrapper">
       <div className="qq-header-row">
         <div>
-          <h2>Quantum Quest</h2>
           <p className="qq-subtitle">MCQ practice arena with instant scoring and explanations.</p>
         </div>
         <button type="button" className="qq-button qq-button-secondary" onClick={loadQuestions} disabled={isLoading}>Refresh Questions</button>
@@ -139,9 +181,21 @@ export default function QuantumQuestPage() {
 
         <label className="qq-field">
           <span>Question Count</span>
-          <select value={questionCount} onChange={(event) => setQuestionCount(Number(event.target.value))}>
-            {[5, 10, 15, 20].map((count) => <option key={count} value={count}>{count}</option>)}
-          </select>
+          <div className="qq-range-wrap">
+            <input
+              type="range"
+              min={0}
+              max={QUESTION_COUNT_OPTIONS.length - 1}
+              step={1}
+              value={questionCountIndex}
+              onChange={(event) => setQuestionCount(QUESTION_COUNT_OPTIONS[Number(event.target.value)])}
+            />
+            <div className="qq-range-values" aria-hidden="true">
+              {QUESTION_COUNT_OPTIONS.map((count) => (
+                <span key={count} className={count === questionCount ? 'is-active' : ''}>{count}</span>
+              ))}
+            </div>
+          </div>
         </label>
 
         <button type="button" className="qq-button qq-button-primary" onClick={loadQuestions} disabled={isLoading}>Start Quiz</button>
@@ -223,6 +277,17 @@ export default function QuantumQuestPage() {
             ) : (
               <p>No attempts yet.</p>
             )}
+          </section>
+
+          <section className="qq-insights-card">
+            <h3>Performance Insights</h3>
+            <div className="qq-insight-grid">
+              <p><span>Attempts</span><strong>{performanceInsights.totalAttempts}</strong></p>
+              <p><span>Avg Score</span><strong>{performanceInsights.averageScore}%</strong></p>
+              <p><span>Best Score</span><strong>{performanceInsights.bestScore}%</strong></p>
+              <p><span>Strongest Topic</span><strong>{performanceInsights.strongestTopic}</strong></p>
+              <p><span>Strongest Level</span><strong>{performanceInsights.strongestDifficulty}</strong></p>
+            </div>
           </section>
         </aside>
       </div>
