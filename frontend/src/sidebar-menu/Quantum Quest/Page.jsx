@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { getQuantumQuestPerformance, getQuantumQuestQuestions, submitQuantumQuest } from '../../api'
 
 const STORAGE_KEY = 'interviewx-user'
+const PRE_CODE_BLOCK_PATTERN = /<pre>\s*(?:<code>)?([\s\S]*?)(?:<\/code>)?\s*<\/pre>/i
 
 export default function QuantumQuestPage() {
   const QUESTION_COUNT_OPTIONS = [5, 10, 15, 20]
@@ -153,6 +154,33 @@ export default function QuantumQuestPage() {
     }
   }
 
+  function renderQuestionText(rawQuestionText) {
+    const raw = String(rawQuestionText || '')
+    const normalized = raw.replace(/<br\s*\/?>/gi, '\n')
+    const codeBlockMatch = normalized.match(PRE_CODE_BLOCK_PATTERN)
+
+    if (!codeBlockMatch) {
+      return <p className="qq-question-body">{normalized}</p>
+    }
+
+    const matchText = codeBlockMatch[0]
+    const codeText = String(codeBlockMatch[1] || '').replace(/<\/?code>/gi, '').trim()
+    const introText = normalized.slice(0, codeBlockMatch.index).trim()
+    const trailingText = normalized.slice((codeBlockMatch.index || 0) + matchText.length).replace(/<\/?code>/gi, '').trim()
+
+    return (
+      <>
+        {introText ? <p className="qq-question-body">{introText}</p> : null}
+        {codeText ? (
+          <pre className="qq-question-code-box">
+            <code>{codeText}</code>
+          </pre>
+        ) : null}
+        {trailingText ? <p className="qq-question-body">{trailingText}</p> : null}
+      </>
+    )
+  }
+
   return (
     <section className="qq-wrapper">
       <div className="qq-header-row">
@@ -207,7 +235,7 @@ export default function QuantumQuestPage() {
         {activeQuestion ? (
           <article className="qq-card">
             <p className="qq-progress">Question {activeIndex + 1} / {questions.length} • Answered {answeredCount}</p>
-            <h3>{activeQuestion.question_text}</h3>
+            <div className="qq-question-text">{renderQuestionText(activeQuestion.question_text)}</div>
             <ul>
               {activeQuestion.options.map((option, index) => {
                 const optionNumber = index + 1

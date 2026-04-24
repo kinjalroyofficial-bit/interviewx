@@ -1016,9 +1016,36 @@ body,
 
 .qq-card h3 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   line-height: 1.35;
   font-weight: 700;
+}
+
+.qq-question-text {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.qq-question-body {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+
+.qq-question-code-box {
+  margin: 0;
+  padding: 0.65rem 0.72rem;
+  border-radius: 10px;
+  border: 1px solid rgba(111, 133, 212, 0.65);
+  background: rgba(10, 18, 40, 0.72);
+  overflow: auto;
+}
+
+.qq-question-code-box code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .qq-card-empty {
@@ -1107,13 +1134,18 @@ body,
   border-color: #9bb2ec;
 }
 
+.dashboard-theme-light .qq-question-code-box {
+  background: #f6f8ff;
+  border-color: #b8c8f8;
+}
+
 .qq-card ul,
 .qq-history-card ul,
 .qq-result-card ul {
   margin: 0;
   padding-left: 1rem;
   display: grid;
-  gap: 0.5rem;
+  gap: 0.22rem;
 }
 
 .qq-card ul {
