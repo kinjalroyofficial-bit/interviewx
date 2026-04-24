@@ -1016,7 +1016,7 @@ body,
 
 .qq-card h3 {
   margin: 0;
-  font-size: 1.45rem;
+  font-size: 1.2rem;
   line-height: 1.35;
   font-weight: 700;
 }
@@ -1043,12 +1043,7 @@ body,
   border: 1px solid #5066ad;
   background: #0f1830;
   color: #ecf1ff;
-  padding: 0.36rem 1.8rem 0.36rem 0.6rem;
-  appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, #a8b7ef 50%), linear-gradient(135deg, #a8b7ef 50%, transparent 50%);
-  background-position: calc(100% - 16px) calc(50% - 3px), calc(100% - 10px) calc(50% - 3px);
-  background-size: 6px 6px, 6px 6px;
-  background-repeat: no-repeat;
+  padding: 0.34rem 0.5rem;
 }
 
 .qq-button {
@@ -1087,8 +1082,9 @@ body,
 }
 
 .qq-range-values {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px 0 2px;
   font-size: 0.78rem;
   opacity: 0.8;
 }
@@ -1106,16 +1102,15 @@ body,
 }
 
 .dashboard-theme-light .qq-field select {
-  background: #f8faff;
-  color: #15213f;
-  border-color: #9ab0f2;
-  background-image: linear-gradient(45deg, transparent 50%, #556db9 50%), linear-gradient(135deg, #556db9 50%, transparent 50%);
+  background: #f5f8ff;
+  color: #1b2b52;
+  border-color: #9bb2ec;
 }
 
 .qq-card ul,
 .qq-history-card ul,
 .qq-result-card ul {
-  margin: 0.5rem 0 0;
+  margin: 0;
   padding-left: 1rem;
   display: grid;
   gap: 0.5rem;
@@ -1132,6 +1127,11 @@ body,
   overflow: auto;
 }
 
+.qq-history-card h3,
+.qq-result-card h3 {
+  margin: 0 0 0.55rem;
+}
+
 .qq-insights-card {
   background: rgba(15, 25, 48, 0.72);
   border: 1px solid rgba(120, 145, 255, 0.35);
@@ -1146,7 +1146,7 @@ body,
 
 .qq-insight-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.45rem 0.6rem;
 }
 
@@ -1162,8 +1162,15 @@ body,
 }
 
 .qq-insight-grid strong {
-  font-size: 0.95rem;
-  word-break: break-word;
+  font-size: 0.92rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dashboard-theme-light .qq-insights-card {
+  background: #ffffff;
+  border-color: #cfd8ff;
 }
 
 .qq-status {
@@ -1178,5 +1185,9 @@ body,
 
   .qq-side-stack {
     grid-template-rows: auto auto;
+  }
+
+  .qq-insight-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
