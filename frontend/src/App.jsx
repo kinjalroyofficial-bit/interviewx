@@ -145,6 +145,32 @@ const numberBubbleStyle = {
   width: 34, height: 34, borderRadius: '50%', background: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '1.2rem', fontWeight: 700, color: '#85a8bc'
 }
 
+const vizSectionStyle = {
+  width: 'min(1680px, calc(100% - 2rem))',
+  margin: '0.75rem auto 0',
+  borderRadius: '16px',
+  overflow: 'hidden',
+  border: '1px solid rgba(255, 255, 255, 0.22)',
+  background: '#2b2b3c'
+}
+
+const vizSvgStyle = { width: '100%', height: '68vh', display: 'block' }
+
+const d3Config = {
+  count: 337,
+  scale: 3.1,
+  collision: 2.7,
+  charge: -6,
+  center: 0.011,
+  mouseStrength: 0.03,
+  mouseRadius: 254,
+  angleNoise: 1.5,
+  velocity: 0.65,
+  alpha: 0.075,
+  wallStrength: 0.14,
+  wallMargin: 71
+}
+
 export default function App() {
   const navigate = useNavigate()
   const [authMode, setAuthMode] = useState('login')
@@ -155,6 +181,144 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem(storageKey) || '')
   const [activeSlide, setActiveSlide] = useState(0)
   const googleButtonRef = useRef(null)
+  const vizSvgRef = useRef(null)
+
+  useEffect(() => {
+    let mounted = true
+    let simulation
+    let intervalId
+
+    async function setupD3Viz() {
+      if (!vizSvgRef.current) return
+
+      if (!window.d3) {
+        const existingScript = document.querySelector('script[data-interviewx-d3="true"]')
+        if (!existingScript) {
+          const script = document.createElement('script')
+          script.src = 'https://d3js.org/d3.v7.min.js'
+          script.async = true
+          script.dataset.interviewxD3 = 'true'
+          document.head.appendChild(script)
+          await new Promise((resolve, reject) => {
+            script.onload = resolve
+            script.onerror = reject
+          })
+        } else {
+          await new Promise((resolve, reject) => {
+            if (window.d3) {
+              resolve()
+              return
+            }
+            existingScript.addEventListener('load', resolve, { once: true })
+            existingScript.addEventListener('error', reject, { once: true })
+          })
+        }
+      }
+
+      if (!mounted || !window.d3 || !vizSvgRef.current) return
+
+      const d3 = window.d3
+      const svg = d3.select(vizSvgRef.current)
+      const section = vizSvgRef.current.parentElement
+      const bounds = section?.getBoundingClientRect()
+      const width = Math.max(bounds?.width || 0, 360)
+      const height = Math.max(bounds?.height || 0, 420)
+      svg.attr('width', width).attr('height', height).selectAll('*').remove()
+
+      let mouse = { x: -9999, y: -9999 }
+      const data = d3.range(d3Config.count).map(() => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        r: (Math.random() * 7 + 2) * d3Config.scale,
+        color: d3.schemeCategory10[Math.floor(Math.random() * 10)]
+      }))
+
+      const circles = svg.selectAll('circle')
+        .data(data)
+        .enter()
+        .append('circle')
+        .attr('r', (d) => d.r)
+        .attr('fill', (d) => d.color)
+        .attr('opacity', 0.65)
+
+      function ticked() {
+        circles.attr('cx', (d) => d.x).attr('cy', (d) => d.y)
+      }
+
+      function mouseForce(alpha) {
+        for (const d of data) {
+          const dx = d.x - mouse.x
+          const dy = d.y - mouse.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+
+          if (dist < d3Config.mouseRadius && dist > 0.01) {
+            const angleNoise = (Math.random() - 0.5) * d3Config.angleNoise
+            const newDx = dx * Math.cos(angleNoise) - dy * Math.sin(angleNoise)
+            const newDy = dx * Math.sin(angleNoise) + dy * Math.cos(angleNoise)
+            const factor = (1 - dist / d3Config.mouseRadius) * d3Config.mouseStrength * alpha * 25
+
+            d.vx += newDx * factor
+            d.vy += newDy * factor
+          }
+        }
+      }
+
+      function wallForce(alpha) {
+        for (const d of data) {
+          const leftDist = d.x - d.r
+          if (leftDist < d3Config.wallMargin) {
+            const push = (1 - leftDist / d3Config.wallMargin) * d3Config.wallStrength * alpha * 20
+            d.vx += push
+          }
+
+          const rightDist = width - (d.x + d.r)
+          if (rightDist < d3Config.wallMargin) {
+            const push = (1 - rightDist / d3Config.wallMargin) * d3Config.wallStrength * alpha * 20
+            d.vx -= push
+          }
+
+          d.vx *= 0.98
+        }
+      }
+
+      simulation = d3.forceSimulation(data)
+        .force('centerX', d3.forceX(width / 2).strength(d3Config.center))
+        .force('centerY', d3.forceY(height / 2).strength(d3Config.center))
+        .force('collision', d3.forceCollide((d) => d.r + d3Config.collision).strength(1))
+        .force('charge', d3.forceManyBody().strength(d3Config.charge))
+        .force('mouse', mouseForce)
+        .force('walls', wallForce)
+        .velocityDecay(d3Config.velocity)
+        .alphaDecay(d3Config.alpha)
+        .on('tick', ticked)
+
+      svg.on('mousemove', (event) => {
+        const [x, y] = d3.pointer(event)
+        mouse = { x, y }
+        simulation?.alphaTarget(0.25).restart()
+      })
+
+      svg.on('mouseleave', () => {
+        mouse = { x: -9999, y: -9999 }
+        simulation?.alphaTarget(0)
+      })
+
+      intervalId = window.setInterval(() => {
+        simulation?.alpha(0.15).restart()
+      }, 4000)
+    }
+
+    setupD3Viz().catch(() => {})
+
+    return () => {
+      mounted = false
+      if (intervalId) window.clearInterval(intervalId)
+      if (simulation) simulation.stop()
+      if (window.d3 && vizSvgRef.current) {
+        window.d3.select(vizSvgRef.current).on('mousemove', null).on('mouseleave', null)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (!showAuthPanel || currentUser) {
@@ -309,6 +473,10 @@ export default function App() {
           </ul>
         </section>
       </div>
+
+      <section style={vizSectionStyle}>
+        <svg id="viz" ref={vizSvgRef} style={vizSvgStyle} />
+      </section>
 
       {showAuthPanel ? (
         <div style={authOverlayStyle} onClick={() => setShowAuthPanel(false)}>
