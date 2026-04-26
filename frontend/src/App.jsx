@@ -156,16 +156,6 @@ const vizSvgStyle = {
   zIndex: 0
 }
 
-const vizControlStyle = {
-  position: 'relative',
-  zIndex: 2,
-  display: 'flex',
-  justifyContent: 'flex-end',
-  width: 'calc(100% - 2rem)',
-  maxWidth: '1680px',
-  margin: '-0.4rem auto 0.6rem'
-}
-
 const d3Config = {
   count: 337,
   scale: 3.1,
@@ -195,8 +185,8 @@ export default function App() {
   const vizContainerRef = useRef(null)
   const logoImageRef = useRef(null)
   const circlesRef = useRef(null)
-  const [blobOpacity, setBlobOpacity] = useState(0.5)
-  const [blobColor, setBlobColor] = useState('#F1BB01')
+  const blobOpacity = 0.5
+  const blobColor = '#C83F6F'
 
   useEffect(() => {
     let mounted = true
@@ -247,8 +237,8 @@ export default function App() {
           return null
         }
         return {
-          x: logoBounds.left - bounds.left + logoBounds.width * 0.47,
-          y: logoBounds.top - bounds.top + logoBounds.height * 0.52
+          x: logoBounds.left - bounds.left + logoBounds.width * 0.3,
+          y: logoBounds.top - bounds.top + logoBounds.height * 0.55
         }
       }
 
@@ -368,18 +358,6 @@ export default function App() {
       }
     }
   }, [])
-
-  useEffect(() => {
-    if (circlesRef.current) {
-      circlesRef.current.attr('opacity', blobOpacity)
-    }
-  }, [blobOpacity])
-
-  useEffect(() => {
-    if (circlesRef.current) {
-      circlesRef.current.attr('fill', blobColor)
-    }
-  }, [blobColor])
 
   useEffect(() => {
     if (!showAuthPanel || currentUser) {
@@ -510,25 +488,6 @@ export default function App() {
           {showAuthPanel ? 'Close' : currentUser ? 'Account' : 'Login'}
         </button>
       </header>
-
-      <div style={{ ...vizControlStyle, gap: '0.5rem' }}>
-        <label style={{ background: 'rgba(28, 14, 52, 0.58)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 12, padding: '0.45rem 0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.65rem', fontWeight: 700 }}>
-          Blob opacity: {Math.round(blobOpacity * 100)}%
-          <input
-            type="range"
-            min="0.1"
-            max="1"
-            step="0.01"
-            value={blobOpacity}
-            onChange={(event) => setBlobOpacity(Number(event.target.value))}
-          />
-        </label>
-        <label style={{ background: 'rgba(28, 14, 52, 0.58)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 12, padding: '0.45rem 0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.55rem', fontWeight: 700 }}>
-          Blob color
-          <input type="color" value={blobColor} onChange={(event) => setBlobColor(event.target.value)} />
-          <span style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{blobColor.toUpperCase()}</span>
-        </label>
-      </div>
 
       <div style={{ ...contentLayoutStyle, position: 'relative', zIndex: 1 }} className="landing-layout">
         <section className="hero-panel">
