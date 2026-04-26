@@ -173,7 +173,7 @@ const d3Config = {
   charge: -6,
   center: 0.011,
   mouseStrength: 0.03,
-  mouseRadius: 380,
+  mouseRadius: 254,
   angleNoise: 1.5,
   velocity: 0.65,
   alpha: 0.075,
@@ -201,6 +201,7 @@ export default function App() {
     let mounted = true
     let simulation
     let intervalId
+    let detachLogoListener
 
     async function setupD3Viz() {
       if (!vizSvgRef.current) return
@@ -239,14 +240,18 @@ export default function App() {
       const height = Math.max(bounds?.height || window.innerHeight, 420)
       svg.attr('width', width).attr('height', height).selectAll('*').remove()
 
-      const logoBounds = logoImageRef.current?.getBoundingClientRect()
-      const defaultMouse = logoBounds && bounds
-        ? {
-            x: logoBounds.left - bounds.left + logoBounds.width / 2,
-            y: logoBounds.top - bounds.top + logoBounds.height / 2
-          }
-        : { x: width / 2, y: height / 2 }
-      let mouse = defaultMouse
+      function getLogoCenter() {
+        const logoBounds = logoImageRef.current?.getBoundingClientRect()
+        if (!logoBounds || !bounds || logoBounds.width <= 0 || logoBounds.height <= 0) {
+          return null
+        }
+        return {
+          x: logoBounds.left - bounds.left + logoBounds.width / 2,
+          y: logoBounds.top - bounds.top + logoBounds.height / 2
+        }
+      }
+
+      let mouse = getLogoCenter() || { x: width / 2, y: height / 2 }
       const data = d3.range(d3Config.count).map(() => ({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -328,6 +333,21 @@ export default function App() {
       d3.select(container || vizSvgRef.current).on('mousemove', handleMove)
       d3.select(container || vizSvgRef.current).on('mouseleave', handleLeave)
 
+      function resetToLogoCenter() {
+        const logoCenter = getLogoCenter()
+        if (!logoCenter) return
+        mouse = logoCenter
+        simulation?.alphaTarget(0.25).restart()
+      }
+
+      resetToLogoCenter()
+
+      if (logoImageRef.current && !logoImageRef.current.complete) {
+        const onLoad = () => resetToLogoCenter()
+        logoImageRef.current.addEventListener('load', onLoad)
+        detachLogoListener = () => logoImageRef.current?.removeEventListener('load', onLoad)
+      }
+
       intervalId = window.setInterval(() => {
         simulation?.alpha(0.15).restart()
       }, 4000)
@@ -339,6 +359,7 @@ export default function App() {
     return () => {
       mounted = false
       if (intervalId) window.clearInterval(intervalId)
+      if (detachLogoListener) detachLogoListener()
       if (simulation) simulation.stop()
       circlesRef.current = null
       if (window.d3 && vizSvgRef.current) {
@@ -489,7 +510,7 @@ export default function App() {
           <input
             type="range"
             min="0.1"
-            max="0.9"
+            max="1"
             step="0.01"
             value={blobOpacity}
             onChange={(event) => setBlobOpacity(Number(event.target.value))}
