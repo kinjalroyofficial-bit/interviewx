@@ -472,6 +472,7 @@ export default function App() {
 
   return (
     <div style={pageBackgroundStyle} ref={vizContainerRef}>
+      <svg id="viz" ref={vizSvgRef} style={vizSvgStyle} />
       <header style={headerStyle}>
         <nav style={navLinksStyle}>
           <a href="#" style={navLinkStyle}>Our Company</a>
