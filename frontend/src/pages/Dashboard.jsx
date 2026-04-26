@@ -223,7 +223,7 @@ export default function Dashboard() {
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: '#0d0d18', zIndex: 0, pointerEvents: 'none' }}
         aria-hidden="true"
       />
-      <div style={{ position: 'relative', zIndex: 1 }}>
+      <div style={{ position: 'relative', zIndex: 1, display: 'contents' }}>
       <Sidebar
         menu={sidebarMenu}
         greetingText={greetingText}
