@@ -231,7 +231,7 @@ export default function App() {
         x: Math.random() * width,
         y: Math.random() * height,
         r: (Math.random() * 7 + 2) * d3Config.scale,
-        color: d3.schemeCategory10[Math.floor(Math.random() * 10)]
+        color: '#F1BB01'
       }))
 
       const circles = svg.selectAll('circle')
