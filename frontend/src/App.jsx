@@ -156,6 +156,16 @@ const vizSvgStyle = {
   zIndex: 0
 }
 
+const vizControlStyle = {
+  position: 'relative',
+  zIndex: 2,
+  display: 'flex',
+  justifyContent: 'flex-end',
+  width: 'calc(100% - 2rem)',
+  maxWidth: '1680px',
+  margin: '-0.4rem auto 0.6rem'
+}
+
 const d3Config = {
   count: 337,
   scale: 3.1,
@@ -163,7 +173,7 @@ const d3Config = {
   charge: -6,
   center: 0.011,
   mouseStrength: 0.03,
-  mouseRadius: 254,
+  mouseRadius: 380,
   angleNoise: 1.5,
   velocity: 0.65,
   alpha: 0.075,
@@ -183,6 +193,9 @@ export default function App() {
   const googleButtonRef = useRef(null)
   const vizSvgRef = useRef(null)
   const vizContainerRef = useRef(null)
+  const logoImageRef = useRef(null)
+  const circlesRef = useRef(null)
+  const [blobOpacity, setBlobOpacity] = useState(0.5)
 
   useEffect(() => {
     let mounted = true
@@ -226,7 +239,14 @@ export default function App() {
       const height = Math.max(bounds?.height || window.innerHeight, 420)
       svg.attr('width', width).attr('height', height).selectAll('*').remove()
 
-      let mouse = { x: -9999, y: -9999 }
+      const logoBounds = logoImageRef.current?.getBoundingClientRect()
+      const defaultMouse = logoBounds && bounds
+        ? {
+            x: logoBounds.left - bounds.left + logoBounds.width / 2,
+            y: logoBounds.top - bounds.top + logoBounds.height / 2
+          }
+        : { x: width / 2, y: height / 2 }
+      let mouse = defaultMouse
       const data = d3.range(d3Config.count).map(() => ({
         x: Math.random() * width,
         y: Math.random() * height,
@@ -240,7 +260,8 @@ export default function App() {
         .append('circle')
         .attr('r', (d) => d.r)
         .attr('fill', (d) => d.color)
-        .attr('opacity', 0.65)
+        .attr('opacity', blobOpacity)
+      circlesRef.current = circles
 
       function ticked() {
         circles.attr('cx', (d) => d.x).attr('cy', (d) => d.y)
@@ -310,6 +331,7 @@ export default function App() {
       intervalId = window.setInterval(() => {
         simulation?.alpha(0.15).restart()
       }, 4000)
+      simulation?.alphaTarget(0.25).restart()
     }
 
     setupD3Viz().catch(() => {})
@@ -318,11 +340,18 @@ export default function App() {
       mounted = false
       if (intervalId) window.clearInterval(intervalId)
       if (simulation) simulation.stop()
+      circlesRef.current = null
       if (window.d3 && vizSvgRef.current) {
         window.d3.select(vizContainerRef.current || vizSvgRef.current).on('mousemove', null).on('mouseleave', null)
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (circlesRef.current) {
+      circlesRef.current.attr('opacity', blobOpacity)
+    }
+  }, [blobOpacity])
 
   useEffect(() => {
     if (!showAuthPanel || currentUser) {
@@ -454,11 +483,25 @@ export default function App() {
         </button>
       </header>
 
+      <div style={vizControlStyle}>
+        <label style={{ background: 'rgba(28, 14, 52, 0.58)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 12, padding: '0.45rem 0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.65rem', fontWeight: 700 }}>
+          Blob opacity: {Math.round(blobOpacity * 100)}%
+          <input
+            type="range"
+            min="0.1"
+            max="0.9"
+            step="0.01"
+            value={blobOpacity}
+            onChange={(event) => setBlobOpacity(Number(event.target.value))}
+          />
+        </label>
+      </div>
+
       <div style={{ ...contentLayoutStyle, position: 'relative', zIndex: 1 }} className="landing-layout">
         <section className="hero-panel">
           <section style={heroSectionStyle}>
             <div className="logo-reveal-shell">
-              <img src={productLogo} alt="InterviewX" style={centerLogoStyle} className="logo-reveal-image" />
+              <img ref={logoImageRef} src={productLogo} alt="InterviewX" style={centerLogoStyle} className="logo-reveal-image" />
             </div>
             <div style={ctaRowStyle}>
               <button type="button" style={registerButtonStyle} onClick={openAuthPanel}>Register Now</button>
