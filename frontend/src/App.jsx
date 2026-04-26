@@ -74,16 +74,18 @@ const testimonialPlaceholders = [
 ]
 
 const pageBackgroundStyle = {
+  position: 'relative',
   minHeight: '100vh',
   padding: '2rem 1rem 3rem',
   backgroundImage: `url(${loginBackground})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center',
   backgroundRepeat: 'no-repeat',
-  color: '#ffffff'
+  color: '#ffffff',
+  overflow: 'hidden'
 }
 
-const headerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingLeft: '0.75rem' }
+const headerStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', paddingLeft: '0.75rem', position: 'relative', zIndex: 1 }
 const navLinksStyle = { display: 'flex', gap: '1.25rem' }
 const navLinkStyle = { color: '#ffffff', textDecoration: 'none', fontWeight: 700, letterSpacing: '0.02em' }
 
@@ -145,16 +147,14 @@ const numberBubbleStyle = {
   width: 34, height: 34, borderRadius: '50%', background: '#ffffff', display: 'grid', placeItems: 'center', fontSize: '1.2rem', fontWeight: 700, color: '#85a8bc'
 }
 
-const vizSectionStyle = {
-  width: 'min(1680px, calc(100% - 2rem))',
-  margin: '0.75rem auto 0',
-  borderRadius: '16px',
-  overflow: 'hidden',
-  border: '1px solid rgba(255, 255, 255, 0.22)',
-  background: '#2b2b3c'
+const vizSvgStyle = {
+  position: 'absolute',
+  inset: 0,
+  width: '100%',
+  height: '100%',
+  display: 'block',
+  zIndex: 0
 }
-
-const vizSvgStyle = { width: '100%', height: '68vh', display: 'block' }
 
 const d3Config = {
   count: 337,
@@ -182,6 +182,7 @@ export default function App() {
   const [activeSlide, setActiveSlide] = useState(0)
   const googleButtonRef = useRef(null)
   const vizSvgRef = useRef(null)
+  const vizContainerRef = useRef(null)
 
   useEffect(() => {
     let mounted = true
@@ -219,10 +220,10 @@ export default function App() {
 
       const d3 = window.d3
       const svg = d3.select(vizSvgRef.current)
-      const section = vizSvgRef.current.parentElement
-      const bounds = section?.getBoundingClientRect()
-      const width = Math.max(bounds?.width || 0, 360)
-      const height = Math.max(bounds?.height || 0, 420)
+      const container = vizContainerRef.current
+      const bounds = container?.getBoundingClientRect()
+      const width = Math.max(bounds?.width || window.innerWidth, 360)
+      const height = Math.max(bounds?.height || window.innerHeight, 420)
       svg.attr('width', width).attr('height', height).selectAll('*').remove()
 
       let mouse = { x: -9999, y: -9999 }
@@ -292,16 +293,19 @@ export default function App() {
         .alphaDecay(d3Config.alpha)
         .on('tick', ticked)
 
-      svg.on('mousemove', (event) => {
-        const [x, y] = d3.pointer(event)
+      function handleMove(event) {
+        const [x, y] = d3.pointer(event, container || vizSvgRef.current)
         mouse = { x, y }
         simulation?.alphaTarget(0.25).restart()
-      })
+      }
 
-      svg.on('mouseleave', () => {
+      function handleLeave() {
         mouse = { x: -9999, y: -9999 }
         simulation?.alphaTarget(0)
-      })
+      }
+
+      d3.select(container || vizSvgRef.current).on('mousemove', handleMove)
+      d3.select(container || vizSvgRef.current).on('mouseleave', handleLeave)
 
       intervalId = window.setInterval(() => {
         simulation?.alpha(0.15).restart()
@@ -315,7 +319,7 @@ export default function App() {
       if (intervalId) window.clearInterval(intervalId)
       if (simulation) simulation.stop()
       if (window.d3 && vizSvgRef.current) {
-        window.d3.select(vizSvgRef.current).on('mousemove', null).on('mouseleave', null)
+        window.d3.select(vizContainerRef.current || vizSvgRef.current).on('mousemove', null).on('mouseleave', null)
       }
     }
   }, [])
@@ -432,7 +436,8 @@ export default function App() {
   const active = carouselSlides[activeSlide]
 
   return (
-    <div style={pageBackgroundStyle}>
+    <div style={pageBackgroundStyle} ref={vizContainerRef}>
+      <svg id="viz" ref={vizSvgRef} style={vizSvgStyle} />
       <header style={headerStyle}>
         <nav style={navLinksStyle}>
           <a href="#" style={navLinkStyle}>Our Company</a>
@@ -449,7 +454,7 @@ export default function App() {
         </button>
       </header>
 
-      <div style={contentLayoutStyle} className="landing-layout">
+      <div style={{ ...contentLayoutStyle, position: 'relative', zIndex: 1 }} className="landing-layout">
         <section className="hero-panel">
           <section style={heroSectionStyle}>
             <div className="logo-reveal-shell">
@@ -473,10 +478,6 @@ export default function App() {
           </ul>
         </section>
       </div>
-
-      <section style={vizSectionStyle}>
-        <svg id="viz" ref={vizSvgRef} style={vizSvgStyle} />
-      </section>
 
       {showAuthPanel ? (
         <div style={authOverlayStyle} onClick={() => setShowAuthPanel(false)}>
