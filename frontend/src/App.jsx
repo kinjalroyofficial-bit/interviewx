@@ -173,7 +173,7 @@ const d3Config = {
   charge: -6,
   center: 0.011,
   mouseStrength: 0.03,
-  mouseRadius: 254,
+  mouseRadius: 270,
   angleNoise: 1.5,
   velocity: 0.65,
   alpha: 0.075,
@@ -196,6 +196,7 @@ export default function App() {
   const logoImageRef = useRef(null)
   const circlesRef = useRef(null)
   const [blobOpacity, setBlobOpacity] = useState(0.5)
+  const [blobColor, setBlobColor] = useState('#F1BB01')
 
   useEffect(() => {
     let mounted = true
@@ -246,8 +247,8 @@ export default function App() {
           return null
         }
         return {
-          x: logoBounds.left - bounds.left + logoBounds.width / 2,
-          y: logoBounds.top - bounds.top + logoBounds.height / 2
+          x: logoBounds.left - bounds.left + logoBounds.width * 0.47,
+          y: logoBounds.top - bounds.top + logoBounds.height * 0.52
         }
       }
 
@@ -256,7 +257,7 @@ export default function App() {
         x: Math.random() * width,
         y: Math.random() * height,
         r: (Math.random() * 7 + 2) * d3Config.scale,
-        color: '#F1BB01'
+        color: blobColor
       }))
 
       const circles = svg.selectAll('circle')
@@ -373,6 +374,12 @@ export default function App() {
       circlesRef.current.attr('opacity', blobOpacity)
     }
   }, [blobOpacity])
+
+  useEffect(() => {
+    if (circlesRef.current) {
+      circlesRef.current.attr('fill', blobColor)
+    }
+  }, [blobColor])
 
   useEffect(() => {
     if (!showAuthPanel || currentUser) {
@@ -504,7 +511,7 @@ export default function App() {
         </button>
       </header>
 
-      <div style={vizControlStyle}>
+      <div style={{ ...vizControlStyle, gap: '0.5rem' }}>
         <label style={{ background: 'rgba(28, 14, 52, 0.58)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 12, padding: '0.45rem 0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.65rem', fontWeight: 700 }}>
           Blob opacity: {Math.round(blobOpacity * 100)}%
           <input
@@ -515,6 +522,11 @@ export default function App() {
             value={blobOpacity}
             onChange={(event) => setBlobOpacity(Number(event.target.value))}
           />
+        </label>
+        <label style={{ background: 'rgba(28, 14, 52, 0.58)', border: '1px solid rgba(255,255,255,0.55)', borderRadius: 12, padding: '0.45rem 0.7rem', display: 'inline-flex', alignItems: 'center', gap: '0.55rem', fontWeight: 700 }}>
+          Blob color
+          <input type="color" value={blobColor} onChange={(event) => setBlobColor(event.target.value)} />
+          <span style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{blobColor.toUpperCase()}</span>
         </label>
       </div>
 
