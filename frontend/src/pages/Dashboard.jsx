@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import { sidebarMenu } from '../config/sidebarMenu'
@@ -38,6 +38,7 @@ export default function Dashboard() {
   const [couponStatus, setCouponStatus] = useState('')
   const [isCreatingPayment, setIsCreatingPayment] = useState(false)
   const [paymentError, setPaymentError] = useState('')
+  const canvasRef = useRef(null)
   const displayName = currentUser ? currentUser.split('@')[0] : ''
   const greetingText = useMemo(() => {
     const hour = new Date().getHours()
@@ -98,6 +99,74 @@ export default function Dashboard() {
     refreshCreditsForUser(currentUser)
   }, [currentUser])
 
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return undefined
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return undefined
+
+    let animationFrameId = 0
+    let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+
+    function setCanvasSize() {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+
+    setCanvasSize()
+
+    const balls = Array.from({ length: 40 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 2,
+      vy: (Math.random() - 0.5) * 2,
+      r: 80 + Math.random() * 120
+    }))
+
+    function onMouseMove(event) {
+      mouse = { x: event.clientX, y: event.clientY }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      for (const b of balls) {
+        b.x += b.vx
+        b.y += b.vy
+
+        if (b.x < 0 || b.x > canvas.width) b.vx *= -1
+        if (b.y < 0 || b.y > canvas.height) b.vy *= -1
+
+        const dx = b.x - mouse.x
+        const dy = b.y - mouse.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        const alpha = Math.max(0.05, 1 - dist / 400)
+
+        const gradient = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r)
+        gradient.addColorStop(0, `rgba(0,200,255,${alpha})`)
+        gradient.addColorStop(1, 'transparent')
+
+        ctx.fillStyle = gradient
+        ctx.beginPath()
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      animationFrameId = window.requestAnimationFrame(draw)
+    }
+
+    window.addEventListener('resize', setCanvasSize)
+    window.addEventListener('mousemove', onMouseMove)
+    draw()
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId)
+      window.removeEventListener('resize', setCanvasSize)
+      window.removeEventListener('mousemove', onMouseMove)
+    }
+  }, [])
+
   function openPurchaseModal() {
     setIsPurchaseModalOpen(true)
     setCouponStatus('')
@@ -148,7 +217,13 @@ export default function Dashboard() {
   }
 
   return (
-    <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''} ${isSidebarCollapsed ? 'is-sidebar-collapsed' : ''}`}>
+    <main className={`dashboard-shell ${theme === 'light' ? 'dashboard-theme-light' : ''} ${isSidebarCollapsed ? 'is-sidebar-collapsed' : ''}`} style={{ position: 'relative', overflow: 'hidden' }}>
+      <canvas
+        ref={canvasRef}
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: '#0d0d18', zIndex: 0, pointerEvents: 'none' }}
+        aria-hidden="true"
+      />
+      <div style={{ position: 'relative', zIndex: 1 }}>
       <Sidebar
         menu={sidebarMenu}
         greetingText={greetingText}
@@ -268,6 +343,7 @@ export default function Dashboard() {
           </section>
         </div>
       ) : null}
+      </div>
     </main>
   )
 }
