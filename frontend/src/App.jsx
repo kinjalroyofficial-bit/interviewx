@@ -237,7 +237,7 @@ export default function App() {
           return null
         }
         return {
-          x: logoBounds.left - bounds.left + logoBounds.width * 0.24,
+          x: logoBounds.left - bounds.left + logoBounds.width * 0.18,
           y: logoBounds.top - bounds.top + logoBounds.height * 0.55
         }
       }
