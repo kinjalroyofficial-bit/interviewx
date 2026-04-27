@@ -4,6 +4,16 @@ import { getUserPreferences, updateUserPreferences } from '../../../api'
 const LEARNING_SPEED_OPTIONS = ['slow', 'moderate', 'fast']
 const RISK_APPETITE_OPTIONS = ['low', 'medium', 'high']
 const FINANCIAL_URGENCY_OPTIONS = ['low', 'medium', 'high']
+const LANGUAGE_OPTIONS = [
+  { value: 'en-US', flag: '🇺🇸', label: 'English (US)' },
+  { value: 'en-GB', flag: '🇬🇧', label: 'English (UK)' },
+  { value: 'hi-IN', flag: '🇮🇳', label: 'Hindi' },
+  { value: 'es-ES', flag: '🇪🇸', label: 'Spanish' },
+  { value: 'fr-FR', flag: '🇫🇷', label: 'French' },
+  { value: 'de-DE', flag: '🇩🇪', label: 'German' },
+  { value: 'pt-BR', flag: '🇧🇷', label: 'Portuguese (Brazil)' },
+  { value: 'ja-JP', flag: '🇯🇵', label: 'Japanese' }
+]
 
 function ToggleGroup({ label, options, value, onChange }) {
   return (
@@ -28,6 +38,7 @@ function ToggleGroup({ label, options, value, onChange }) {
 export default function AwarenessCareerCounsellingPage({ username = '' }) {
   const [form, setForm] = useState({
     previous_tech_related_skill: '',
+    preferred_language: 'en-US',
     learning_speed: 'moderate',
     risk_appetite: 'medium',
     financial_urgency: 'medium',
@@ -49,6 +60,7 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
         setForm((prev) => ({
           ...prev,
           previous_tech_related_skill: preferences.previous_tech_related_skill || '',
+          preferred_language: preferences.preferred_language || 'en-US',
           learning_speed: preferences.learning_speed || 'moderate',
           risk_appetite: preferences.risk_appetite || 'medium',
           financial_urgency: preferences.financial_urgency || 'medium',
@@ -81,6 +93,7 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
 
     const preferenceJson = {
       previous_tech_related_skill: form.previous_tech_related_skill.trim(),
+      preferred_language: form.preferred_language,
       learning_speed: form.learning_speed,
       risk_appetite: form.risk_appetite,
       financial_urgency: form.financial_urgency,
@@ -103,7 +116,20 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
   return (
     <main className="career-counselling-page">
       <section className="career-counselling-card">
-        <h2>Preferences</h2>
+        <div className="career-counselling-card-header">
+          <h2>Preferences</h2>
+          <label className="career-counselling-language-select">
+            <span>Language</span>
+            <select value={form.preferred_language} onChange={(event) => updateField('preferred_language', event.target.value)}>
+              {LANGUAGE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.flag} {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
         <form className="career-counselling-form" onSubmit={handleSave}>
           <label className="career-counselling-field">
             <span>Previous Tech Related Skill</span>

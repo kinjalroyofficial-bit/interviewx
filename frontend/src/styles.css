@@ -1367,8 +1367,33 @@ body,
   color: #e7f2ff;
 }
 
+.career-counselling-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
+  margin-bottom: 0.75rem;
+}
+
 .career-counselling-card h2 {
-  margin: 0 0 0.75rem;
+  margin: 0;
+}
+
+.career-counselling-language-select {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.career-counselling-language-select span {
+  font-size: 0.8rem;
+}
+
+.career-counselling-language-select select {
+  border: 1px solid #4b6594;
+  border-radius: 999px;
+  background: rgba(4, 10, 20, 0.55);
+  color: #eaf3ff;
+  padding: 0.4rem 0.7rem;
 }
 
 .career-counselling-form {
@@ -1441,7 +1466,8 @@ body,
   color: #1f2f4e;
 }
 
-.dashboard-theme-light .career-counselling-field input[type='text'] {
+.dashboard-theme-light .career-counselling-field input[type='text'],
+.dashboard-theme-light .career-counselling-language-select select {
   background: #ffffff;
   border-color: #bfd2ee;
   color: #253652;
