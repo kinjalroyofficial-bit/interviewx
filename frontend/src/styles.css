@@ -1356,10 +1356,17 @@ body,
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   padding: 1rem;
-  align-items: start;
+  align-items: stretch;
   height: calc(100vh - 92px);
   overflow: hidden;
   font-size: 0.92rem;
+}
+
+.career-counselling-left-column {
+  display: grid;
+  grid-template-rows: 2fr 3fr;
+  gap: 1rem;
+  min-height: 0;
 }
 
 .career-counselling-card {
@@ -1376,22 +1383,17 @@ body,
 
 .career-counselling-preferences-card {
   display: grid;
-  grid-template-rows: 2fr 3fr;
-  gap: 0.8rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.6rem;
 }
 
-.career-counselling-history {
-  border: 1px solid #44618f;
-  border-radius: 10px;
-  background: rgba(4, 10, 20, 0.45);
-  padding: 0.7rem;
+.career-counselling-history-card {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   gap: 0.45rem;
-  min-height: 180px;
 }
 
-.career-counselling-history h3 {
+.career-counselling-history-card h3 {
   margin: 0;
   font-size: 1.1rem;
 }
@@ -1422,12 +1424,6 @@ body,
 .career-counselling-history-item span {
   opacity: 0.8;
   font-size: 0.78rem;
-}
-
-.career-counselling-preferences-section {
-  min-height: 0;
-  overflow: auto;
-  padding-right: 0.2rem;
 }
 
 .career-counselling-card-header {
@@ -1463,6 +1459,9 @@ body,
 .career-counselling-form {
   display: grid;
   gap: 0.75rem;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.2rem;
 }
 
 .career-counselling-field {
@@ -1636,6 +1635,45 @@ body,
   font-weight: 700;
 }
 
+.career-counselling-history-list,
+.career-counselling-form,
+.career-counselling-chat-thread,
+.career-counselling-overview-content {
+  scrollbar-width: thin;
+  scrollbar-color: #6678ab #0f1526;
+}
+
+.career-counselling-history-list::-webkit-scrollbar,
+.career-counselling-form::-webkit-scrollbar,
+.career-counselling-chat-thread::-webkit-scrollbar,
+.career-counselling-overview-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.career-counselling-history-list::-webkit-scrollbar-track,
+.career-counselling-form::-webkit-scrollbar-track,
+.career-counselling-chat-thread::-webkit-scrollbar-track,
+.career-counselling-overview-content::-webkit-scrollbar-track {
+  background: #0f1526;
+  border-radius: 999px;
+}
+
+.career-counselling-history-list::-webkit-scrollbar-thumb,
+.career-counselling-form::-webkit-scrollbar-thumb,
+.career-counselling-chat-thread::-webkit-scrollbar-thumb,
+.career-counselling-overview-content::-webkit-scrollbar-thumb {
+  background: #6678ab;
+  border: 2px solid #0f1526;
+  border-radius: 999px;
+}
+
+.career-counselling-history-list::-webkit-scrollbar-thumb:hover,
+.career-counselling-form::-webkit-scrollbar-thumb:hover,
+.career-counselling-chat-thread::-webkit-scrollbar-thumb:hover,
+.career-counselling-overview-content::-webkit-scrollbar-thumb:hover {
+  background: #7b90c4;
+}
+
 .career-counselling-overview-content p {
   margin: 0;
   white-space: pre-wrap;
@@ -1673,7 +1711,7 @@ body,
 
 .dashboard-theme-light .career-counselling-chat-thread,
 .dashboard-theme-light .career-counselling-overview-panel,
-.dashboard-theme-light .career-counselling-history {
+.dashboard-theme-light .career-counselling-history-card {
   background: #ffffffc2;
   border-color: #bfd2ee;
   color: #253652;
@@ -1690,6 +1728,28 @@ body,
   border-color: #8ab5f0;
 }
 
+.dashboard-theme-light .career-counselling-history-list,
+.dashboard-theme-light .career-counselling-form,
+.dashboard-theme-light .career-counselling-chat-thread,
+.dashboard-theme-light .career-counselling-overview-content {
+  scrollbar-color: #9fb4df #d4e0f7;
+}
+
+.dashboard-theme-light .career-counselling-history-list::-webkit-scrollbar-track,
+.dashboard-theme-light .career-counselling-form::-webkit-scrollbar-track,
+.dashboard-theme-light .career-counselling-chat-thread::-webkit-scrollbar-track,
+.dashboard-theme-light .career-counselling-overview-content::-webkit-scrollbar-track {
+  background: #d4e0f7;
+}
+
+.dashboard-theme-light .career-counselling-history-list::-webkit-scrollbar-thumb,
+.dashboard-theme-light .career-counselling-form::-webkit-scrollbar-thumb,
+.dashboard-theme-light .career-counselling-chat-thread::-webkit-scrollbar-thumb,
+.dashboard-theme-light .career-counselling-overview-content::-webkit-scrollbar-thumb {
+  background: #95abd7;
+  border-color: #d4e0f7;
+}
+
 @media (max-width: 1080px) {
   .career-counselling-page {
     grid-template-columns: 1fr;
@@ -1697,7 +1757,7 @@ body,
     overflow: visible;
   }
 
-  .career-counselling-preferences-card {
+  .career-counselling-left-column {
     grid-template-rows: auto auto;
   }
 

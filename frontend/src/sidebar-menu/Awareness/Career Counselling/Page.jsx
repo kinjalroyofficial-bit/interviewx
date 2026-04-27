@@ -239,8 +239,8 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
 
   return (
     <main className="career-counselling-page">
-      <section className="career-counselling-card career-counselling-preferences-card">
-        <div className="career-counselling-history">
+      <div className="career-counselling-left-column">
+        <section className="career-counselling-card career-counselling-history-card">
           <h3>Counselling History</h3>
           {historyStatus ? <p className="career-counselling-status">{historyStatus}</p> : null}
           <div className="career-counselling-history-list">
@@ -256,9 +256,9 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
               </button>
             ))}
           </div>
-        </div>
+        </section>
 
-        <div className="career-counselling-preferences-section">
+        <section className="career-counselling-card career-counselling-preferences-card">
           <div className="career-counselling-card-header">
             <h2>Preferences</h2>
             <label className="career-counselling-language-select">
@@ -315,8 +315,8 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
               {status ? <p className="career-counselling-status">{status}</p> : null}
             </div>
           </form>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <section className="career-counselling-card career-counselling-chat-panel">
         <div className="career-counselling-chat-header">
