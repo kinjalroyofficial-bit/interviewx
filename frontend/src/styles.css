@@ -1353,9 +1353,10 @@ body,
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: minmax(300px, 520px) minmax(260px, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
   padding: 1rem;
+  align-items: start;
 }
 
 .career-counselling-card {
@@ -1460,22 +1461,14 @@ body,
   font-size: 0.85rem;
 }
 
-.career-counselling-chat-layout {
-  display: grid;
-  grid-template-columns: minmax(280px, 1fr) minmax(220px, 0.75fr);
-  gap: 0.8rem;
-}
-
 .career-counselling-chat-panel {
+  position: relative;
   display: grid;
   gap: 0.6rem;
 }
 
 .career-counselling-chat-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
+  min-height: 44px;
 }
 
 .career-counselling-chat-header button,
@@ -1486,6 +1479,12 @@ body,
   background: #4d87df;
   color: #fff;
   font-weight: 700;
+}
+
+.career-counselling-chat-header button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
 }
 
 .career-counselling-chat-composer button.is-secondary {
@@ -1528,12 +1527,13 @@ body,
 }
 
 .career-counselling-chat-composer {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+  display: flex;
+  align-items: center;
   gap: 0.5rem;
 }
 
 .career-counselling-chat-composer input {
+  flex: 1 1 auto;
   height: 38px;
   border-radius: 8px;
   border: 1px solid #4b6594;
@@ -1543,10 +1543,6 @@ body,
 }
 
 .career-counselling-overview-panel {
-  border: 1px solid #44618f;
-  border-radius: 10px;
-  background: rgba(4, 10, 20, 0.48);
-  padding: 0.7rem;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 0.5rem;
@@ -1608,11 +1604,7 @@ body,
     grid-template-columns: 1fr;
   }
 
-  .career-counselling-chat-layout {
-    grid-template-columns: 1fr;
-  }
-
   .career-counselling-chat-composer {
-    grid-template-columns: 1fr;
+    flex-wrap: wrap;
   }
 }

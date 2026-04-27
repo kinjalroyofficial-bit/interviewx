@@ -58,6 +58,7 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
   const [chatStatus, setChatStatus] = useState('')
   const [overview, setOverview] = useState('')
   const [overviewJson, setOverviewJson] = useState(null)
+  const [isSessionCompleted, setIsSessionCompleted] = useState(false)
 
   const canSave = useMemo(() => Boolean(username), [username])
 
@@ -93,6 +94,16 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
 
   function updateField(name, value) {
     setForm((currentForm) => ({ ...currentForm, [name]: value }))
+  }
+
+  function parseOverviewPayload(rawText) {
+    try {
+      const parsed = JSON.parse(rawText)
+      if (parsed && typeof parsed === 'object') return parsed
+      return null
+    } catch {
+      return null
+    }
   }
 
   async function handleSave(event) {
@@ -134,6 +145,7 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
       setMessages([{ role: 'assistant', content: payload.assistant_message }])
       setOverview('')
       setOverviewJson(null)
+      setIsSessionCompleted(false)
       setChatStatus('Counselling session started.')
     } catch (error) {
       setChatStatus(error.message || 'Unable to start session.')
@@ -155,6 +167,10 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
     try {
       const payload = await sendCareerCounsellingMessage({ session_id: sessionId, message })
       setMessages((prev) => [...prev, { role: 'assistant', content: payload.assistant_message }])
+      const maybeCompletedJson = parseOverviewPayload(payload.assistant_message)
+      if (maybeCompletedJson?.user_confirmation === true) {
+        setIsSessionCompleted(true)
+      }
       setChatStatus('')
     } catch (error) {
       setChatStatus(error.message || 'Unable to send message.')
@@ -172,12 +188,7 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
       const payload = await endCareerCounsellingSession({ session_id: sessionId })
       const nextOverview = payload.overview || ''
       setOverview(nextOverview)
-      try {
-        const parsed = JSON.parse(nextOverview)
-        setOverviewJson(parsed)
-      } catch {
-        setOverviewJson(null)
-      }
+      setOverviewJson(parseOverviewPayload(nextOverview))
       setChatStatus('Overview generated.')
     } catch (error) {
       setChatStatus(error.message || 'Unable to generate overview.')
@@ -245,85 +256,83 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
         </form>
       </section>
 
-      <section className="career-counselling-card career-counselling-chat-layout">
-        <div className="career-counselling-chat-panel">
-          <div className="career-counselling-chat-header">
-            <h2>Career Counselling Chatbot</h2>
-            <button type="button" onClick={handleStartSession}>Start My Counselling Session</button>
-          </div>
-
-          <div className="career-counselling-chat-thread">
-            {messages.length ? messages.map((item, index) => (
-              <article key={`${item.role}-${index}`} className={`career-counselling-chat-message is-${item.role}`}>
-                <strong>{item.role === 'assistant' ? 'Counsellor' : 'You'}</strong>
-                <p>{item.content}</p>
-              </article>
-            )) : <p className="career-counselling-chat-empty">Start a session to begin your counselling chat.</p>}
-          </div>
-
-          <div className="career-counselling-chat-composer">
-            <input
-              type="text"
-              value={chatInput}
-              onChange={(event) => setChatInput(event.target.value)}
-              placeholder="Type your response..."
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') {
-                  event.preventDefault()
-                  handleSendMessage()
-                }
-              }}
-            />
-            <button type="button" onClick={handleSendMessage}>Send</button>
-            <button type="button" className="is-secondary" onClick={handleGenerateOverview}>Generate Overview</button>
-          </div>
-          {chatStatus ? <p className="career-counselling-status">{chatStatus}</p> : null}
+      <section className="career-counselling-card career-counselling-chat-panel">
+        <div className="career-counselling-chat-header">
+          <h2>My Counselor</h2>
+          <button type="button" onClick={handleStartSession}>Start Session</button>
         </div>
 
-        <aside className="career-counselling-overview-panel">
-          <h3>Career Path Overview</h3>
-          <div className="career-counselling-overview-content">
-            {!overview ? <p>Overview will appear here after you click <strong>Generate Overview</strong>.</p> : null}
-            {overviewJson ? (
-              <div className="career-counselling-overview-structured">
-                <p><strong>User:</strong> {overviewJson.user || '-'}</p>
-                <p><strong>Preferred Language:</strong> {overviewJson.preferred_language || '-'}</p>
-                <p><strong>Target Role:</strong> {overviewJson.target_role || '-'}</p>
-                <p><strong>Current Status:</strong> {overviewJson.current_status || '-'}</p>
-                <div>
-                  <strong>Key Goals:</strong>
-                  <ul>
-                    {(overviewJson.key_goals || []).map((goal, index) => <li key={`goal-${index}`}>{goal}</li>)}
-                  </ul>
-                </div>
-                <div>
-                  <strong>Constraints:</strong>
-                  <ul>
-                    <li><strong>Time:</strong> {overviewJson.constraints?.time || '-'}</li>
-                    <li><strong>Financial:</strong> {overviewJson.constraints?.financial || '-'}</li>
-                    <li><strong>Risk:</strong> {overviewJson.constraints?.risk || '-'}</li>
-                  </ul>
-                </div>
-                <div>
-                  <strong>Roadmap Phases:</strong>
-                  <ul>
-                    {(overviewJson.roadmap?.phases || []).map((phase, index) => (
-                      <li key={`phase-${index}`}>
-                        <strong>{phase.phase_name || `Phase ${index + 1}`}</strong> ({phase.duration || 'N/A'})
-                        <ul>
-                          {(phase.focus || []).map((item, focusIndex) => <li key={`phase-${index}-focus-${focusIndex}`}>{item}</li>)}
-                        </ul>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <p><strong>User Confirmation:</strong> {String(overviewJson.user_confirmation)}</p>
-              </div>
-            ) : null}
-            {overview && !overviewJson ? <p>{overview}</p> : null}
-          </div>
-        </aside>
+        <div className="career-counselling-chat-thread">
+          {messages.length ? messages.map((item, index) => (
+            <article key={`${item.role}-${index}`} className={`career-counselling-chat-message is-${item.role}`}>
+              <strong>{item.role === 'assistant' ? 'Counsellor' : 'You'}</strong>
+              <p>{item.content}</p>
+            </article>
+          )) : <p className="career-counselling-chat-empty">Start a session to begin your counselling chat.</p>}
+        </div>
+
+        <div className="career-counselling-chat-composer">
+          <input
+            type="text"
+            value={chatInput}
+            onChange={(event) => setChatInput(event.target.value)}
+            placeholder="Type your response..."
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault()
+                handleSendMessage()
+              }
+            }}
+          />
+          <button type="button" onClick={handleSendMessage}>Send</button>
+          {isSessionCompleted ? <button type="button" className="is-secondary" onClick={handleGenerateOverview}>Generate Overview</button> : null}
+        </div>
+        {chatStatus ? <p className="career-counselling-status">{chatStatus}</p> : null}
       </section>
+
+      <aside className="career-counselling-card career-counselling-overview-panel">
+        <h3>Career Path Overview</h3>
+        <div className="career-counselling-overview-content">
+          {!overview ? <p>Overview will appear here after you click <strong>Generate Overview</strong>.</p> : null}
+          {overviewJson ? (
+            <div className="career-counselling-overview-structured">
+              <p><strong>User:</strong> {overviewJson.user || '-'}</p>
+              <p><strong>Preferred Language:</strong> {overviewJson.preferred_language || '-'}</p>
+              <p><strong>Target Role:</strong> {overviewJson.target_role || '-'}</p>
+              <p><strong>Current Status:</strong> {overviewJson.current_status || '-'}</p>
+              <div>
+                <strong>Key Goals:</strong>
+                <ul>
+                  {(overviewJson.key_goals || []).map((goal, index) => <li key={`goal-${index}`}>{goal}</li>)}
+                </ul>
+              </div>
+              <div>
+                <strong>Constraints:</strong>
+                <ul>
+                  <li><strong>Time:</strong> {overviewJson.constraints?.time || '-'}</li>
+                  <li><strong>Financial:</strong> {overviewJson.constraints?.financial || '-'}</li>
+                  <li><strong>Risk:</strong> {overviewJson.constraints?.risk || '-'}</li>
+                </ul>
+              </div>
+              <div>
+                <strong>Roadmap Phases:</strong>
+                <ul>
+                  {(overviewJson.roadmap?.phases || []).map((phase, index) => (
+                    <li key={`phase-${index}`}>
+                      <strong>{phase.phase_name || `Phase ${index + 1}`}</strong> ({phase.duration || 'N/A'})
+                      <ul>
+                        {(phase.focus || []).map((item, focusIndex) => <li key={`phase-${index}-focus-${focusIndex}`}>{item}</li>)}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <p><strong>User Confirmation:</strong> {String(overviewJson.user_confirmation)}</p>
+            </div>
+          ) : null}
+          {overview && !overviewJson ? <p>{overview}</p> : null}
+        </div>
+      </aside>
     </main>
   )
 }
