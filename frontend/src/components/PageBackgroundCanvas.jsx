@@ -18,7 +18,7 @@ export default function PageBackgroundCanvas({ theme = 'dark' }) {
 
   const palette = useMemo(() => (
     theme === 'light'
-      ? { red: 92, green: 127, blue: 255, maxAlpha: 0.52, minAlpha: 0.03, falloff: 560 }
+      ? { red: 72, green: 104, blue: 228, maxAlpha: 0.62, minAlpha: 0.06, falloff: 520 }
       : { red: 0, green: 200, blue: 255, maxAlpha: 1, minAlpha: 0.05, falloff: 400 }
   ), [theme])
 
@@ -29,9 +29,15 @@ export default function PageBackgroundCanvas({ theme = 'dark' }) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return undefined
 
+    function getCanvasSize() {
+      const bounds = canvas.parentElement?.getBoundingClientRect()
+      const width = Math.max(320, Math.floor(bounds?.width || window.innerWidth))
+      const height = Math.max(320, Math.floor(bounds?.height || window.innerHeight))
+      return { width, height, left: bounds?.left || 0, top: bounds?.top || 0 }
+    }
+
     function resizeCanvas() {
-      const width = window.innerWidth
-      const height = window.innerHeight
+      const { width, height } = getCanvasSize()
       canvas.width = width
       canvas.height = height
       if (!ballsRef.current.length) {
@@ -43,7 +49,11 @@ export default function PageBackgroundCanvas({ theme = 'dark' }) {
     }
 
     function handleMouseMove(event) {
-      mouseRef.current = { x: event.clientX, y: event.clientY }
+      const { left, top } = getCanvasSize()
+      mouseRef.current = {
+        x: event.clientX - left,
+        y: event.clientY - top
+      }
     }
 
     function animate() {

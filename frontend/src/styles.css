@@ -205,7 +205,7 @@ body,
 }
 
 .dashboard-page-background-canvas {
-  position: fixed;
+  position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
@@ -465,7 +465,7 @@ body,
 }
 
 .dashboard-purchase-modal-backdrop {
-  position: fixed;
+  position: absolute;
   inset: 0;
   background: #00000085;
   display: grid;
@@ -610,8 +610,8 @@ body,
 }
 
 .dashboard-theme-light .dashboard-page-background-canvas {
-  opacity: 0.34;
-  filter: saturate(0.85);
+  opacity: 0.46;
+  filter: saturate(1.05);
 }
 
 .dashboard-theme-light .sidebar-nav {
