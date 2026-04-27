@@ -315,15 +315,16 @@ export default function AwarenessTechnologyMapPage() {
       .attr('dy', '0.34em')
       .attr('class', 'tech-map-node-label')
 
+    simulation.alphaTarget(0.012)
+
     const livelinessInterval = d3.interval(() => {
       nodes.forEach((nodeItem) => {
         if (nodeItem.fx != null || nodeItem.fy != null) return
-        nodeItem.vx += (Math.random() - 0.5) * 0.08
-        nodeItem.vy += (Math.random() - 0.5) * 0.08
+        nodeItem.vx += (Math.random() - 0.5) * 0.11
+        nodeItem.vy += (Math.random() - 0.5) * 0.11
       })
-      simulation.alphaTarget(0.045).restart()
-      window.setTimeout(() => simulation.alphaTarget(0), 220)
-    }, 1400)
+      simulation.alpha(Math.max(0.06, simulation.alpha())).restart()
+    }, 900)
 
     simulation.on('tick', () => {
       link
@@ -346,6 +347,7 @@ export default function AwarenessTechnologyMapPage() {
 
     return () => {
       livelinessInterval.stop()
+      simulation.alphaTarget(0)
       simulation.stop()
     }
   }, [isD3Ready, visibleNodes, visibleLinks, expandedNodes, childrenByParent])
