@@ -271,3 +271,15 @@ class CareerCounsellingEndRequest(BaseModel):
 class CareerCounsellingEndResponse(BaseModel):
     session_id: str
     overview: str
+
+
+class CareerCounsellingHistoryItem(BaseModel):
+    id: int
+    session_id: str
+    username: str
+    overview: str
+    created_at: str | None = None
+
+
+class CareerCounsellingHistoryResponse(BaseModel):
+    consultations: list[CareerCounsellingHistoryItem] = Field(default_factory=list)

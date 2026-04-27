@@ -1368,6 +1368,60 @@ body,
   color: #e7f2ff;
 }
 
+.career-counselling-preferences-card {
+  display: grid;
+  grid-template-rows: 2fr 3fr;
+  gap: 0.8rem;
+}
+
+.career-counselling-history {
+  border: 1px solid #44618f;
+  border-radius: 10px;
+  background: rgba(4, 10, 20, 0.45);
+  padding: 0.7rem;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 0.45rem;
+  min-height: 180px;
+}
+
+.career-counselling-history h3 {
+  margin: 0;
+}
+
+.career-counselling-history-list {
+  display: grid;
+  gap: 0.4rem;
+  overflow: auto;
+}
+
+.career-counselling-history-item {
+  border: 1px solid #4f6999;
+  background: rgba(10, 18, 33, 0.62);
+  color: #d9ebff;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  text-align: left;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.career-counselling-history-item.is-active {
+  border-color: #78aefd;
+  background: rgba(67, 114, 185, 0.35);
+}
+
+.career-counselling-history-item span {
+  opacity: 0.8;
+  font-size: 0.78rem;
+}
+
+.career-counselling-preferences-section {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
 .career-counselling-card-header {
   display: flex;
   justify-content: space-between;
@@ -1593,15 +1647,31 @@ body,
 }
 
 .dashboard-theme-light .career-counselling-chat-thread,
-.dashboard-theme-light .career-counselling-overview-panel {
+.dashboard-theme-light .career-counselling-overview-panel,
+.dashboard-theme-light .career-counselling-history {
   background: #ffffffc2;
   border-color: #bfd2ee;
   color: #253652;
 }
 
+.dashboard-theme-light .career-counselling-history-item {
+  background: #f5f9ff;
+  border-color: #bfd2ee;
+  color: #253652;
+}
+
+.dashboard-theme-light .career-counselling-history-item.is-active {
+  background: #ddebff;
+  border-color: #8ab5f0;
+}
+
 @media (max-width: 1080px) {
   .career-counselling-page {
     grid-template-columns: 1fr;
+  }
+
+  .career-counselling-preferences-card {
+    grid-template-rows: auto auto;
   }
 
   .career-counselling-chat-composer {

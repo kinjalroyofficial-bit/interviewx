@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
   endCareerCounsellingSession,
+  getCareerCounsellingHistory,
   getUserPreferences,
   sendCareerCounsellingMessage,
   startCareerCounsellingSession,
@@ -59,6 +60,9 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
   const [overview, setOverview] = useState('')
   const [overviewJson, setOverviewJson] = useState(null)
   const [isSessionCompleted, setIsSessionCompleted] = useState(false)
+  const [historyItems, setHistoryItems] = useState([])
+  const [historyStatus, setHistoryStatus] = useState('')
+  const [selectedHistorySessionId, setSelectedHistorySessionId] = useState('')
 
   const canSave = useMemo(() => Boolean(username), [username])
 
@@ -87,6 +91,31 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
     }
 
     loadPreferences()
+    return () => {
+      cancelled = true
+    }
+  }, [username])
+
+  useEffect(() => {
+    if (!username) return
+    let cancelled = false
+
+    async function loadHistory() {
+      try {
+        setHistoryStatus('Loading counselling history...')
+        const payload = await getCareerCounsellingHistory(username)
+        if (cancelled) return
+        const consultations = payload?.consultations || []
+        setHistoryItems(consultations)
+        setHistoryStatus(consultations.length ? '' : 'No counselling history found.')
+      } catch (error) {
+        if (!cancelled) {
+          setHistoryStatus(error.message || 'Unable to load counselling history.')
+        }
+      }
+    }
+
+    loadHistory()
     return () => {
       cancelled = true
     }
@@ -189,71 +218,107 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
       const nextOverview = payload.overview || ''
       setOverview(nextOverview)
       setOverviewJson(parseOverviewPayload(nextOverview))
+      try {
+        const historyPayload = await getCareerCounsellingHistory(username)
+        const consultations = historyPayload?.consultations || []
+        setHistoryItems(consultations)
+        if (consultations.length > 0) {
+          setSelectedHistorySessionId(consultations[0].session_id)
+        }
+      } catch {
+        // Ignore history refresh failures so overview can still be shown.
+      }
       setChatStatus('Overview generated.')
     } catch (error) {
       setChatStatus(error.message || 'Unable to generate overview.')
     }
   }
 
+  function handleSelectHistoryItem(item) {
+    setSelectedHistorySessionId(item.session_id)
+    setOverview(item.overview || '')
+    setOverviewJson(parseOverviewPayload(item.overview || ''))
+  }
+
   return (
     <main className="career-counselling-page">
-      <section className="career-counselling-card">
-        <div className="career-counselling-card-header">
-          <h2>Preferences</h2>
-          <label className="career-counselling-language-select">
-            <span>Language</span>
-            <select value={form.preferred_language} onChange={(event) => updateField('preferred_language', event.target.value)}>
-              {LANGUAGE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.flag} {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+      <section className="career-counselling-card career-counselling-preferences-card">
+        <div className="career-counselling-history">
+          <h3>Counselling History</h3>
+          {historyStatus ? <p className="career-counselling-status">{historyStatus}</p> : null}
+          <div className="career-counselling-history-list">
+            {historyItems.map((item) => (
+              <button
+                key={item.session_id}
+                type="button"
+                className={`career-counselling-history-item ${selectedHistorySessionId === item.session_id ? 'is-active' : ''}`}
+                onClick={() => handleSelectHistoryItem(item)}
+              >
+                <strong>{new Date(item.created_at || Date.now()).toLocaleString()}</strong>
+                <span>{item.session_id}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        <form className="career-counselling-form" onSubmit={handleSave}>
-          <label className="career-counselling-field">
-            <span>Previous Tech Related Skill</span>
-            <input
-              type="text"
-              value={form.previous_tech_related_skill}
-              onChange={(event) => updateField('previous_tech_related_skill', event.target.value)}
-              placeholder="e.g. React, SQL, Java"
-            />
-          </label>
-
-          <ToggleGroup label="learning_speed" options={LEARNING_SPEED_OPTIONS} value={form.learning_speed} onChange={(value) => updateField('learning_speed', value)} />
-          <ToggleGroup label="risk_appetite" options={RISK_APPETITE_OPTIONS} value={form.risk_appetite} onChange={(value) => updateField('risk_appetite', value)} />
-          <ToggleGroup label="financial_urgency" options={FINANCIAL_URGENCY_OPTIONS} value={form.financial_urgency} onChange={(value) => updateField('financial_urgency', value)} />
-
-          <label className="career-counselling-field">
-            <span>hours_per_week: {form.hours_per_week}</span>
-            <input
-              type="range"
-              min="1"
-              max="40"
-              step="1"
-              value={form.hours_per_week}
-              onChange={(event) => updateField('hours_per_week', Number(event.target.value))}
-            />
-          </label>
-
-          <label className="career-counselling-field">
-            <span>interests</span>
-            <input
-              type="text"
-              value={form.interests}
-              onChange={(event) => updateField('interests', event.target.value)}
-              placeholder="e.g. AI products, fintech, cloud"
-            />
-          </label>
-
-          <div className="career-counselling-actions">
-            <button type="submit" disabled={!canSave}>Save</button>
-            {status ? <p className="career-counselling-status">{status}</p> : null}
+        <div className="career-counselling-preferences-section">
+          <div className="career-counselling-card-header">
+            <h2>Preferences</h2>
+            <label className="career-counselling-language-select">
+              <span>Language</span>
+              <select value={form.preferred_language} onChange={(event) => updateField('preferred_language', event.target.value)}>
+                {LANGUAGE_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.flag} {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
-        </form>
+
+          <form className="career-counselling-form" onSubmit={handleSave}>
+            <label className="career-counselling-field">
+              <span>Previous Tech Related Skill</span>
+              <input
+                type="text"
+                value={form.previous_tech_related_skill}
+                onChange={(event) => updateField('previous_tech_related_skill', event.target.value)}
+                placeholder="e.g. React, SQL, Java"
+              />
+            </label>
+
+            <ToggleGroup label="learning_speed" options={LEARNING_SPEED_OPTIONS} value={form.learning_speed} onChange={(value) => updateField('learning_speed', value)} />
+            <ToggleGroup label="risk_appetite" options={RISK_APPETITE_OPTIONS} value={form.risk_appetite} onChange={(value) => updateField('risk_appetite', value)} />
+            <ToggleGroup label="financial_urgency" options={FINANCIAL_URGENCY_OPTIONS} value={form.financial_urgency} onChange={(value) => updateField('financial_urgency', value)} />
+
+            <label className="career-counselling-field">
+              <span>hours_per_week: {form.hours_per_week}</span>
+              <input
+                type="range"
+                min="1"
+                max="40"
+                step="1"
+                value={form.hours_per_week}
+                onChange={(event) => updateField('hours_per_week', Number(event.target.value))}
+              />
+            </label>
+
+            <label className="career-counselling-field">
+              <span>interests</span>
+              <input
+                type="text"
+                value={form.interests}
+                onChange={(event) => updateField('interests', event.target.value)}
+                placeholder="e.g. AI products, fintech, cloud"
+              />
+            </label>
+
+            <div className="career-counselling-actions">
+              <button type="submit" disabled={!canSave}>Save</button>
+              {status ? <p className="career-counselling-status">{status}</p> : null}
+            </div>
+          </form>
+        </div>
       </section>
 
       <section className="career-counselling-card career-counselling-chat-panel">

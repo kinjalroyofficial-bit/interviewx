@@ -42,7 +42,7 @@ from sqlalchemy import func, text as sql_text
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models import Coupon, InterviewSession, QQData, QuantumQuestAttempt, Transaction, User
+from app.models import CareerCounsellingConsultation, Coupon, InterviewSession, QQData, QuantumQuestAttempt, Transaction, User
 from app.schemas import (
     AuthRequest,
     AuthResponse,
@@ -84,6 +84,8 @@ from app.schemas import (
     CareerCounsellingMessageResponse,
     CareerCounsellingEndRequest,
     CareerCounsellingEndResponse,
+    CareerCounsellingHistoryItem,
+    CareerCounsellingHistoryResponse,
 )
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -307,11 +309,48 @@ def ensure_quantum_quest_tables() -> None:
         db.close()
 
 
+def ensure_career_counselling_tables() -> None:
+    db = SessionLocal()
+    try:
+        db.execute(
+            sql_text(
+                """
+                CREATE TABLE IF NOT EXISTS career_counselling_consultations (
+                    id SERIAL PRIMARY KEY,
+                    session_id VARCHAR UNIQUE NOT NULL,
+                    user_id INTEGER NOT NULL REFERENCES users(id),
+                    username VARCHAR NOT NULL,
+                    preferences_json TEXT NULL,
+                    transcript_json TEXT NULL,
+                    overview_json TEXT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+                """
+            )
+        )
+        db.execute(
+            sql_text(
+                """
+                CREATE INDEX IF NOT EXISTS idx_ccc_user_created_at
+                ON career_counselling_consultations (user_id, created_at DESC)
+                """
+            )
+        )
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
+
+
 @app.on_event("startup")
 def startup_schema_sync() -> None:
     ensure_interview_session_transcript_columns()
     ensure_payment_tables()
     ensure_quantum_quest_tables()
+    ensure_career_counselling_tables()
 
 
 @app.get("/")
@@ -878,6 +917,16 @@ def parse_user_preferences(preference_json: str | None) -> dict:
         return parsed if isinstance(parsed, dict) else {}
     except (TypeError, json.JSONDecodeError):
         return {}
+
+
+def parse_json_text(raw_text: str | None) -> dict | None:
+    if not raw_text:
+        return None
+    try:
+        parsed = json.loads(raw_text)
+        return parsed if isinstance(parsed, dict) else None
+    except (TypeError, json.JSONDecodeError):
+        return None
 
 
 def build_career_counselling_prompt(username: str, preferences: dict) -> str:
@@ -1869,7 +1918,7 @@ def send_career_counselling_message(payload: CareerCounsellingMessageRequest) ->
 
 
 @app.post("/career-counselling/session/end", response_model=CareerCounsellingEndResponse)
-def end_career_counselling_session(payload: CareerCounsellingEndRequest) -> CareerCounsellingEndResponse:
+def end_career_counselling_session(payload: CareerCounsellingEndRequest, db: Session = Depends(get_db)) -> CareerCounsellingEndResponse:
     session_id = payload.session_id.strip()
     if not session_id:
         raise HTTPException(status_code=400, detail="session_id is required")
@@ -1925,8 +1974,65 @@ def end_career_counselling_session(payload: CareerCounsellingEndRequest) -> Care
     if not overview:
         raise HTTPException(status_code=500, detail="Unable to generate career overview")
 
+    username = (session.get("username") or "").strip()
+    user = db.query(User).filter(User.username == username).first()
+    if user:
+        transcript_payload = {"messages": messages}
+        preferences_payload = preferences if isinstance(preferences, dict) else {}
+        parsed_overview = parse_json_text(overview)
+        normalized_overview = json.dumps(parsed_overview, ensure_ascii=False) if parsed_overview else overview
+
+        consultation = (
+            db.query(CareerCounsellingConsultation)
+            .filter(CareerCounsellingConsultation.session_id == session_id)
+            .first()
+        )
+        if consultation is None:
+            consultation = CareerCounsellingConsultation(
+                session_id=session_id,
+                user_id=user.id,
+                username=user.username,
+            )
+            db.add(consultation)
+
+        consultation.preferences_json = json.dumps(preferences_payload, ensure_ascii=False)
+        consultation.transcript_json = json.dumps(transcript_payload, ensure_ascii=False)
+        consultation.overview_json = normalized_overview
+        db.commit()
+
     session["overview"] = overview
     return CareerCounsellingEndResponse(session_id=session_id, overview=overview)
+
+
+@app.get("/career-counselling/history", response_model=CareerCounsellingHistoryResponse)
+def get_career_counselling_history(username: str, db: Session = Depends(get_db)) -> CareerCounsellingHistoryResponse:
+    clean_username = username.strip()
+    if not clean_username:
+        raise HTTPException(status_code=400, detail="username is required")
+
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    consultations = (
+        db.query(CareerCounsellingConsultation)
+        .filter(CareerCounsellingConsultation.user_id == user.id)
+        .order_by(CareerCounsellingConsultation.created_at.desc())
+        .all()
+    )
+
+    return CareerCounsellingHistoryResponse(
+        consultations=[
+            CareerCounsellingHistoryItem(
+                id=item.id,
+                session_id=item.session_id,
+                username=item.username,
+                overview=item.overview_json or "",
+                created_at=item.created_at.isoformat() if item.created_at else None,
+            )
+            for item in consultations
+        ]
+    )
 
 
 @app.post("/interview/prompt/preview", response_model=PromptPreviewResponse)

@@ -100,3 +100,22 @@ class QuantumQuestAttempt(Base):
     score_percentage = Column(Integer, nullable=False, default=0)
     answers_json = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class CareerCounsellingConsultation(Base):
+    __tablename__ = "career_counselling_consultations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String, unique=True, nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    username = Column(String, nullable=False, index=True)
+    preferences_json = Column(Text, nullable=True)
+    transcript_json = Column(Text, nullable=True)
+    overview_json = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
