@@ -28,6 +28,7 @@ export default function AwarenessTechnologyMapPage() {
   const containerRef = useRef(null)
   const svgRef = useRef(null)
   const zoomStateRef = useRef({ x: 0, y: 0, k: 1 })
+  const nodePositionsRef = useRef(new Map())
   const [isD3Ready, setIsD3Ready] = useState(Boolean(window.d3))
 
   const { nodeMap, childrenByParent, rootNodes, rootNodeLinks } = useMemo(() => {
@@ -150,9 +151,24 @@ export default function AwarenessTechnologyMapPage() {
     const links = visibleLinks.map((link) => ({ ...link }))
     const nodes = visibleNodes.map((node) => {
       const dimensions = getNodeDimensions(node)
+      const previousPosition = nodePositionsRef.current.get(node.id)
+      const parentPosition = node.parent ? nodePositionsRef.current.get(node.parent) : null
+
+      const seededPosition = previousPosition
+        ? { x: previousPosition.x, y: previousPosition.y, vx: previousPosition.vx || 0, vy: previousPosition.vy || 0 }
+        : parentPosition
+          ? {
+              x: parentPosition.x + (Math.random() - 0.5) * 36,
+              y: parentPosition.y + (Math.random() - 0.5) * 36,
+              vx: 0,
+              vy: 0
+            }
+          : {}
+
       return {
         ...node,
         ...dimensions,
+        ...seededPosition,
         isExpandable: (childrenByParent.get(node.id) || []).length > 0,
         isExpanded: expandedNodes.has(node.id)
       }
@@ -255,6 +271,16 @@ export default function AwarenessTechnologyMapPage() {
       .attr('dy', '0.34em')
       .attr('class', 'tech-map-node-label')
 
+    const livelinessInterval = d3.interval(() => {
+      nodes.forEach((nodeItem) => {
+        if (nodeItem.fx != null || nodeItem.fy != null) return
+        nodeItem.vx += (Math.random() - 0.5) * 0.08
+        nodeItem.vy += (Math.random() - 0.5) * 0.08
+      })
+      simulation.alphaTarget(0.045).restart()
+      window.setTimeout(() => simulation.alphaTarget(0), 220)
+    }, 1400)
+
     simulation.on('tick', () => {
       link
         .attr('x1', (d) => d.source.x)
@@ -263,9 +289,19 @@ export default function AwarenessTechnologyMapPage() {
         .attr('y2', (d) => d.target.y)
 
       node.attr('transform', (d) => `translate(${d.x},${d.y})`)
+
+      nodes.forEach((nodeItem) => {
+        nodePositionsRef.current.set(nodeItem.id, {
+          x: nodeItem.x,
+          y: nodeItem.y,
+          vx: nodeItem.vx,
+          vy: nodeItem.vy
+        })
+      })
     })
 
     return () => {
+      livelinessInterval.stop()
       simulation.stop()
     }
   }, [isD3Ready, visibleNodes, visibleLinks, expandedNodes, childrenByParent])
