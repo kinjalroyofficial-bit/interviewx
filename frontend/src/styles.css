@@ -1245,3 +1245,57 @@ body,
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.tech-map-wrapper {
+  margin-top: 1.1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.tech-map-instruction {
+  margin: 0;
+  color: #c8d7ff;
+  font-size: 0.92rem;
+}
+
+.tech-map-canvas-shell {
+  border: 1px solid #4e67ab73;
+  border-radius: 16px;
+  min-height: 560px;
+  background: #08132f88;
+  overflow: hidden;
+}
+
+.tech-map-canvas-shell svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.tech-map-links line {
+  stroke: #9ab5ff9d;
+}
+
+.tech-map-node-label {
+  fill: #091229;
+  font-size: 0.65rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.dashboard-theme-light .tech-map-instruction {
+  color: #2f4879;
+}
+
+.dashboard-theme-light .tech-map-canvas-shell {
+  border-color: #9db3e0;
+  background: #e4ecff6e;
+}
+
+.dashboard-theme-light .tech-map-links line {
+  stroke: #7a99d4;
+}
+
+.dashboard-theme-light .tech-map-node-label {
+  fill: #0d1a36;
+}

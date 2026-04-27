@@ -5,6 +5,7 @@ import { sidebarMenu } from '../config/sidebarMenu'
 import InterviewCenterPage from '../sidebar-menu/Interview Center/Page'
 import QuantumQuestPage from '../sidebar-menu/Quantum Quest/Page'
 import PageBackgroundCanvas from '../components/PageBackgroundCanvas'
+import TechnologyMapPage from '../sidebar-menu/Awareness/Technology Map/Page'
 
 export default function Dashboard() {
   const CREDIT_PURCHASE_OPTIONS = [5, 10, 1000, 2000, 3000, 4000, 5000]
@@ -61,6 +62,7 @@ export default function Dashboard() {
 
   const isInterviewCenterActive = activeLeafLabel === 'Interview Center'
   const isQuantumQuestActive = activeLeafLabel === 'Quantum Quest'
+  const isTechnologyMapActive = activeLeafLabel === 'Technology Map'
   const workspaceTitle = activeLeafLabel || 'My Workspace'
 
   useEffect(() => {
@@ -190,7 +192,9 @@ export default function Dashboard() {
 
         {isQuantumQuestActive ? <QuantumQuestPage /> : null}
 
-        {!isInterviewCenterActive && !isQuantumQuestActive ? (
+        {isTechnologyMapActive ? <TechnologyMapPage /> : null}
+
+        {!isInterviewCenterActive && !isQuantumQuestActive && !isTechnologyMapActive ? (
           <div className="dashboard-workspace-column">
             <section className="dashboard-content-card">
               <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>
