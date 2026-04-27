@@ -163,7 +163,7 @@ export default function Dashboard() {
         onLogout={handleLogout}
       />
 
-      <section className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''} ${isQuantumQuestActive ? 'is-quantum-quest' : ''}`}>
+      <section className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''} ${isQuantumQuestActive ? 'is-quantum-quest' : ''} ${isTechnologyMapActive ? 'is-technology-map' : ''}`}>
         <PageBackgroundCanvas theme={theme} />
         <header className="dashboard-topbar">
           <div>

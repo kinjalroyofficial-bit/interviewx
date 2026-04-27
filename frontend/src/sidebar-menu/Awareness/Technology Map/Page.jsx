@@ -13,19 +13,23 @@ function collectDescendants(nodeId, childrenByParent, output) {
   })
 }
 
-
-function getNodeRadius(level) {
-  if (level === 1) return 24
-  if (level === 2) return 20
-  if (level === 3) return 17
-  return 14
+function getNodeDimensions(node) {
+  const baseHeight = node.level === 1 ? 36 : 32
+  const charWidth = node.level === 1 ? 7.6 : 6.9
+  const width = Math.max(72, node.id.length * charWidth + 22)
+  return {
+    width,
+    height: baseHeight,
+    cornerRadius: baseHeight / 2
+  }
 }
+
 export default function AwarenessTechnologyMapPage() {
   const containerRef = useRef(null)
   const svgRef = useRef(null)
   const [isD3Ready, setIsD3Ready] = useState(Boolean(window.d3))
 
-  const { nodeMap, childrenByParent, rootNodes } = useMemo(() => {
+  const { nodeMap, childrenByParent, rootNodes, rootNodeLinks } = useMemo(() => {
     const nodes = technologyMapData.nodes || []
     const nextNodeMap = new Map(nodes.map((node) => [node.id, node]))
     const nextChildrenByParent = new Map()
@@ -38,11 +42,19 @@ export default function AwarenessTechnologyMapPage() {
     })
 
     const nextRootNodes = nodes.filter((node) => Number(node.level) === 1)
+    const nextRootNodeLinks = []
+
+    for (let index = 0; index < nextRootNodes.length; index += 1) {
+      for (let offset = index + 1; offset < nextRootNodes.length; offset += 1) {
+        nextRootNodeLinks.push({ source: nextRootNodes[index].id, target: nextRootNodes[offset].id, relation: 'root-interlink' })
+      }
+    }
 
     return {
       nodeMap: nextNodeMap,
       childrenByParent: nextChildrenByParent,
-      rootNodes: nextRootNodes
+      rootNodes: nextRootNodes,
+      rootNodeLinks: nextRootNodeLinks
     }
   }, [])
 
@@ -64,12 +76,17 @@ export default function AwarenessTechnologyMapPage() {
     [visibleNodeIds, nodeMap]
   )
 
-  const visibleLinks = useMemo(
-    () => visibleNodes
+  const visibleLinks = useMemo(() => {
+    const hierarchicalLinks = visibleNodes
       .filter((node) => node.parent && visibleNodeIds.has(node.parent))
-      .map((node) => ({ source: node.parent, target: node.id })),
-    [visibleNodes, visibleNodeIds]
-  )
+      .map((node) => ({ source: node.parent, target: node.id, relation: 'hierarchy' }))
+
+    const visibleRootLinks = rootNodeLinks
+      .filter((link) => visibleNodeIds.has(link.source) && visibleNodeIds.has(link.target))
+      .map((link) => ({ ...link }))
+
+    return [...hierarchicalLinks, ...visibleRootLinks]
+  }, [visibleNodes, visibleNodeIds, rootNodeLinks])
 
   function handleNodeToggle(nodeId) {
     const directChildren = childrenByParent.get(nodeId) || []
@@ -130,28 +147,51 @@ export default function AwarenessTechnologyMapPage() {
     svg.attr('width', width).attr('height', height)
 
     const links = visibleLinks.map((link) => ({ ...link }))
-    const nodes = visibleNodes.map((node) => ({
-      ...node,
-      isExpandable: (childrenByParent.get(node.id) || []).length > 0,
-      isExpanded: expandedNodes.has(node.id)
-    }))
+    const nodes = visibleNodes.map((node) => {
+      const dimensions = getNodeDimensions(node)
+      return {
+        ...node,
+        ...dimensions,
+        isExpandable: (childrenByParent.get(node.id) || []).length > 0,
+        isExpanded: expandedNodes.has(node.id)
+      }
+    })
+
+    const zoomLayer = svg.append('g').attr('class', 'tech-map-zoom-layer')
+    const linkLayer = zoomLayer.append('g').attr('class', 'tech-map-links')
+    const nodeLayer = zoomLayer.append('g').attr('class', 'tech-map-nodes')
 
     const simulation = d3.forceSimulation(nodes)
-      .force('link', d3.forceLink(links).id((d) => d.id).distance(110).strength(0.32))
-      .force('charge', d3.forceManyBody().strength(-580))
+      .force('link', d3.forceLink(links).id((d) => d.id).distance((d) => (d.relation === 'root-interlink' ? 220 : 130)).strength((d) => (d.relation === 'root-interlink' ? 0.08 : 0.3)))
+      .force('charge', d3.forceManyBody().strength(-680))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius((d) => getNodeRadius(d.level) + 8))
+      .force('collision', d3.forceCollide().radius((d) => Math.max(34, d.width * 0.55)))
 
-    const link = svg.append('g')
-      .attr('class', 'tech-map-links')
+    const zoomBehavior = d3.zoom()
+      .scaleExtent([0.45, 2.6])
+      .on('zoom', (event) => {
+        zoomLayer.attr('transform', event.transform)
+      })
+
+    svg.call(zoomBehavior)
+
+    const link = linkLayer
       .selectAll('line')
       .data(links)
       .enter()
       .append('line')
-      .attr('stroke-width', 1.3)
+      .attr('stroke-width', (d) => (d.relation === 'root-interlink' ? 1.1 : 1.5))
+      .attr('stroke-dasharray', (d) => (d.relation === 'root-interlink' ? '4 4' : 'none'))
 
-    const node = svg.append('g')
-      .attr('class', 'tech-map-nodes')
+    function centerNode(event, nodeData) {
+      const scale = 1.05
+      const nextX = width / 2 - nodeData.x * scale
+      const nextY = height / 2 - nodeData.y * scale
+      svg.transition().duration(420).call(zoomBehavior.transform, d3.zoomIdentity.translate(nextX, nextY).scale(scale))
+      event.stopPropagation()
+    }
+
+    const node = nodeLayer
       .selectAll('g')
       .data(nodes)
       .enter()
@@ -161,6 +201,7 @@ export default function AwarenessTechnologyMapPage() {
       .on('click', (_, d) => {
         handleNodeToggle(d.id)
       })
+      .on('dblclick', centerNode)
       .call(d3.drag()
         .on('start', (event, d) => {
           if (!event.active) simulation.alphaTarget(0.3).restart()
@@ -173,39 +214,42 @@ export default function AwarenessTechnologyMapPage() {
         })
         .on('end', (event, d) => {
           if (!event.active) simulation.alphaTarget(0)
-          d.fx = null
-          d.fy = null
+
+          const clampedX = Math.max(d.width / 2 + 8, Math.min(width - d.width / 2 - 8, d.x))
+          const clampedY = Math.max(d.height / 2 + 8, Math.min(height - d.height / 2 - 8, d.y))
+
+          d.fx = clampedX
+          d.fy = clampedY
+
+          window.setTimeout(() => {
+            d.fx = null
+            d.fy = null
+          }, 140)
         }))
 
-    node.append('circle')
-      .attr('r', (d) => getNodeRadius(d.level))
+    node.append('rect')
+      .attr('x', (d) => -d.width / 2)
+      .attr('y', (d) => -d.height / 2)
+      .attr('width', (d) => d.width)
+      .attr('height', (d) => d.height)
+      .attr('rx', (d) => d.cornerRadius)
+      .attr('ry', (d) => d.cornerRadius)
       .attr('fill', (d) => {
         if (d.level === 1) return '#4f7bff'
-        if (d.level === 2) return '#3ca3d8'
-        if (d.level === 3) return '#22c1a8'
-        return '#63d471'
+        if (d.level === 2) return '#2e9ad0'
+        if (d.level === 3) return '#25b99f'
+        return '#46be6a'
       })
-      .attr('stroke', (d) => (d.isExpanded ? '#f4ff6d' : '#dce7ff'))
-      .attr('stroke-width', (d) => (d.isExpanded ? 3 : 1.4))
+      .attr('stroke', (d) => (d.isExpanded ? '#f7ff9b' : '#dce7ff'))
+      .attr('stroke-width', (d) => (d.isExpanded ? 2.4 : 1.2))
 
     node.append('text')
       .text((d) => d.id)
       .attr('text-anchor', 'middle')
-      .attr('dy', 4)
+      .attr('dy', '0.34em')
       .attr('class', 'tech-map-node-label')
 
     simulation.on('tick', () => {
-      nodes.forEach((nodeItem) => {
-        const radius = getNodeRadius(nodeItem.level)
-        const horizontalPadding = Math.max(radius + 8, Math.min(110, String(nodeItem.id || '').length * 3.2))
-        const minX = horizontalPadding
-        const maxX = width - horizontalPadding
-        const minY = radius + 8
-        const maxY = height - radius - 8
-        nodeItem.x = Math.max(minX, Math.min(maxX, nodeItem.x))
-        nodeItem.y = Math.max(minY, Math.min(maxY, nodeItem.y))
-      })
-
       link
         .attr('x1', (d) => d.source.x)
         .attr('y1', (d) => d.source.y)
@@ -222,9 +266,19 @@ export default function AwarenessTechnologyMapPage() {
 
   return (
     <section className="tech-map-wrapper">
-      <p className="tech-map-instruction">Click any node to reveal the next level. Click again to collapse its branch.</p>
       <div className="tech-map-canvas-shell" ref={containerRef}>
         <svg ref={svgRef} role="img" aria-label="Technology map visualization" />
+
+        <aside className="tech-map-tips" aria-label="Tips">
+          <h3>Tips</h3>
+          <ol>
+            <li>Pinch-zoom or scroll to zoom</li>
+            <li>Drag labels or nodes to adjust</li>
+            <li>Drag map to explore</li>
+            <li>Double-click a node to center</li>
+            <li>The map is interconnected — explore freely</li>
+          </ol>
+        </aside>
       </div>
     </section>
   )

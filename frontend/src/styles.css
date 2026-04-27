@@ -1246,30 +1246,37 @@ body,
   }
 }
 
-.tech-map-wrapper {
-  margin-top: 1.1rem;
+.dashboard-main.is-technology-map {
   display: grid;
-  gap: 0.7rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
 }
 
-.tech-map-instruction {
-  margin: 0;
-  color: #c8d7ff;
-  font-size: 0.92rem;
+.tech-map-wrapper {
+  margin-top: 0.35rem;
+  min-height: 0;
+  height: 100%;
 }
 
 .tech-map-canvas-shell {
+  position: relative;
   border: 1px solid #4e67ab73;
   border-radius: 16px;
-  min-height: 560px;
   background: #08132f88;
   overflow: hidden;
+  height: 100%;
+  min-height: 0;
 }
 
 .tech-map-canvas-shell svg {
   width: 100%;
   height: 100%;
   display: block;
+  cursor: grab;
+}
+
+.tech-map-canvas-shell svg:active {
+  cursor: grabbing;
 }
 
 .tech-map-links line {
@@ -1277,14 +1284,42 @@ body,
 }
 
 .tech-map-node-label {
-  fill: #091229;
-  font-size: 0.65rem;
+  fill: #f7fbff;
+  font-size: 0.68rem;
   font-weight: 700;
   pointer-events: none;
 }
 
-.dashboard-theme-light .tech-map-instruction {
-  color: #2f4879;
+.tech-map-tips {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: min(280px, calc(100% - 28px));
+  background: #f1f3f7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #2f323b;
+  box-shadow: 0 10px 22px rgba(4, 16, 44, 0.25);
+}
+
+.tech-map-tips h3 {
+  margin: 0 0 8px;
+  width: fit-content;
+  background: #3565bf;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.tech-map-tips ol {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 2px;
+  font-size: 0.65rem;
+  line-height: 1.35;
 }
 
 .dashboard-theme-light .tech-map-canvas-shell {
@@ -1297,5 +1332,13 @@ body,
 }
 
 .dashboard-theme-light .tech-map-node-label {
-  fill: #0d1a36;
+  fill: #f8fbff;
+}
+
+@media (max-width: 880px) {
+  .tech-map-tips {
+    position: static;
+    width: calc(100% - 24px);
+    margin: 12px;
+  }
 }
