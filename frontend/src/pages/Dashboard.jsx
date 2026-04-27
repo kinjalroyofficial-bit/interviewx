@@ -162,7 +162,7 @@ export default function Dashboard() {
       />
 
       <section className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''} ${isQuantumQuestActive ? 'is-quantum-quest' : ''}`}>
-        <PageBackgroundCanvas />
+        <PageBackgroundCanvas theme={theme} />
         <header className="dashboard-topbar">
           <div>
             <h1 className="dashboard-title">{workspaceTitle}</h1>

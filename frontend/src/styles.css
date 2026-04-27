@@ -609,6 +609,11 @@ body,
   border-right-color: #bbcae6;
 }
 
+.dashboard-theme-light .dashboard-page-background-canvas {
+  opacity: 0.34;
+  filter: saturate(0.85);
+}
+
 .dashboard-theme-light .sidebar-nav {
   scrollbar-color: #9fb4df #d4e0f7;
 }

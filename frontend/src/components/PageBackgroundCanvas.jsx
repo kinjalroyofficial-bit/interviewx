@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 function createBalls(width, height, count) {
   return Array.from({ length: count }, () => ({
@@ -10,11 +10,17 @@ function createBalls(width, height, count) {
   }))
 }
 
-export default function PageBackgroundCanvas() {
+export default function PageBackgroundCanvas({ theme = 'dark' }) {
   const canvasRef = useRef(null)
   const frameRef = useRef(0)
   const ballsRef = useRef([])
   const mouseRef = useRef({ x: 0, y: 0 })
+
+  const palette = useMemo(() => (
+    theme === 'light'
+      ? { red: 92, green: 127, blue: 255, maxAlpha: 0.52, minAlpha: 0.03, falloff: 560 }
+      : { red: 0, green: 200, blue: 255, maxAlpha: 1, minAlpha: 0.05, falloff: 400 }
+  ), [theme])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -54,10 +60,10 @@ export default function PageBackgroundCanvas() {
         const dx = ball.x - mouseRef.current.x
         const dy = ball.y - mouseRef.current.y
         const dist = Math.sqrt(dx * dx + dy * dy)
-        const alpha = Math.max(0.05, 1 - dist / 400)
+        const alpha = Math.max(palette.minAlpha, palette.maxAlpha - dist / palette.falloff)
 
         const gradient = ctx.createRadialGradient(ball.x, ball.y, 0, ball.x, ball.y, ball.r)
-        gradient.addColorStop(0, `rgba(0,200,255,${alpha})`)
+        gradient.addColorStop(0, `rgba(${palette.red},${palette.green},${palette.blue},${alpha})`)
         gradient.addColorStop(1, 'transparent')
 
         ctx.fillStyle = gradient
@@ -79,7 +85,7 @@ export default function PageBackgroundCanvas() {
       window.removeEventListener('mousemove', handleMouseMove)
       window.cancelAnimationFrame(frameRef.current)
     }
-  }, [])
+  }, [palette])
 
   return <canvas ref={canvasRef} className="dashboard-page-background-canvas" aria-hidden="true" />
 }
