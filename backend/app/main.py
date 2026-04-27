@@ -42,7 +42,7 @@ from sqlalchemy import func, text as sql_text
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
-from app.models import Coupon, InterviewSession, QQData, QuantumQuestAttempt, Transaction, User, UserProfileUpdateLog
+from app.models import Coupon, InterviewSession, QQData, QuantumQuestAttempt, Transaction, User
 from app.schemas import (
     AuthRequest,
     AuthResponse,
@@ -1652,14 +1652,6 @@ def update_user_profile(payload: UserProfileUpdateRequest, db: Session = Depends
     user.technologies_worked_on = normalize_profile_value(payload.technologies_worked_on)
     user.project_details = normalize_profile_value(payload.project_details)
 
-    profile_update_log = UserProfileUpdateLog(
-        user_id=user.id,
-        full_name=user.full_name,
-        years_of_experience=user.years_of_experience,
-        technologies_worked_on=user.technologies_worked_on,
-        project_details=user.project_details,
-    )
-    db.add(profile_update_log)
     db.commit()
     db.refresh(user)
 

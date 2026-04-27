@@ -28,18 +28,6 @@ class User(Base):
     credits = Column(Integer, nullable=False, default=0)
 
 
-class UserProfileUpdateLog(Base):
-    __tablename__ = "user_profile_update_logs"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    full_name = Column(String, nullable=True)
-    years_of_experience = Column(String, nullable=True)
-    technologies_worked_on = Column(String, nullable=True)
-    project_details = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-
-
 class InterviewSession(Base):
     __tablename__ = "interview_sessions"
 
