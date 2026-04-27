@@ -243,3 +243,31 @@ class QuantumQuestPerformanceItem(BaseModel):
 
 class QuantumQuestPerformanceResponse(BaseModel):
     attempts: list[QuantumQuestPerformanceItem] = Field(default_factory=list)
+
+
+class CareerCounsellingStartRequest(BaseModel):
+    username: str
+
+
+class CareerCounsellingStartResponse(BaseModel):
+    session_id: str
+    assistant_message: str
+
+
+class CareerCounsellingMessageRequest(BaseModel):
+    session_id: str
+    message: str
+
+
+class CareerCounsellingMessageResponse(BaseModel):
+    session_id: str
+    assistant_message: str
+
+
+class CareerCounsellingEndRequest(BaseModel):
+    session_id: str
+
+
+class CareerCounsellingEndResponse(BaseModel):
+    session_id: str
+    overview: str

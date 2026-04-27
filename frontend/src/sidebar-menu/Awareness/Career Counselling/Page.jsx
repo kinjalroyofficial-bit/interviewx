@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { getUserPreferences, updateUserPreferences } from '../../../api'
+import {
+  endCareerCounsellingSession,
+  getUserPreferences,
+  sendCareerCounsellingMessage,
+  startCareerCounsellingSession,
+  updateUserPreferences
+} from '../../../api'
 
 const LEARNING_SPEED_OPTIONS = ['slow', 'moderate', 'fast']
 const RISK_APPETITE_OPTIONS = ['low', 'medium', 'high']
@@ -46,6 +52,12 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
     interests: ''
   })
   const [status, setStatus] = useState('')
+  const [sessionId, setSessionId] = useState('')
+  const [messages, setMessages] = useState([])
+  const [chatInput, setChatInput] = useState('')
+  const [chatStatus, setChatStatus] = useState('')
+  const [overview, setOverview] = useState('')
+
   const canSave = useMemo(() => Boolean(username), [username])
 
   useEffect(() => {
@@ -68,9 +80,7 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
           interests: preferences.interests || ''
         }))
       } catch (error) {
-        if (!cancelled) {
-          setStatus(error.message || 'Unable to load preferences.')
-        }
+        if (!cancelled) setStatus(error.message || 'Unable to load preferences.')
       }
     }
 
@@ -103,13 +113,65 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
 
     setStatus('Saving...')
     try {
-      await updateUserPreferences({
-        username,
-        preferences: preferenceJson
-      })
+      await updateUserPreferences({ username, preferences: preferenceJson })
       setStatus('Preferences saved successfully.')
     } catch (error) {
       setStatus(error.message || 'Unable to save preferences.')
+    }
+  }
+
+  async function handleStartSession() {
+    if (!canSave) {
+      setChatStatus('Missing username. Please login again.')
+      return
+    }
+
+    setChatStatus('Starting session...')
+    try {
+      const payload = await startCareerCounsellingSession({ username })
+      setSessionId(payload.session_id)
+      setMessages([{ role: 'assistant', content: payload.assistant_message }])
+      setOverview('')
+      setChatStatus('Counselling session started.')
+    } catch (error) {
+      setChatStatus(error.message || 'Unable to start session.')
+    }
+  }
+
+  async function handleSendMessage() {
+    const message = chatInput.trim()
+    if (!sessionId) {
+      setChatStatus('Please start your counselling session first.')
+      return
+    }
+    if (!message) return
+
+    setMessages((prev) => [...prev, { role: 'user', content: message }])
+    setChatInput('')
+    setChatStatus('Sending...')
+
+    try {
+      const payload = await sendCareerCounsellingMessage({ session_id: sessionId, message })
+      setMessages((prev) => [...prev, { role: 'assistant', content: payload.assistant_message }])
+      setChatStatus('')
+    } catch (error) {
+      setChatStatus(error.message || 'Unable to send message.')
+    }
+  }
+
+  async function handleGenerateOverview() {
+    if (!sessionId) {
+      setChatStatus('Please start your counselling session first.')
+      return
+    }
+
+    setChatStatus('Generating career path overview...')
+    try {
+      const payload = await endCareerCounsellingSession({ session_id: sessionId })
+      setOverview(payload.overview || '')
+      setChatStatus('Overview generated.')
+    } catch (error) {
+      setChatStatus(error.message || 'Unable to generate overview.')
     }
   }
 
@@ -141,26 +203,9 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
             />
           </label>
 
-          <ToggleGroup
-            label="learning_speed"
-            options={LEARNING_SPEED_OPTIONS}
-            value={form.learning_speed}
-            onChange={(value) => updateField('learning_speed', value)}
-          />
-
-          <ToggleGroup
-            label="risk_appetite"
-            options={RISK_APPETITE_OPTIONS}
-            value={form.risk_appetite}
-            onChange={(value) => updateField('risk_appetite', value)}
-          />
-
-          <ToggleGroup
-            label="financial_urgency"
-            options={FINANCIAL_URGENCY_OPTIONS}
-            value={form.financial_urgency}
-            onChange={(value) => updateField('financial_urgency', value)}
-          />
+          <ToggleGroup label="learning_speed" options={LEARNING_SPEED_OPTIONS} value={form.learning_speed} onChange={(value) => updateField('learning_speed', value)} />
+          <ToggleGroup label="risk_appetite" options={RISK_APPETITE_OPTIONS} value={form.risk_appetite} onChange={(value) => updateField('risk_appetite', value)} />
+          <ToggleGroup label="financial_urgency" options={FINANCIAL_URGENCY_OPTIONS} value={form.financial_urgency} onChange={(value) => updateField('financial_urgency', value)} />
 
           <label className="career-counselling-field">
             <span>hours_per_week: {form.hours_per_week}</span>
@@ -191,9 +236,47 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
         </form>
       </section>
 
-      <section className="career-counselling-card">
-        <h2>Career Counselling Chatbot</h2>
-        <p>Chatbot section placeholder (to be implemented).</p>
+      <section className="career-counselling-card career-counselling-chat-layout">
+        <div className="career-counselling-chat-panel">
+          <div className="career-counselling-chat-header">
+            <h2>Career Counselling Chatbot</h2>
+            <button type="button" onClick={handleStartSession}>Start My Counselling Session</button>
+          </div>
+
+          <div className="career-counselling-chat-thread">
+            {messages.length ? messages.map((item, index) => (
+              <article key={`${item.role}-${index}`} className={`career-counselling-chat-message is-${item.role}`}>
+                <strong>{item.role === 'assistant' ? 'Counsellor' : 'You'}</strong>
+                <p>{item.content}</p>
+              </article>
+            )) : <p className="career-counselling-chat-empty">Start a session to begin your counselling chat.</p>}
+          </div>
+
+          <div className="career-counselling-chat-composer">
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(event) => setChatInput(event.target.value)}
+              placeholder="Type your response..."
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  handleSendMessage()
+                }
+              }}
+            />
+            <button type="button" onClick={handleSendMessage}>Send</button>
+            <button type="button" className="is-secondary" onClick={handleGenerateOverview}>Generate Overview</button>
+          </div>
+          {chatStatus ? <p className="career-counselling-status">{chatStatus}</p> : null}
+        </div>
+
+        <aside className="career-counselling-overview-panel">
+          <h3>Career Path Overview</h3>
+          <div className="career-counselling-overview-content">
+            {overview ? <p>{overview}</p> : <p>Overview will appear here after you click <strong>Generate Overview</strong>.</p>}
+          </div>
+        </aside>
       </section>
     </main>
   )

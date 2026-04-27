@@ -78,6 +78,12 @@ from app.schemas import (
     QuantumQuestResultItem,
     QuantumQuestSubmitRequest,
     QuantumQuestSubmitResponse,
+    CareerCounsellingStartRequest,
+    CareerCounsellingStartResponse,
+    CareerCounsellingMessageRequest,
+    CareerCounsellingMessageResponse,
+    CareerCounsellingEndRequest,
+    CareerCounsellingEndResponse,
 )
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -105,6 +111,11 @@ INTERVIEW_END_FALLBACK_PHRASES = (
     "this interview has ended",
     "end of interview",
 )
+CAREER_COUNSELLING_VECTOR_STORE_ID = os.getenv(
+    "CAREER_COUNSELLING_VECTOR_STORE_ID",
+    "vs_69ef37baa33c8191835d1939a14d85b6",
+)
+CAREER_COUNSELLING_SESSIONS: dict[str, dict] = {}
 INTERVIEW_EVALUATION_PROMPT_TEMPLATE = """You are an expert interview evaluator.
 
 Your task is to evaluate a completed interview using:
@@ -867,6 +878,35 @@ def parse_user_preferences(preference_json: str | None) -> dict:
         return parsed if isinstance(parsed, dict) else {}
     except (TypeError, json.JSONDecodeError):
         return {}
+
+
+def build_career_counselling_prompt(username: str, preferences: dict) -> str:
+    language = (preferences.get("preferred_language") or "en-US").strip()
+    serialized_preferences = json.dumps(preferences or {}, ensure_ascii=False, indent=2)
+    return (
+        "You are InterviewX Career Counsellor.\n"
+        "Your role is to guide the user through a practical counselling conversation and produce an actionable career roadmap.\n\n"
+        f"User: {username}\n"
+        f"Preferred language: {language}\n"
+        "User profile preferences JSON:\n"
+        f"{serialized_preferences}\n\n"
+        "Conversation goals:\n"
+        "1) Assess current technology knowledge level.\n"
+        "2) Clarify target role/outcome and constraints.\n"
+        "3) Ask concise, category-wise follow-ups based on prior answers.\n"
+        "4) Use retrieved file-search context when relevant.\n"
+        "5) Keep responses in the preferred language.\n"
+        "6) At session end, provide a clear career-path overview with phases, skills, and a suggested execution plan.\n"
+    )
+
+
+def get_career_counselling_tools() -> list[dict]:
+    return [
+        {
+            "type": "file_search",
+            "vector_store_ids": [CAREER_COUNSELLING_VECTOR_STORE_ID],
+        }
+    ]
 
 
 def set_last_openai_payload(payload: dict) -> None:
@@ -1692,6 +1732,117 @@ def update_user_preferences(payload: UserPreferencesUpdateRequest, db: Session =
         username=user.username,
         preferences=parse_user_preferences(user.preference_json),
     )
+
+
+@app.post("/career-counselling/session/start", response_model=CareerCounsellingStartResponse)
+def start_career_counselling_session(payload: CareerCounsellingStartRequest, db: Session = Depends(get_db)) -> CareerCounsellingStartResponse:
+    clean_username = payload.username.strip()
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    preferences = parse_user_preferences(user.preference_json)
+    session_id = f"ccs_{secrets.token_hex(8)}"
+    starter_prompt = build_career_counselling_prompt(clean_username, preferences)
+
+    response = client.responses.create(
+        model=os.getenv("OPENAI_MODEL"),
+        input=starter_prompt,
+        tools=get_career_counselling_tools(),
+    )
+    assistant_message = extract_response_text(response)
+    if not assistant_message:
+        raise HTTPException(status_code=500, detail="Empty response from model")
+
+    CAREER_COUNSELLING_SESSIONS[session_id] = {
+        "username": clean_username,
+        "preferences": preferences,
+        "last_response_id": getattr(response, "id", None),
+        "messages": [
+            {"role": "assistant", "content": assistant_message},
+        ],
+        "overview": "",
+    }
+
+    return CareerCounsellingStartResponse(
+        session_id=session_id,
+        assistant_message=assistant_message,
+    )
+
+
+@app.post("/career-counselling/session/message", response_model=CareerCounsellingMessageResponse)
+def send_career_counselling_message(payload: CareerCounsellingMessageRequest) -> CareerCounsellingMessageResponse:
+    session_id = payload.session_id.strip()
+    user_message = payload.message.strip()
+    if not session_id:
+        raise HTTPException(status_code=400, detail="session_id is required")
+    if not user_message:
+        raise HTTPException(status_code=400, detail="message is required")
+
+    session = CAREER_COUNSELLING_SESSIONS.get(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Career counselling session not found")
+
+    request_payload = {
+        "model": os.getenv("OPENAI_MODEL"),
+        "input": user_message,
+        "tools": get_career_counselling_tools(),
+    }
+    previous_response_id = session.get("last_response_id")
+    if previous_response_id:
+        request_payload["previous_response_id"] = previous_response_id
+
+    response = client.responses.create(**request_payload)
+    assistant_message = extract_response_text(response)
+    if not assistant_message:
+        raise HTTPException(status_code=500, detail="Empty response from model")
+
+    session["last_response_id"] = getattr(response, "id", None)
+    session["messages"].append({"role": "user", "content": user_message})
+    session["messages"].append({"role": "assistant", "content": assistant_message})
+
+    return CareerCounsellingMessageResponse(
+        session_id=session_id,
+        assistant_message=assistant_message,
+    )
+
+
+@app.post("/career-counselling/session/end", response_model=CareerCounsellingEndResponse)
+def end_career_counselling_session(payload: CareerCounsellingEndRequest) -> CareerCounsellingEndResponse:
+    session_id = payload.session_id.strip()
+    if not session_id:
+        raise HTTPException(status_code=400, detail="session_id is required")
+
+    session = CAREER_COUNSELLING_SESSIONS.get(session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Career counselling session not found")
+
+    messages = session.get("messages", [])
+    transcript = "\n".join(
+        f"{item.get('role', 'assistant').upper()}: {item.get('content', '')}"
+        for item in messages
+        if isinstance(item, dict)
+    )
+    preferences = session.get("preferences") or {}
+    language = (preferences.get("preferred_language") or "en-US").strip()
+
+    summary_prompt = (
+        f"Preferred language: {language}\n"
+        "Based on the counselling conversation below, provide a structured Career Path Overview.\n"
+        "Include: target role(s), strengths, gaps, 30/60/90-day roadmap, and recommended technologies.\n\n"
+        f"Conversation transcript:\n{transcript}"
+    )
+    response = client.responses.create(
+        model=os.getenv("OPENAI_MODEL"),
+        input=summary_prompt,
+        tools=get_career_counselling_tools(),
+    )
+    overview = extract_response_text(response)
+    if not overview:
+        raise HTTPException(status_code=500, detail="Unable to generate career overview")
+
+    session["overview"] = overview
+    return CareerCounsellingEndResponse(session_id=session_id, overview=overview)
 
 
 @app.post("/interview/prompt/preview", response_model=PromptPreviewResponse)
