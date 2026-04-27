@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   endCareerCounsellingSession,
   getCareerCounsellingHistory,
+  getCareerCounsellingOverview,
   getUserPreferences,
   sendCareerCounsellingMessage,
   startCareerCounsellingSession,
@@ -209,8 +210,9 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
 
     setChatStatus('Generating career path overview...')
     try {
-      const payload = await endCareerCounsellingSession({ session_id: sessionId })
-      const nextOverview = payload.overview || ''
+      await endCareerCounsellingSession({ session_id: sessionId })
+      const overviewPayload = await getCareerCounsellingOverview(sessionId)
+      const nextOverview = overviewPayload.overview || ''
       setOverview(nextOverview)
       setOverviewJson(parseOverviewPayload(nextOverview))
       try {

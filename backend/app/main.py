@@ -86,6 +86,7 @@ from app.schemas import (
     CareerCounsellingEndResponse,
     CareerCounsellingHistoryItem,
     CareerCounsellingHistoryResponse,
+    CareerCounsellingOverviewResponse,
 )
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -927,6 +928,48 @@ def parse_json_text(raw_text: str | None) -> dict | None:
         return parsed if isinstance(parsed, dict) else None
     except (TypeError, json.JSONDecodeError):
         return None
+
+
+def upsert_career_consultation_record(
+    *,
+    db: Session,
+    session_id: str,
+    username: str,
+    preferences: dict,
+    messages: list[dict],
+    overview_text: str,
+) -> bool:
+    clean_username = (username or "").strip()
+    if not clean_username:
+        return False
+
+    user = db.query(User).filter(User.username == clean_username).first()
+    if user is None:
+        return False
+
+    transcript_payload = {"messages": messages}
+    preferences_payload = preferences if isinstance(preferences, dict) else {}
+    parsed_overview = parse_json_text(overview_text)
+    normalized_overview = json.dumps(parsed_overview, ensure_ascii=False) if parsed_overview else (overview_text or "")
+
+    consultation = (
+        db.query(CareerCounsellingConsultation)
+        .filter(CareerCounsellingConsultation.session_id == session_id)
+        .first()
+    )
+    if consultation is None:
+        consultation = CareerCounsellingConsultation(
+            session_id=session_id,
+            user_id=user.id,
+            username=user.username,
+        )
+        db.add(consultation)
+
+    consultation.preferences_json = json.dumps(preferences_payload, ensure_ascii=False)
+    consultation.transcript_json = json.dumps(transcript_payload, ensure_ascii=False)
+    consultation.overview_json = normalized_overview
+    db.commit()
+    return True
 
 
 def build_career_counselling_prompt(username: str, preferences: dict) -> str:
@@ -1881,7 +1924,7 @@ def start_career_counselling_session(payload: CareerCounsellingStartRequest, db:
 
 
 @app.post("/career-counselling/session/message", response_model=CareerCounsellingMessageResponse)
-def send_career_counselling_message(payload: CareerCounsellingMessageRequest) -> CareerCounsellingMessageResponse:
+def send_career_counselling_message(payload: CareerCounsellingMessageRequest, db: Session = Depends(get_db)) -> CareerCounsellingMessageResponse:
     session_id = payload.session_id.strip()
     user_message = payload.message.strip()
     if not session_id:
@@ -1910,6 +1953,16 @@ def send_career_counselling_message(payload: CareerCounsellingMessageRequest) ->
     session["last_response_id"] = getattr(response, "id", None)
     session["messages"].append({"role": "user", "content": user_message})
     session["messages"].append({"role": "assistant", "content": assistant_message})
+    parsed_assistant_payload = parse_json_text(assistant_message)
+    if parsed_assistant_payload and parsed_assistant_payload.get("user_confirmation") is True:
+        upsert_career_consultation_record(
+            db=db,
+            session_id=session_id,
+            username=session.get("username", ""),
+            preferences=session.get("preferences") or {},
+            messages=session.get("messages") or [],
+            overview_text=assistant_message,
+        )
 
     return CareerCounsellingMessageResponse(
         session_id=session_id,
@@ -1974,31 +2027,14 @@ def end_career_counselling_session(payload: CareerCounsellingEndRequest, db: Ses
     if not overview:
         raise HTTPException(status_code=500, detail="Unable to generate career overview")
 
-    username = (session.get("username") or "").strip()
-    user = db.query(User).filter(User.username == username).first()
-    if user:
-        transcript_payload = {"messages": messages}
-        preferences_payload = preferences if isinstance(preferences, dict) else {}
-        parsed_overview = parse_json_text(overview)
-        normalized_overview = json.dumps(parsed_overview, ensure_ascii=False) if parsed_overview else overview
-
-        consultation = (
-            db.query(CareerCounsellingConsultation)
-            .filter(CareerCounsellingConsultation.session_id == session_id)
-            .first()
-        )
-        if consultation is None:
-            consultation = CareerCounsellingConsultation(
-                session_id=session_id,
-                user_id=user.id,
-                username=user.username,
-            )
-            db.add(consultation)
-
-        consultation.preferences_json = json.dumps(preferences_payload, ensure_ascii=False)
-        consultation.transcript_json = json.dumps(transcript_payload, ensure_ascii=False)
-        consultation.overview_json = normalized_overview
-        db.commit()
+    upsert_career_consultation_record(
+        db=db,
+        session_id=session_id,
+        username=session.get("username", ""),
+        preferences=preferences,
+        messages=messages,
+        overview_text=overview,
+    )
 
     session["overview"] = overview
     return CareerCounsellingEndResponse(session_id=session_id, overview=overview)
@@ -2032,6 +2068,26 @@ def get_career_counselling_history(username: str, db: Session = Depends(get_db))
             )
             for item in consultations
         ]
+    )
+
+
+@app.get("/career-counselling/session/{session_id}/overview", response_model=CareerCounsellingOverviewResponse)
+def get_career_counselling_overview(session_id: str, db: Session = Depends(get_db)) -> CareerCounsellingOverviewResponse:
+    clean_session_id = session_id.strip()
+    if not clean_session_id:
+        raise HTTPException(status_code=400, detail="session_id is required")
+
+    consultation = (
+        db.query(CareerCounsellingConsultation)
+        .filter(CareerCounsellingConsultation.session_id == clean_session_id)
+        .first()
+    )
+    if consultation is None:
+        raise HTTPException(status_code=404, detail="Counselling overview not found")
+
+    return CareerCounsellingOverviewResponse(
+        session_id=consultation.session_id,
+        overview=consultation.overview_json or "",
     )
 
 

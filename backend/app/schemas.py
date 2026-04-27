@@ -283,3 +283,8 @@ class CareerCounsellingHistoryItem(BaseModel):
 
 class CareerCounsellingHistoryResponse(BaseModel):
     consultations: list[CareerCounsellingHistoryItem] = Field(default_factory=list)
+
+
+class CareerCounsellingOverviewResponse(BaseModel):
+    session_id: str
+    overview: str

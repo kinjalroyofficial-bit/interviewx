@@ -1370,6 +1370,8 @@ body,
   padding: 1rem;
   color: #e7f2ff;
   min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 .career-counselling-preferences-card {
@@ -1398,6 +1400,7 @@ body,
   display: grid;
   gap: 0.4rem;
   overflow: auto;
+  min-height: 0;
 }
 
 .career-counselling-history-item {
@@ -1526,6 +1529,7 @@ body,
   display: grid;
   gap: 0.6rem;
   grid-template-rows: auto minmax(0, 1fr) auto auto;
+  height: 100%;
 }
 
 .career-counselling-chat-header {
@@ -1607,6 +1611,7 @@ body,
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   gap: 0.5rem;
+  height: 100%;
 }
 
 .career-counselling-overview-panel h3 {

@@ -158,6 +158,17 @@ export async function getCareerCounsellingHistory(username) {
   return response.json()
 }
 
+export async function getCareerCounsellingOverview(sessionId) {
+  const response = await fetch(`${API_BASE_URL}/career-counselling/session/${encodeURIComponent(sessionId)}/overview`)
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to fetch counselling overview (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
+
 export async function previewInterviewPrompt(payload) {
   const response = await fetch(`${API_BASE_URL}/interview/prompt/preview`, {
     method: 'POST',
