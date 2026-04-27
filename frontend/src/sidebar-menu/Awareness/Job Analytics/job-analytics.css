@@ -1,0 +1,226 @@
+.job-analytics-page {
+  display: grid;
+  gap: 1rem;
+  color: #ebefff;
+}
+
+.ja-header {
+  background: linear-gradient(120deg, #1d2a53 0%, #141f3e 55%, #0f172e 100%);
+  border: 1px solid #95a8ff33;
+  border-radius: 16px;
+  padding: 1.1rem 1.2rem;
+}
+
+.ja-header h1 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.ja-header p {
+  margin: 0.55rem 0 0;
+  color: #d5defc;
+}
+
+.ja-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.ja-kpi-card,
+.ja-card {
+  border-radius: 14px;
+  border: 1px solid #8ea0d633;
+  background: #101b38;
+}
+
+.ja-kpi-card {
+  padding: 0.9rem 1rem;
+}
+
+.ja-kpi-card h2 {
+  margin: 0;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #a9b9ea;
+}
+
+.ja-kpi-card strong {
+  display: block;
+  margin-top: 0.55rem;
+  font-size: 1.05rem;
+}
+
+.ja-kpi-card p {
+  margin: 0.35rem 0 0;
+  color: #cad6fb;
+}
+
+.ja-card {
+  padding: 0.95rem 1rem;
+}
+
+.ja-card-heading h2 {
+  margin: 0;
+  font-size: 1.03rem;
+}
+
+.ja-card-heading p {
+  margin: 0.45rem 0 0;
+  color: #c7d3f7;
+}
+
+.ja-legend {
+  display: flex;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+  color: #d7e1ff;
+}
+
+.ja-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.ja-legend i {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.ja-trend-table {
+  margin-top: 0.65rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.ja-trend-row {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: 130px repeat(3, minmax(0, 1fr));
+  align-items: center;
+}
+
+.ja-tech-name {
+  font-size: 0.9rem;
+  color: #deebff;
+}
+
+.ja-bar-wrap {
+  position: relative;
+  background: #192443;
+  border-radius: 9px;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.ja-bar {
+  height: 100%;
+  opacity: 0.85;
+  min-width: 5%;
+}
+
+.ja-bar-wrap span {
+  position: absolute;
+  right: 0.45rem;
+  font-size: 0.75rem;
+  color: #f7f9ff;
+}
+
+.ja-company-grid,
+.ja-geo-grid,
+.ja-momentum-list {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.ja-company-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.ja-company-card,
+.ja-geo-card,
+.ja-momentum-row {
+  border: 1px solid #8396d430;
+  background: #141f3f;
+  border-radius: 12px;
+  padding: 0.72rem;
+}
+
+.ja-company-card h3,
+.ja-geo-card h3,
+.ja-momentum-row h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.ja-company-card p,
+.ja-geo-card p,
+.ja-momentum-row p {
+  margin: 0.4rem 0 0;
+  color: #cad6fc;
+  font-size: 0.85rem;
+}
+
+.ja-geo-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.ja-mini-table {
+  margin-top: 0.6rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ja-mini-table > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #8ea5e824;
+  padding-top: 0.35rem;
+  font-size: 0.84rem;
+}
+
+.ja-momentum-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ja-momentum-row strong {
+  font-size: 1.1rem;
+  color: #83d5ff;
+}
+
+@media (max-width: 1200px) {
+  .ja-kpi-grid,
+  .ja-company-grid,
+  .ja-geo-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ja-trend-row {
+    grid-template-columns: 115px repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .ja-kpi-grid,
+  .ja-company-grid,
+  .ja-geo-grid,
+  .ja-trend-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ja-trend-row {
+    padding: 0.35rem;
+    border: 1px solid #8ea4dd21;
+    border-radius: 10px;
+  }
+}
