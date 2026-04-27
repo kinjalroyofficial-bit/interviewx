@@ -18,7 +18,7 @@ function GroupedJobsByTechChart({ data, selectedTech, selectedYears }) {
     if (!ref.current || !selectedTech.length || !selectedYears.length) return
 
     const width = 930
-    const height = 390
+    const height = 320
     const margin = { top: 26, right: 22, bottom: 80, left: 62 }
 
     const rows = selectedTech
@@ -81,7 +81,7 @@ function GroupedSalaryByTechChart({ data, selectedTech }) {
     if (!ref.current || !selectedTech.length) return
 
     const width = 930
-    const height = 390
+    const height = 320
     const margin = { top: 26, right: 22, bottom: 80, left: 58 }
 
     const keys = ['fresher_avg_lpa', 'intermediate_avg_lpa', 'senior_avg_lpa']
@@ -147,7 +147,7 @@ function CompanyRolesLineChart({ company, data, selectedRoles }) {
     if (!ref.current || !selectedRoles.length) return
 
     const width = 930
-    const height = 390
+    const height = 320
     const margin = { top: 26, right: 22, bottom: 68, left: 58 }
     const palette = d3.scaleOrdinal().domain(selectedRoles).range(['#818cf8', '#2dd4bf', '#f59e0b', '#f87171', '#a78bfa', '#60a5fa'])
 
@@ -221,7 +221,7 @@ function GeoDiversificationChart({ records }) {
     if (!ref.current || !records.length) return
 
     const width = 930
-    const height = 390
+    const height = 320
     const margin = { top: 26, right: 22, bottom: 80, left: 60 }
     const keys = ['Software Engineer', 'Data Engineer', 'Data Scientist']
 
@@ -303,8 +303,6 @@ export default function AwarenessJobAnalyticsPage() {
 
   return (
     <main className="job-analytics-page">
-      <p className="ja-subtitle">Interactive D3 analytics for demand, salaries, companies, and geo diversification.</p>
-
       <div className="ja-tabs" role="tablist" aria-label="Job analytics tabs">
         <button type="button" className={activeTab === TAB_KEYS[0] ? 'is-active' : ''} onClick={() => setActiveTab(TAB_KEYS[0])}>Jobs by Tech</button>
         <button type="button" className={activeTab === TAB_KEYS[1] ? 'is-active' : ''} onClick={() => setActiveTab(TAB_KEYS[1])}>Salary by Tech</button>
@@ -316,7 +314,7 @@ export default function AwarenessJobAnalyticsPage() {
         <section className="ja-card">
           <h2>Jobs by Tech (Grouped Bars)</h2>
           <div className="ja-controls">
-            <fieldset>
+            <fieldset className="ja-years-fieldset">
               <legend>Years</legend>
               <div className="ja-options ja-options--inline">
                 {YEARS.map((year) => (
@@ -324,7 +322,7 @@ export default function AwarenessJobAnalyticsPage() {
                 ))}
               </div>
             </fieldset>
-            <fieldset>
+            <fieldset className="ja-tech-fieldset">
               <legend>Technologies</legend>
               <div className="ja-options">
                 {techList.map((tech) => (
