@@ -1,151 +1,155 @@
 .job-analytics-page {
   display: grid;
-  gap: 1rem;
-  color: #e8eeff;
+  gap: 0.9rem;
+  color: #eaf0ff;
 }
 
 .ja-subtitle {
   margin: 0;
-  padding: 0.85rem 0.2rem 0.15rem;
-  color: #ccd9ff;
-  font-size: 1.08rem;
+  color: #cedafc;
+  font-size: 1.02rem;
+}
+
+.ja-tabs {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.ja-tabs button {
+  border: 1px solid #90a5dc5a;
+  background: #14224a;
+  color: #dee8ff;
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+}
+
+.ja-tabs button.is-active {
+  background: #2a3f73;
+  border-color: #9eb3ec;
 }
 
 .ja-card {
-  border: 1px solid #8fa4df30;
-  background: #0f1a38;
+  border: 1px solid #94aae13b;
+  background: #101c3d;
   border-radius: 14px;
-  padding: 1rem;
+  padding: 0.95rem;
 }
 
 .ja-card h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.06rem;
 }
 
-.ja-desc {
-  margin: 0.45rem 0 0;
-  color: #c2d0f7;
-}
-
-.ja-control-row {
-  margin-top: 0.8rem;
+.ja-controls {
+  margin-top: 0.75rem;
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(300px, 2fr);
-  gap: 0.8rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
-.ja-control-group {
-  margin: 0;
-  border: 1px solid #95abe73a;
-  border-radius: 12px;
-  padding: 0.6rem 0.72rem 0.72rem;
+.ja-card fieldset {
+  margin: 0.75rem 0 0;
+  border: 1px solid #90a5dc3d;
+  border-radius: 11px;
+  padding: 0.6rem 0.68rem;
 }
 
-.ja-control-group legend {
-  padding: 0 0.4rem;
-  color: #f0f4ff;
+.ja-card legend {
+  padding: 0 0.35rem;
+  color: #eef3ff;
   font-weight: 600;
 }
 
-.ja-check-grid,
-.ja-radio-grid {
+.ja-options {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.38rem 0.7rem;
+  gap: 0.4rem 0.7rem;
   max-height: 180px;
   overflow: auto;
-  padding-right: 0.35rem;
 }
 
-.ja-check-grid--compact {
+.ja-options--inline {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.ja-check-grid label,
-.ja-radio-grid label {
+.ja-options label {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.38rem;
+  color: #dbe6ff;
   font-size: 0.9rem;
-  color: #d9e4ff;
 }
 
-.ja-check-grid input,
-.ja-radio-grid input {
-  accent-color: #91a8ff;
+.ja-options input {
+  accent-color: #93aaf0;
 }
 
-.ja-action-row {
+.ja-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.45rem;
   margin-bottom: 0.55rem;
 }
 
-.ja-action-row button {
-  border: 1px solid #8ca2de6a;
-  background: #19284e;
-  color: #e8efff;
+.ja-actions button {
+  border: 1px solid #90a5dc5a;
+  background: #1b2c59;
+  color: #ebf1ff;
   border-radius: 8px;
-  padding: 0.35rem 0.65rem;
+  padding: 0.35rem 0.62rem;
   cursor: pointer;
 }
 
 .ja-legend {
-  margin-top: 0.8rem;
+  margin-top: 0.7rem;
   display: flex;
-  gap: 0.55rem 0.8rem;
   flex-wrap: wrap;
+  gap: 0.55rem 0.8rem;
 }
 
 .ja-legend span {
   display: inline-flex;
   align-items: center;
-  gap: 0.36rem;
-  font-size: 0.84rem;
-  color: #d7e4ff;
+  gap: 0.35rem;
+  font-size: 0.86rem;
 }
 
 .ja-legend i {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
   display: inline-block;
 }
 
-.ja-svg-chart {
-  margin-top: 0.7rem;
+.ja-svg {
   width: 100%;
-  min-height: 320px;
-  background: #122046;
-  border: 1px solid #8da4e033;
+  min-height: 330px;
+  margin-top: 0.7rem;
+  background: #122247;
+  border: 1px solid #95abe639;
   border-radius: 12px;
 }
 
 .ja-empty {
-  margin: 0.8rem 0 0;
-  color: #f6bfcb;
-}
-
-.ja-company-box {
-  min-height: 160px;
+  margin: 0.75rem 0 0;
+  color: #ffc8d3;
 }
 
 @media (max-width: 960px) {
-  .ja-control-row {
+  .ja-controls {
     grid-template-columns: 1fr;
   }
 
-  .ja-check-grid,
-  .ja-radio-grid {
+  .ja-options,
+  .ja-options--inline {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px) {
-  .ja-check-grid,
-  .ja-radio-grid,
-  .ja-check-grid--compact {
+  .ja-options,
+  .ja-options--inline {
     grid-template-columns: 1fr;
   }
 }
