@@ -313,7 +313,7 @@ export default function AwarenessJobAnalyticsPage() {
       {activeTab === 'jobs' ? (
         <section className="ja-card">
           <h2>Jobs by Tech (Grouped Bars)</h2>
-          <div className="ja-controls">
+          <div className="ja-controls ja-controls--jobs">
             <fieldset className="ja-years-fieldset">
               <legend>Years</legend>
               <div className="ja-options ja-options--inline">
@@ -347,7 +347,7 @@ export default function AwarenessJobAnalyticsPage() {
               <button type="button" onClick={() => setSelectedSalaryTech(salaryTechData.map((item) => item.technology))}>Select All</button>
               <button type="button" onClick={() => setSelectedSalaryTech([])}>Clear</button>
             </div>
-            <div className="ja-options">
+            <div className="ja-options ja-options--salary-tech">
               {salaryTechData.map((row) => (
                 <label key={row.technology}><input type="checkbox" checked={selectedSalaryTech.includes(row.technology)} onChange={() => toggle(row.technology, setSelectedSalaryTech)} />{row.technology}</label>
               ))}
@@ -365,7 +365,7 @@ export default function AwarenessJobAnalyticsPage() {
       {activeTab === 'companies' ? (
         <section className="ja-card">
           <h2>Companies (Role Salary Trends)</h2>
-          <div className="ja-controls">
+          <div className="ja-controls ja-controls--equal">
             <fieldset>
               <legend>Company</legend>
               <div className="ja-options ja-options--inline">

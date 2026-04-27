@@ -39,8 +39,16 @@
 .ja-controls {
   margin-top: 0.75rem;
   display: grid;
-  grid-template-columns: 180px minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+}
+
+.ja-controls--jobs {
+  grid-template-columns: 180px minmax(0, 1fr);
+}
+
+.ja-controls--equal {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .ja-card fieldset {
@@ -134,7 +142,11 @@
 }
 
 .ja-tech-fieldset .ja-options {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ja-options--salary-tech {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .ja-empty {
