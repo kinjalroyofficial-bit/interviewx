@@ -1300,6 +1300,12 @@ body,
   padding: 10px 12px;
   color: #2f323b;
   box-shadow: 0 10px 22px rgba(4, 16, 44, 0.25);
+  cursor: grab;
+  user-select: none;
+}
+
+.tech-map-tips:active {
+  cursor: grabbing;
 }
 
 .tech-map-tips h3 {

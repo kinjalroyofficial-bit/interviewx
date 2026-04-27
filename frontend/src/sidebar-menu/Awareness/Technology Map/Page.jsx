@@ -30,6 +30,9 @@ export default function AwarenessTechnologyMapPage() {
   const zoomStateRef = useRef({ x: 0, y: 0, k: 1 })
   const nodePositionsRef = useRef(new Map())
   const [isD3Ready, setIsD3Ready] = useState(Boolean(window.d3))
+  const [tipsPosition, setTipsPosition] = useState({ x: 14, y: 14 })
+  const [isDraggingTips, setIsDraggingTips] = useState(false)
+  const tipsDragOffsetRef = useRef({ x: 0, y: 0 })
 
   const { nodeMap, childrenByParent, rootNodes, rootNodeLinks } = useMemo(() => {
     const nodes = technologyMapData.nodes || []
@@ -134,6 +137,42 @@ export default function AwarenessTechnologyMapPage() {
 
     return undefined
   }, [])
+
+
+  useEffect(() => {
+    if (!isDraggingTips) return undefined
+
+    function handleMouseMove(event) {
+      const bounds = containerRef.current?.getBoundingClientRect()
+      const maxX = Math.max(8, (bounds?.width || 0) - 200)
+      const maxY = Math.max(8, (bounds?.height || 0) - 160)
+      const nextX = Math.max(8, Math.min(maxX, event.clientX - (bounds?.left || 0) - tipsDragOffsetRef.current.x))
+      const nextY = Math.max(8, Math.min(maxY, event.clientY - (bounds?.top || 0) - tipsDragOffsetRef.current.y))
+      setTipsPosition({ x: nextX, y: nextY })
+    }
+
+    function handleMouseUp() {
+      setIsDraggingTips(false)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isDraggingTips])
+
+  function handleTipsMouseDown(event) {
+    const tipsBounds = event.currentTarget.getBoundingClientRect()
+    tipsDragOffsetRef.current = {
+      x: event.clientX - tipsBounds.left,
+      y: event.clientY - tipsBounds.top
+    }
+    setIsDraggingTips(true)
+    event.preventDefault()
+  }
 
   useEffect(() => {
     if (!isD3Ready || !window.d3 || !containerRef.current || !svgRef.current) return undefined
@@ -242,11 +281,6 @@ export default function AwarenessTechnologyMapPage() {
 
           d.fx = clampedX
           d.fy = clampedY
-
-          window.setTimeout(() => {
-            d.fx = null
-            d.fy = null
-          }, 140)
         }))
 
     node.append('rect')
@@ -311,7 +345,12 @@ export default function AwarenessTechnologyMapPage() {
       <div className="tech-map-canvas-shell" ref={containerRef}>
         <svg ref={svgRef} role="img" aria-label="Technology map visualization" />
 
-        <aside className="tech-map-tips" aria-label="Tips">
+        <aside
+          className="tech-map-tips"
+          aria-label="Tips"
+          style={{ left: `${tipsPosition.x}px`, top: `${tipsPosition.y}px` }}
+          onMouseDown={handleTipsMouseDown}
+        >
           <h3>Tips</h3>
           <ol>
             <li>Pinch-zoom or scroll to zoom</li>
