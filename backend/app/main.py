@@ -95,6 +95,7 @@ logger = logging.getLogger("interviewx.auth")
 SIGNUP_CREDIT_BONUS = 1000
 TEXT_CREDIT_RATE_PER_SECOND = float(os.getenv("TEXT_CREDIT_RATE_PER_SECOND", "0.5"))
 VOICE_CREDIT_RATE_PER_SECOND = float(os.getenv("VOICE_CREDIT_RATE_PER_SECOND", "1.5"))
+COUNSEL_CREDIT_RATE_PER_SECOND = float(os.getenv("COUNSEL_CREDIT_RATE_PER_SECOND", "1.2"))
 PHONEPE_BASE_URL = os.getenv("PHONEPE_BASE_URL", "https://api.phonepe.com/apis/hermes")
 PHONEPE_MERCHANT_ID = os.getenv("PHONEPE_MERCHANT_ID", "")
 PHONEPE_API_KEY = os.getenv("PHONEPE_API_KEY", "")
@@ -1304,6 +1305,47 @@ def apply_credit_deduction_for_session(
     )
 
 
+def calculate_career_counselling_credit_deduction(started_at: datetime | None, ended_at: datetime | None) -> int:
+    if not started_at or not ended_at:
+        return 0
+    duration_seconds = max(0.0, (ended_at - started_at).total_seconds())
+    raw_deduction = duration_seconds * COUNSEL_CREDIT_RATE_PER_SECOND
+    return max(0, int(math.floor(raw_deduction)))
+
+
+def apply_career_counselling_credit_deduction(
+    db: Session,
+    *,
+    username: str,
+    started_at: datetime | None,
+    ended_at: datetime | None,
+    session_id: str,
+) -> None:
+    clean_username = (username or "").strip()
+    if not clean_username:
+        return
+
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        return
+
+    deduction = calculate_career_counselling_credit_deduction(started_at, ended_at)
+    current_credits = user.credits or 0
+    updated_credits = max(0, current_credits - deduction)
+    user.credits = updated_credits
+    db.commit()
+    print_interview_trace(
+        "career_counselling.credit_deduction_applied",
+        session_id=session_id,
+        username=clean_username,
+        duration_seconds=(max(0.0, (ended_at - started_at).total_seconds()) if started_at and ended_at else 0.0),
+        deduction=deduction,
+        previous_credits=current_credits,
+        updated_credits=updated_credits,
+        rate_per_second=COUNSEL_CREDIT_RATE_PER_SECOND,
+    )
+
+
 def load_session_transcript_turns(session: InterviewSession) -> list[dict]:
     if not session.transcript_json:
         return []
@@ -1911,6 +1953,8 @@ def start_career_counselling_session(payload: CareerCounsellingStartRequest, db:
         "username": clean_username,
         "preferences": preferences,
         "last_response_id": getattr(response, "id", None),
+        "started_at": datetime.now(timezone.utc),
+        "credits_deducted": False,
         "messages": [
             {"role": "assistant", "content": assistant_message},
         ],
@@ -2035,6 +2079,15 @@ def end_career_counselling_session(payload: CareerCounsellingEndRequest, db: Ses
         messages=messages,
         overview_text=overview,
     )
+    if not session.get("credits_deducted"):
+        apply_career_counselling_credit_deduction(
+            db=db,
+            username=session.get("username", ""),
+            started_at=session.get("started_at"),
+            ended_at=datetime.now(timezone.utc),
+            session_id=session_id,
+        )
+        session["credits_deducted"] = True
 
     session["overview"] = overview
     return CareerCounsellingEndResponse(session_id=session_id, overview=overview)
