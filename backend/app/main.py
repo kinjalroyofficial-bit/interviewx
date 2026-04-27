@@ -1746,7 +1746,7 @@ def start_career_counselling_session(payload: CareerCounsellingStartRequest, db:
     starter_prompt = build_career_counselling_prompt(clean_username, preferences)
 
     response = client.responses.create(
-        model=os.getenv("OPENAI_MODEL"),
+        model=os.getenv("OPENAI_MODEL_COUNSELOR"),
         input=starter_prompt,
         tools=get_career_counselling_tools(),
     )
