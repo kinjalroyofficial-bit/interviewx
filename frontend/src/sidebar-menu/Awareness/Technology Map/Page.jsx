@@ -14,9 +14,9 @@ function collectDescendants(nodeId, childrenByParent, output) {
 }
 
 function getNodeDimensions(node) {
-  const baseHeight = node.level === 1 ? 36 : 32
-  const charWidth = node.level === 1 ? 7.6 : 6.9
-  const width = Math.max(72, node.id.length * charWidth + 22)
+  const baseHeight = node.level === 1 ? 32 : 28
+  const charWidth = node.level === 1 ? 7.1 : 6.5
+  const width = Math.max(58, node.id.length * charWidth + 14)
   return {
     width,
     height: baseHeight,
@@ -27,6 +27,7 @@ function getNodeDimensions(node) {
 export default function AwarenessTechnologyMapPage() {
   const containerRef = useRef(null)
   const svgRef = useRef(null)
+  const zoomStateRef = useRef({ x: 0, y: 0, k: 1 })
   const [isD3Ready, setIsD3Ready] = useState(Boolean(window.d3))
 
   const { nodeMap, childrenByParent, rootNodes, rootNodeLinks } = useMemo(() => {
@@ -171,9 +172,14 @@ export default function AwarenessTechnologyMapPage() {
       .scaleExtent([0.45, 2.6])
       .on('zoom', (event) => {
         zoomLayer.attr('transform', event.transform)
+        zoomStateRef.current = { x: event.transform.x, y: event.transform.y, k: event.transform.k }
       })
 
     svg.call(zoomBehavior)
+
+    const savedZoom = zoomStateRef.current
+    const initialTransform = d3.zoomIdentity.translate(savedZoom.x, savedZoom.y).scale(savedZoom.k)
+    svg.call(zoomBehavior.transform, initialTransform)
 
     const link = linkLayer
       .selectAll('line')
