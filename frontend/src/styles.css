@@ -1357,7 +1357,7 @@ body,
   gap: 1rem;
   padding: 1rem;
   align-items: stretch;
-  height: calc(100vh - 92px);
+  height: calc(100vh - 65px);
   overflow: hidden;
   font-size: 0.92rem;
 }

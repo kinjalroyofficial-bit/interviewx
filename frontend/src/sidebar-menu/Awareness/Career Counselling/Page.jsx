@@ -43,7 +43,7 @@ function ToggleGroup({ label, options, value, onChange }) {
   )
 }
 
-export default function AwarenessCareerCounsellingPage({ username = '' }) {
+export default function AwarenessCareerCounsellingPage({ username = '', onCreditsUpdated = () => {} }) {
   const [form, setForm] = useState({
     previous_tech_related_skill: '',
     preferred_language: 'en-US',
@@ -211,6 +211,7 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
     setChatStatus('Generating career path overview...')
     try {
       await endCareerCounsellingSession({ session_id: sessionId })
+      await onCreditsUpdated()
       const overviewPayload = await getCareerCounsellingOverview(sessionId)
       const nextOverview = overviewPayload.overview || ''
       setOverview(nextOverview)

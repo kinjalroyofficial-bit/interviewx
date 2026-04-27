@@ -195,7 +195,12 @@ export default function Dashboard() {
         {isQuantumQuestActive ? <QuantumQuestPage /> : null}
 
         {isTechnologyMapActive ? <TechnologyMapPage /> : null}
-        {isCareerCounsellingActive ? <CareerCounsellingPage username={currentUser || ''} /> : null}
+        {isCareerCounsellingActive ? (
+          <CareerCounsellingPage
+            username={currentUser || ''}
+            onCreditsUpdated={() => refreshCreditsForUser(currentUser)}
+          />
+        ) : null}
 
         {!isInterviewCenterActive && !isQuantumQuestActive && !isTechnologyMapActive && !isCareerCounsellingActive ? (
           <div className="dashboard-workspace-column">
