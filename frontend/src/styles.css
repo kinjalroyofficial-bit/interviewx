@@ -200,6 +200,23 @@ body,
   padding: 1.15rem 1.3rem;
   min-height: 100vh;
   overflow: auto;
+  position: relative;
+  isolation: isolate;
+}
+
+.dashboard-page-background-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.dashboard-main > *:not(.dashboard-page-background-canvas) {
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-main > .dashboard-topbar {

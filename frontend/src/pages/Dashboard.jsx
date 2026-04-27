@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar'
 import { sidebarMenu } from '../config/sidebarMenu'
 import InterviewCenterPage from '../sidebar-menu/Interview Center/Page'
 import QuantumQuestPage from '../sidebar-menu/Quantum Quest/Page'
+import PageBackgroundCanvas from '../components/PageBackgroundCanvas'
 
 export default function Dashboard() {
   const CREDIT_PURCHASE_OPTIONS = [5, 10, 1000, 2000, 3000, 4000, 5000]
@@ -161,6 +162,7 @@ export default function Dashboard() {
       />
 
       <section className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''} ${isQuantumQuestActive ? 'is-quantum-quest' : ''}`}>
+        <PageBackgroundCanvas />
         <header className="dashboard-topbar">
           <div>
             <h1 className="dashboard-title">{workspaceTitle}</h1>
