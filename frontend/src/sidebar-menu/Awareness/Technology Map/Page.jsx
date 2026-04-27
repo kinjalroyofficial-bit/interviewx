@@ -13,6 +13,13 @@ function collectDescendants(nodeId, childrenByParent, output) {
   })
 }
 
+
+function getNodeRadius(level) {
+  if (level === 1) return 24
+  if (level === 2) return 20
+  if (level === 3) return 17
+  return 14
+}
 export default function AwarenessTechnologyMapPage() {
   const containerRef = useRef(null)
   const svgRef = useRef(null)
@@ -133,7 +140,7 @@ export default function AwarenessTechnologyMapPage() {
       .force('link', d3.forceLink(links).id((d) => d.id).distance(110).strength(0.32))
       .force('charge', d3.forceManyBody().strength(-580))
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius((d) => Math.max(28, 34 - d.level * 3)))
+      .force('collision', d3.forceCollide().radius((d) => getNodeRadius(d.level) + 8))
 
     const link = svg.append('g')
       .attr('class', 'tech-map-links')
@@ -171,12 +178,7 @@ export default function AwarenessTechnologyMapPage() {
         }))
 
     node.append('circle')
-      .attr('r', (d) => {
-        if (d.level === 1) return 30
-        if (d.level === 2) return 25
-        if (d.level === 3) return 21
-        return 18
-      })
+      .attr('r', (d) => getNodeRadius(d.level))
       .attr('fill', (d) => {
         if (d.level === 1) return '#4f7bff'
         if (d.level === 2) return '#3ca3d8'
@@ -193,6 +195,17 @@ export default function AwarenessTechnologyMapPage() {
       .attr('class', 'tech-map-node-label')
 
     simulation.on('tick', () => {
+      nodes.forEach((nodeItem) => {
+        const radius = getNodeRadius(nodeItem.level)
+        const horizontalPadding = Math.max(radius + 8, Math.min(110, String(nodeItem.id || '').length * 3.2))
+        const minX = horizontalPadding
+        const maxX = width - horizontalPadding
+        const minY = radius + 8
+        const maxY = height - radius - 8
+        nodeItem.x = Math.max(minX, Math.min(maxX, nodeItem.x))
+        nodeItem.y = Math.max(minY, Math.min(maxY, nodeItem.y))
+      })
+
       link
         .attr('x1', (d) => d.source.x)
         .attr('y1', (d) => d.source.y)
