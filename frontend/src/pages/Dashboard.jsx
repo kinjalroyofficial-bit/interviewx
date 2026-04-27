@@ -7,6 +7,7 @@ import QuantumQuestPage from '../sidebar-menu/Quantum Quest/Page'
 import PageBackgroundCanvas from '../components/PageBackgroundCanvas'
 import TechnologyMapPage from '../sidebar-menu/Awareness/Technology Map/Page'
 import CareerCounsellingPage from '../sidebar-menu/Awareness/Career Counselling/Page'
+import JobAnalyticsPage from '../sidebar-menu/Awareness/Job Analytics/Page'
 
 export default function Dashboard() {
   const CREDIT_PURCHASE_OPTIONS = [5, 10, 1000, 2000, 3000, 4000, 5000]
@@ -65,6 +66,7 @@ export default function Dashboard() {
   const isQuantumQuestActive = activeLeafLabel === 'Quantum Quest'
   const isTechnologyMapActive = activeLeafLabel === 'Technology Map'
   const isCareerCounsellingActive = activeLeafLabel === 'Career Counselling'
+  const isJobAnalyticsActive = activeLeafLabel === 'Job Analytics'
   const workspaceTitle = activeLeafLabel || 'My Workspace'
 
   useEffect(() => {
@@ -201,8 +203,9 @@ export default function Dashboard() {
             onCreditsUpdated={() => refreshCreditsForUser(currentUser)}
           />
         ) : null}
+        {isJobAnalyticsActive ? <JobAnalyticsPage /> : null}
 
-        {!isInterviewCenterActive && !isQuantumQuestActive && !isTechnologyMapActive && !isCareerCounsellingActive ? (
+        {!isInterviewCenterActive && !isQuantumQuestActive && !isTechnologyMapActive && !isCareerCounsellingActive && !isJobAnalyticsActive ? (
           <div className="dashboard-workspace-column">
             <section className="dashboard-content-card">
               <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>
