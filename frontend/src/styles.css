@@ -1357,6 +1357,9 @@ body,
   gap: 1rem;
   padding: 1rem;
   align-items: start;
+  height: calc(100vh - 92px);
+  overflow: hidden;
+  font-size: 0.92rem;
 }
 
 .career-counselling-card {
@@ -1366,6 +1369,7 @@ body,
   backdrop-filter: blur(4px);
   padding: 1rem;
   color: #e7f2ff;
+  min-height: 0;
 }
 
 .career-counselling-preferences-card {
@@ -1387,6 +1391,7 @@ body,
 
 .career-counselling-history h3 {
   margin: 0;
+  font-size: 1.1rem;
 }
 
 .career-counselling-history-list {
@@ -1432,6 +1437,7 @@ body,
 
 .career-counselling-card h2 {
   margin: 0;
+  font-size: 1.45rem;
 }
 
 .career-counselling-language-select {
@@ -1519,6 +1525,7 @@ body,
   position: relative;
   display: grid;
   gap: 0.6rem;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
 }
 
 .career-counselling-chat-header {
@@ -1549,8 +1556,7 @@ body,
   border: 1px solid #44618f;
   border-radius: 10px;
   background: rgba(4, 10, 20, 0.5);
-  min-height: 260px;
-  max-height: 390px;
+  min-height: 0;
   overflow: auto;
   padding: 0.75rem;
   display: grid;
@@ -1584,6 +1590,7 @@ body,
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding-bottom: 3rem;
 }
 
 .career-counselling-chat-composer input {
@@ -1604,11 +1611,24 @@ body,
 
 .career-counselling-overview-panel h3 {
   margin: 0;
+  font-size: 1.15rem;
 }
 
 .career-counselling-overview-content {
   overflow: auto;
-  max-height: 390px;
+  min-height: 0;
+}
+
+.career-counselling-generate-floating {
+  position: absolute;
+  right: 1rem;
+  bottom: 2.25rem;
+  border: none;
+  border-radius: 999px;
+  padding: 0.5rem 0.9rem;
+  background: #385889;
+  color: #fff;
+  font-weight: 700;
 }
 
 .career-counselling-overview-content p {
@@ -1668,6 +1688,8 @@ body,
 @media (max-width: 1080px) {
   .career-counselling-page {
     grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
   }
 
   .career-counselling-preferences-card {

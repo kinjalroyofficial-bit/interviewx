@@ -59,10 +59,10 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
   const [chatStatus, setChatStatus] = useState('')
   const [overview, setOverview] = useState('')
   const [overviewJson, setOverviewJson] = useState(null)
-  const [isSessionCompleted, setIsSessionCompleted] = useState(false)
   const [historyItems, setHistoryItems] = useState([])
   const [historyStatus, setHistoryStatus] = useState('')
   const [selectedHistorySessionId, setSelectedHistorySessionId] = useState('')
+  const canGenerateOverview = Boolean(sessionId) && messages.some((item) => item.role === 'user')
 
   const canSave = useMemo(() => Boolean(username), [username])
 
@@ -174,7 +174,6 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
       setMessages([{ role: 'assistant', content: payload.assistant_message }])
       setOverview('')
       setOverviewJson(null)
-      setIsSessionCompleted(false)
       setChatStatus('Counselling session started.')
     } catch (error) {
       setChatStatus(error.message || 'Unable to start session.')
@@ -196,10 +195,6 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
     try {
       const payload = await sendCareerCounsellingMessage({ session_id: sessionId, message })
       setMessages((prev) => [...prev, { role: 'assistant', content: payload.assistant_message }])
-      const maybeCompletedJson = parseOverviewPayload(payload.assistant_message)
-      if (maybeCompletedJson?.user_confirmation === true) {
-        setIsSessionCompleted(true)
-      }
       setChatStatus('')
     } catch (error) {
       setChatStatus(error.message || 'Unable to send message.')
@@ -350,8 +345,12 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
             }}
           />
           <button type="button" onClick={handleSendMessage}>Send</button>
-          {isSessionCompleted ? <button type="button" className="is-secondary" onClick={handleGenerateOverview}>Generate Overview</button> : null}
         </div>
+        {canGenerateOverview ? (
+          <button type="button" className="career-counselling-generate-floating" onClick={handleGenerateOverview}>
+            Generate Overview
+          </button>
+        ) : null}
         {chatStatus ? <p className="career-counselling-status">{chatStatus}</p> : null}
       </section>
 
