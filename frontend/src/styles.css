@@ -1566,6 +1566,16 @@ body,
   white-space: pre-wrap;
 }
 
+.career-counselling-overview-structured {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.career-counselling-overview-structured ul {
+  margin: 0.35rem 0 0 1rem;
+  padding: 0;
+}
+
 .dashboard-theme-light .career-counselling-card {
   background: #f7fbffde;
   border-color: #b8cbe8;

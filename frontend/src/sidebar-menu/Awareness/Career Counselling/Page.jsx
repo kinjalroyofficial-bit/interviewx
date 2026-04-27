@@ -57,6 +57,7 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
   const [chatInput, setChatInput] = useState('')
   const [chatStatus, setChatStatus] = useState('')
   const [overview, setOverview] = useState('')
+  const [overviewJson, setOverviewJson] = useState(null)
 
   const canSave = useMemo(() => Boolean(username), [username])
 
@@ -132,6 +133,7 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
       setSessionId(payload.session_id)
       setMessages([{ role: 'assistant', content: payload.assistant_message }])
       setOverview('')
+      setOverviewJson(null)
       setChatStatus('Counselling session started.')
     } catch (error) {
       setChatStatus(error.message || 'Unable to start session.')
@@ -168,7 +170,14 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
     setChatStatus('Generating career path overview...')
     try {
       const payload = await endCareerCounsellingSession({ session_id: sessionId })
-      setOverview(payload.overview || '')
+      const nextOverview = payload.overview || ''
+      setOverview(nextOverview)
+      try {
+        const parsed = JSON.parse(nextOverview)
+        setOverviewJson(parsed)
+      } catch {
+        setOverviewJson(null)
+      }
       setChatStatus('Overview generated.')
     } catch (error) {
       setChatStatus(error.message || 'Unable to generate overview.')
@@ -274,7 +283,44 @@ export default function AwarenessCareerCounsellingPage({ username = '' }) {
         <aside className="career-counselling-overview-panel">
           <h3>Career Path Overview</h3>
           <div className="career-counselling-overview-content">
-            {overview ? <p>{overview}</p> : <p>Overview will appear here after you click <strong>Generate Overview</strong>.</p>}
+            {!overview ? <p>Overview will appear here after you click <strong>Generate Overview</strong>.</p> : null}
+            {overviewJson ? (
+              <div className="career-counselling-overview-structured">
+                <p><strong>User:</strong> {overviewJson.user || '-'}</p>
+                <p><strong>Preferred Language:</strong> {overviewJson.preferred_language || '-'}</p>
+                <p><strong>Target Role:</strong> {overviewJson.target_role || '-'}</p>
+                <p><strong>Current Status:</strong> {overviewJson.current_status || '-'}</p>
+                <div>
+                  <strong>Key Goals:</strong>
+                  <ul>
+                    {(overviewJson.key_goals || []).map((goal, index) => <li key={`goal-${index}`}>{goal}</li>)}
+                  </ul>
+                </div>
+                <div>
+                  <strong>Constraints:</strong>
+                  <ul>
+                    <li><strong>Time:</strong> {overviewJson.constraints?.time || '-'}</li>
+                    <li><strong>Financial:</strong> {overviewJson.constraints?.financial || '-'}</li>
+                    <li><strong>Risk:</strong> {overviewJson.constraints?.risk || '-'}</li>
+                  </ul>
+                </div>
+                <div>
+                  <strong>Roadmap Phases:</strong>
+                  <ul>
+                    {(overviewJson.roadmap?.phases || []).map((phase, index) => (
+                      <li key={`phase-${index}`}>
+                        <strong>{phase.phase_name || `Phase ${index + 1}`}</strong> ({phase.duration || 'N/A'})
+                        <ul>
+                          {(phase.focus || []).map((item, focusIndex) => <li key={`phase-${index}-focus-${focusIndex}`}>{item}</li>)}
+                        </ul>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <p><strong>User Confirmation:</strong> {String(overviewJson.user_confirmation)}</p>
+              </div>
+            ) : null}
+            {overview && !overviewJson ? <p>{overview}</p> : null}
           </div>
         </aside>
       </section>
