@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -29,6 +31,16 @@ class UserProfileResponse(BaseModel):
     years_of_experience: str | None = None
     technologies_worked_on: str | None = None
     project_details: str | None = None
+
+
+class UserPreferencesUpdateRequest(BaseModel):
+    username: str
+    preferences: dict[str, Any] = Field(default_factory=dict)
+
+
+class UserPreferencesResponse(BaseModel):
+    username: str
+    preferences: dict[str, Any] = Field(default_factory=dict)
 
 
 class TopicDifficultyInput(BaseModel):

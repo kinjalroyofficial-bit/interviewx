@@ -67,6 +67,35 @@ export async function updateUserProfile(payload) {
   return response.json()
 }
 
+export async function getUserPreferences(username) {
+  const query = new URLSearchParams({ username })
+  const response = await fetch(`${API_BASE_URL}/users/preferences?${query.toString()}`)
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to fetch user preferences (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
+
+export async function updateUserPreferences(payload) {
+  const response = await fetch(`${API_BASE_URL}/users/preferences`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Failed to update user preferences (${response.status}): ${detail}`)
+  }
+
+  return response.json()
+}
+
 export async function previewInterviewPrompt(payload) {
   const response = await fetch(`${API_BASE_URL}/interview/prompt/preview`, {
     method: 'POST',

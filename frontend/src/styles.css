@@ -1348,3 +1348,113 @@ body,
     margin: 12px;
   }
 }
+
+.career-counselling-page {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(300px, 520px) minmax(260px, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.career-counselling-card {
+  border: 1px solid #395381;
+  border-radius: 14px;
+  background: rgba(7, 14, 28, 0.64);
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+  color: #e7f2ff;
+}
+
+.career-counselling-card h2 {
+  margin: 0 0 0.75rem;
+}
+
+.career-counselling-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.career-counselling-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.career-counselling-field input[type='text'] {
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid #4b6594;
+  background: rgba(4, 10, 20, 0.55);
+  color: #eaf3ff;
+  padding: 0 0.6rem;
+}
+
+.career-counselling-field input[type='range'] {
+  accent-color: #70b5ff;
+}
+
+.career-counselling-toggle-group {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.career-counselling-toggle {
+  border: 1px solid #4f6999;
+  background: rgba(12, 20, 37, 0.45);
+  color: #d6e8ff;
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  text-transform: capitalize;
+}
+
+.career-counselling-toggle.is-active {
+  background: #3f7ed6;
+  border-color: #6fa7f7;
+  color: #fff;
+}
+
+.career-counselling-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.career-counselling-actions button {
+  border: none;
+  border-radius: 8px;
+  padding: 0.45rem 0.8rem;
+  background: #5f96eb;
+  color: #fff;
+  font-weight: 700;
+}
+
+.career-counselling-status {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.dashboard-theme-light .career-counselling-card {
+  background: #f7fbffde;
+  border-color: #b8cbe8;
+  color: #1f2f4e;
+}
+
+.dashboard-theme-light .career-counselling-field input[type='text'] {
+  background: #ffffff;
+  border-color: #bfd2ee;
+  color: #253652;
+}
+
+.dashboard-theme-light .career-counselling-toggle {
+  background: #f3f8ff;
+  border-color: #bed3f1;
+  color: #2d4268;
+}
+
+@media (max-width: 1080px) {
+  .career-counselling-page {
+    grid-template-columns: 1fr;
+  }
+}

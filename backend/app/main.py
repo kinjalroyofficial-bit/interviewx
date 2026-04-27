@@ -57,6 +57,8 @@ from app.schemas import (
     PromptPreviewResponse,
     UserProfileResponse,
     UserProfileUpdateRequest,
+    UserPreferencesResponse,
+    UserPreferencesUpdateRequest,
     InterviewTurnRequest,
     InterviewTurnResponse,
     InterviewHistoryItem,
@@ -855,6 +857,16 @@ def normalize_profile_value(value: str | None) -> str | None:
         return None
     clean_value = value.strip()
     return clean_value or None
+
+
+def parse_user_preferences(preference_json: str | None) -> dict:
+    if not preference_json:
+        return {}
+    try:
+        parsed = json.loads(preference_json)
+        return parsed if isinstance(parsed, dict) else {}
+    except (TypeError, json.JSONDecodeError):
+        return {}
 
 
 def set_last_openai_payload(payload: dict) -> None:
@@ -1657,6 +1669,36 @@ def update_user_profile(payload: UserProfileUpdateRequest, db: Session = Depends
         years_of_experience=user.years_of_experience,
         technologies_worked_on=user.technologies_worked_on,
         project_details=user.project_details,
+    )
+
+
+@app.get("/users/preferences", response_model=UserPreferencesResponse)
+def get_user_preferences(username: str, db: Session = Depends(get_db)) -> UserPreferencesResponse:
+    clean_username = username.strip()
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return UserPreferencesResponse(
+        username=user.username,
+        preferences=parse_user_preferences(user.preference_json),
+    )
+
+
+@app.put("/users/preferences", response_model=UserPreferencesResponse)
+def update_user_preferences(payload: UserPreferencesUpdateRequest, db: Session = Depends(get_db)) -> UserPreferencesResponse:
+    clean_username = payload.username.strip()
+    user = db.query(User).filter(User.username == clean_username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.preference_json = json.dumps(payload.preferences or {}, ensure_ascii=False)
+    db.commit()
+    db.refresh(user)
+
+    return UserPreferencesResponse(
+        username=user.username,
+        preferences=parse_user_preferences(user.preference_json),
     )
 
 

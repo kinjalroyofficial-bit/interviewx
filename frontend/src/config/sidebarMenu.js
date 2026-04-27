@@ -4,7 +4,6 @@ export const sidebarMenu = [
     label: 'Awareness',
     icon: 'awareness',
     children: [
-      { id: 'tech-awareness', label: 'Tech Awareness', icon: 'tech' },
       { id: 'career-counselling', label: 'Career Counselling', icon: 'career' },
       { id: 'technology-map', label: 'Technology Map', icon: 'map' },
       { id: 'job-analytics', label: 'Job Analytics', icon: 'analytics' }
