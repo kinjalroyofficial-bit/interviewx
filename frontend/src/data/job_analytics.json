@@ -1,0 +1,288 @@
+{
+                    "visualizations": {
+                      "1_job_trends": {
+                        "description": "Number of job listings by technology for 2024 and 2025.",
+                        "data": [
+        { "Technology": "SQL", "2024": 86452, "2025": 89958, "2026": 93000 },
+        { "Technology": "Python", "2024": 170694, "2025": 192960, "2026": 215000 },
+        { "Technology": "C", "2024": 23030, "2025": 26467, "2026": 28000 },
+        { "Technology": "UNIX", "2024": 50839, "2025": 46395, "2026": 44000 },
+        { "Technology": "Java", "2024": 36674, "2025": 36878, "2026": 38000 },
+        { "Technology": "Javascript", "2024": 117208, "2025": 119244, "2026": 123000 },
+        { "Technology": "HTML,CSS", "2024": 50479, "2025": 50015, "2026": 49500 },
+        { "Technology": "C#", "2024": 22316, "2025": 23639, "2026": 25000 },
+        { "Technology": "C++", "2024": 12116, "2025": 14053, "2026": 15500 },
+        { "Technology": "PHP", "2024": 34584, "2025": 35184, "2026": 35500 },
+        { "Technology": "Node.js", "2024": 43538, "2025": 43380, "2026": 44000 },
+        { "Technology": "React", "2024": 50658, "2025": 52001, "2026": 55000 },
+        { "Technology": "Angular", "2024": 47357, "2025": 45399, "2026": 44000 },
+        { "Technology": "VueJs", "2024": 39582, "2025": 44156, "2026": 47000 },
+        { "Technology": "Bootstrap", "2024": 36059, "2025": 39452, "2026": 41000 },
+        { "Technology": "jQuery", "2024": 52606, "2025": 50287, "2026": 48000 },
+        { "Technology": "Django", "2024": 26842, "2025": 30790, "2026": 34000 },
+        { "Technology": "Flask", "2024": 67833, "2025": 84905, "2026": 95000 },
+        { "Technology": "Dot Net", "2024": 15107, "2025": 14786, "2026": 15000 },
+        { "Technology": "Spring Boot", "2024": 13273, "2025": 15267, "2026": 17000 },
+        { "Technology": "Typescript", "2024": 43064, "2025": 51882, "2026": 58000 },
+        { "Technology": "Swift", "2024": 56065, "2025": 72230, "2026": 80000 },
+        { "Technology": "Kotlin", "2024": 11480, "2025": 13207, "2026": 15000 },
+        { "Technology": "Flutter", "2024": 7499, "2025": 9213, "2026": 11000 },
+        { "Technology": "Hadoop", "2024": 28692, "2025": 24780, "2026": 23000 },
+        { "Technology": "Spark", "2024": 31457, "2025": 28509, "2026": 27000 },
+        { "Technology": "Databricks", "2024": 2945, "2025": 4949, "2026": 6500 },
+        { "Technology": "Airflow", "2024": 21310, "2025": 30333, "2026": 35000 },
+        { "Technology": "Snowflake", "2024": 37562, "2025": 35615, "2026": 37000 },
+        { "Technology": "Redshift", "2024": 11371, "2025": 16434, "2026": 18000 },
+        { "Technology": "BigQuery", "2024": 19370, "2025": 24657, "2026": 28000 },
+        { "Technology": "Data Factory", "2024": 24142, "2025": 30819, "2026": 35000 },
+        { "Technology": "Pandas", "2024": 32460, "2025": 46265, "2026": 52000 },
+        { "Technology": "Scikit", "2024": 995, "2025": 2278, "2026": 4000 },
+        { "Technology": "R Language", "2024": 56319, "2025": 66382, "2026": 72000 },
+        { "Technology": "Scala", "2024": 41717, "2025": 39602, "2026": 38000 },
+        { "Technology": "TensorFlow", "2024": 14454, "2025": 20019, "2026": 24000 },
+        { "Technology": "Pytorch", "2024": 23515, "2025": 32503, "2026": 40000 },
+        { "Technology": "MongoDB", "2024": 43759, "2025": 43726, "2026": 44000 },
+        { "Technology": "Cassandra", "2024": 28037, "2025": 24143, "2026": 23000 },
+        { "Technology": "Neo4j", "2024": 12007, "2025": 16883, "2026": 20000 },
+        { "Technology": "GraphQL", "2024": 21525, "2025": 28558, "2026": 32000 },
+        { "Technology": "Redis", "2024": 29070, "2025": 23480, "2026": 23000 },
+        { "Technology": "Kubernetes", "2024": 32819, "2025": 31098, "2026": 32000 },
+        { "Technology": "Docker", "2024": 34171, "2025": 42820, "2026": 48000 },
+        { "Technology": "Jenkins", "2024": 15113, "2025": 19868, "2026": 23000 },
+        { "Technology": "Terraform", "2024": 12184, "2025": 16456, "2026": 19000 },
+        { "Technology": "Tableau", "2024": 34800, "2025": 33095, "2026": 32000 },
+        { "Technology": "PowerBI", "2024": 22985, "2025": 30462, "2026": 35000 },
+        { "Technology": "Selenium", "2024": 10449, "2025": 12619, "2026": 14000 },
+        { "Technology": "REST", "2024": 27237, "2025": 33178, "2026": 37000 }
+      ]
+                      },
+
+                      "2_salary_comparison": {
+                        "description": "Average salary by role and experience level across top five companies.",
+                        "data": {
+                          "Google": {
+                            "Software Engineer": [
+                              { "Experience": "0-1 year", "Salary": 20 },
+                              { "Experience": "1-3 years", "Salary": 25 },
+                              { "Experience": "4-6 years", "Salary": 32 },
+                              { "Experience": "7-9 years", "Salary": 50 },
+                              { "Experience": "10-14 years", "Salary": 70 },
+                              { "Experience": "14+ years", "Salary": 100 }
+                            ],
+                            "Program Manager": [
+                              { "Experience": "7-9 years", "Salary": 32 },
+                              { "Experience": "10-14 years", "Salary": 40 },
+                              { "Experience": "14+ years", "Salary": 60 }
+                            ],
+                            "Project Manager": [
+                              { "Experience": "1-3 years", "Salary": 24 },
+                              { "Experience": "4-6 years", "Salary": 34 },
+                              { "Experience": "7-9 years", "Salary": 68 },
+                              { "Experience": "10-14 years", "Salary": 100 },
+                              { "Experience": "14+ years", "Salary": 110 }
+                            ],
+                            "Data Scientist": [
+                              { "Experience": "0-1 year", "Salary": 20 },
+                              { "Experience": "1-3 years", "Salary": 25 },
+                              { "Experience": "4-6 years", "Salary": 35 },
+                              { "Experience": "7-9 years", "Salary": 55 },
+                              { "Experience": "10-14 years", "Salary": 120 }
+                            ]
+                          },
+                          "Amazon": {
+                            "Software Engineer": [
+                              { "Experience": "0-1 year", "Salary": 20 },
+                              { "Experience": "1-3 years", "Salary": 25 },
+                              { "Experience": "4-6 years", "Salary": 35 },
+                              { "Experience": "7-9 years", "Salary": 45 },
+                              { "Experience": "10-14 years", "Salary": 60 }
+                            ],
+                            "Project Manager": [
+                              { "Experience": "0-1 year", "Salary": 16 },
+                              { "Experience": "1-3 years", "Salary": 25 },
+                              { "Experience": "4-6 years", "Salary": 35 },
+                              { "Experience": "7-9 years", "Salary": 50 },
+                              { "Experience": "10-14 years", "Salary": 75 }
+                            ],
+                            "Data Scientist": [
+                              { "Experience": "0-1 year", "Salary": 15 },
+                              { "Experience": "1-3 years", "Salary": 35 },
+                              { "Experience": "4-6 years", "Salary": 50 },
+                              { "Experience": "7-9 years", "Salary": 65 },
+                              { "Experience": "10-14 years", "Salary": 100 },
+                              { "Experience": "14+ years", "Salary": 120 }
+                            ],
+                            "Business Intelligence": [
+                              { "Experience": "0-1 year", "Salary": 16 },
+                              { "Experience": "1-3 years", "Salary": 28 },
+                              { "Experience": "4-6 years", "Salary": 35 },
+                              { "Experience": "7-9 years", "Salary": 40 },
+                              { "Experience": "10-14 years", "Salary": 55 }
+                            ]
+                          },
+                          "Apple": {
+                            "Software Engineer": [
+                              { "Experience": "0-1 year", "Salary": 20 },
+                              { "Experience": "1-3 years", "Salary": 25 },
+                              { "Experience": "4-6 years", "Salary": 35 },
+                              { "Experience": "7-9 years", "Salary": 50 },
+                              { "Experience": "10-14 years", "Salary": 60 }
+                            ],
+                            "Data Engineer": [
+                              { "Experience": "0-1 year", "Salary": 14 },
+                              { "Experience": "1-3 years", "Salary": 20 },
+                              { "Experience": "4-6 years", "Salary": 35 },
+                              { "Experience": "7-9 years", "Salary": 45 },
+                              { "Experience": "10-14 years", "Salary": 60 }
+                            ],
+                            "Project Manager": [
+                              { "Experience": "4-6 years", "Salary": 20 },
+                              { "Experience": "7-9 years", "Salary": 35 },
+                              { "Experience": "10-14 years", "Salary": 48 }
+                            ]
+                          },
+                          "Microsoft": {
+                            "Software Engineer": [
+                              { "Experience": "0-1 year", "Salary": 14 },
+                              { "Experience": "1-3 years", "Salary": 18 },
+                              { "Experience": "4-6 years", "Salary": 30 },
+                              { "Experience": "7-9 years", "Salary": 38 },
+                              { "Experience": "10-14 years", "Salary": 45 },
+                              { "Experience": "14+ years", "Salary": 60 }
+                            ],
+                            "Project Manager": [
+                              { "Experience": "1-3 years", "Salary": 18 },
+                              { "Experience": "4-6 years", "Salary": 25 },
+                              { "Experience": "7-9 years", "Salary": 35 },
+                              { "Experience": "10-14 years", "Salary": 42 },
+                              { "Experience": "14+ years", "Salary": 55 }
+                            ],
+                            "Data Scientist": [
+                              { "Experience": "0-1 year", "Salary": 16 },
+                              { "Experience": "1-3 years", "Salary": 22 },
+                              { "Experience": "4-6 years", "Salary": 32 },
+                              { "Experience": "7-9 years", "Salary": 45 },
+                              { "Experience": "10-14 years", "Salary": 60 }
+                            ],
+                            "Technical Support": [
+                              { "Experience": "0-1 year", "Salary": 10 },
+                              { "Experience": "1-3 years", "Salary": 12 },
+                              { "Experience": "4-6 years", "Salary": 16 },
+                              { "Experience": "7-9 years", "Salary": 25 },
+                              { "Experience": "10-14 years", "Salary": 35 }
+                            ]
+                          },
+                          "Meta": {
+                            "Software Engineer": [
+                              { "Experience": "0-1 year", "Salary": 15 },
+                              { "Experience": "1-3 years", "Salary": 24 },
+                              { "Experience": "4-6 years", "Salary": 40 },
+                              { "Experience": "7-9 years", "Salary": 75 },
+                              { "Experience": "10-14 years", "Salary": 100 },
+                              { "Experience": "14+ years", "Salary": 170 }
+                            ],
+                            "Data Scientist": [
+                              { "Experience": "0-1 year", "Salary": 16 },
+                              { "Experience": "1-3 years", "Salary": 25 },
+                              { "Experience": "4-6 years", "Salary": 40 },
+                              { "Experience": "7-9 years", "Salary": 60 },
+                              { "Experience": "10-14 years", "Salary": 85 },
+                              { "Experience": "14+ years", "Salary": 110 }
+                            ],
+                            "Project Manager": [
+                              { "Experience": "4-6 years", "Salary": 35 },
+                              { "Experience": "7-9 years", "Salary": 45 },
+                              { "Experience": "10-14 years", "Salary": 60 }
+                            ]
+                          }
+                        }
+                      },
+
+                      "3_geo_salary_diversification": {
+                        "description": "Salary diversification by geography and experience level for key technology roles.",
+                        "data": {
+                          "Entry_Level": [
+                            { "country": "US", "Software Engineer": 80000, "Data Engineer": 110000, "Data Scientist": 120000 },
+                            { "country": "UK", "Software Engineer": 55000, "Data Engineer": 50000, "Data Scientist": 75000 },
+                            { "country": "Australia", "Software Engineer": 60000, "Data Engineer": 80000, "Data Scientist": 75000 },
+                            { "country": "Singapore", "Software Engineer": 48000, "Data Engineer": 53000, "Data Scientist": 54000 },
+                            { "country": "India", "Software Engineer": 24000, "Data Engineer": 18000, "Data Scientist": 25000 },
+                            { "country": "Canada", "Software Engineer": 90000, "Data Engineer": 90000, "Data Scientist": 100000 }
+                          ],
+                          "Mid_Level": [
+                            { "country": "US", "Software Engineer": 150000, "Data Engineer": 150000, "Data Scientist": 180000 },
+                            { "country": "UK", "Software Engineer": 90000, "Data Engineer": 110000, "Data Scientist": 110000 },
+                            { "country": "Australia", "Software Engineer": 95000, "Data Engineer": 130000, "Data Scientist": 130000 },
+                            { "country": "Singapore", "Software Engineer": 60000, "Data Engineer": 65000, "Data Scientist": 75000 },
+                            { "country": "India", "Software Engineer": 60000, "Data Engineer": 55000, "Data Scientist": 66000 },
+                            { "country": "Canada", "Software Engineer": 140000, "Data Engineer": 130000, "Data Scientist": 130000 }
+                          ],
+                          "Senior_Level": [
+                            { "country": "US", "Software Engineer": 260000, "Data Engineer": 200000, "Data Scientist": 250000 },
+                            { "country": "UK", "Software Engineer": 140000, "Data Engineer": 160000, "Data Scientist": 140000 },
+                            { "country": "Australia", "Software Engineer": 145000, "Data Engineer": 160000, "Data Scientist": 165000 },
+                            { "country": "Singapore", "Software Engineer": 90000, "Data Engineer": 80000, "Data Scientist": 90000 },
+                            { "country": "India", "Software Engineer": 120000, "Data Engineer": 85000, "Data Scientist": 145000 },
+                            { "country": "Canada", "Software Engineer": 160000, "Data Engineer": 140000, "Data Scientist": 150000 }
+                          ]
+                        }
+                      },
+
+                      "4_technology_salary_levels": {
+                        "description": "Average salary (LPA) for freshers, intermediate, and senior professionals across technologies.",
+                        "data": [
+                          { "technology": "SQL", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.0, "senior_avg_lpa": 22.0 },
+                          { "technology": "Python", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.5, "senior_avg_lpa": 23.0 },
+                          { "technology": "C", "fresher_avg_lpa": 5.5, "intermediate_avg_lpa": 11.5, "senior_avg_lpa": 21.0 },
+                          { "technology": "UNIX", "fresher_avg_lpa": 5.5, "intermediate_avg_lpa": 11.0, "senior_avg_lpa": 20.0 },
+                          { "technology": "Java", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.0, "senior_avg_lpa": 22.0 },
+                          { "technology": "Javascript", "fresher_avg_lpa": 5.8, "intermediate_avg_lpa": 11.8, "senior_avg_lpa": 21.5 },
+                          { "technology": "HTML,CSS", "fresher_avg_lpa": 4.8, "intermediate_avg_lpa": 9.5, "senior_avg_lpa": 18.0 },
+                          { "technology": "C#", "fresher_avg_lpa": 5.8, "intermediate_avg_lpa": 11.5, "senior_avg_lpa": 21.0 },
+                          { "technology": "C++", "fresher_avg_lpa": 6.2, "intermediate_avg_lpa": 12.5, "senior_avg_lpa": 23.5 },
+                          { "technology": "PHP", "fresher_avg_lpa": 5.0, "intermediate_avg_lpa": 10.0, "senior_avg_lpa": 19.0 },
+                          { "technology": "Node.js", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.5, "senior_avg_lpa": 23.0 },
+                          { "technology": "React", "fresher_avg_lpa": 6.2, "intermediate_avg_lpa": 12.8, "senior_avg_lpa": 23.5 },
+                          { "technology": "Angular", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.0, "senior_avg_lpa": 22.0 },
+                          { "technology": "VueJs", "fresher_avg_lpa": 5.8, "intermediate_avg_lpa": 11.5, "senior_avg_lpa": 21.0 },
+                          { "technology": "Bootstrap", "fresher_avg_lpa": 4.8, "intermediate_avg_lpa": 9.5, "senior_avg_lpa": 18.0 },
+                          { "technology": "jQuery", "fresher_avg_lpa": 4.8, "intermediate_avg_lpa": 9.5, "senior_avg_lpa": 18.0 },
+                          { "technology": "Django", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.5, "senior_avg_lpa": 23.0 },
+                          { "technology": "Flask", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.5, "senior_avg_lpa": 23.0 },
+                          { "technology": "Dot Net", "fresher_avg_lpa": 5.8, "intermediate_avg_lpa": 11.5, "senior_avg_lpa": 21.0 },
+                          { "technology": "Spring Boot", "fresher_avg_lpa": 6.2, "intermediate_avg_lpa": 12.8, "senior_avg_lpa": 23.5 },
+                          { "technology": "Typescript", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.5, "senior_avg_lpa": 23.0 },
+                          { "technology": "Swift", "fresher_avg_lpa": 5.8, "intermediate_avg_lpa": 11.8, "senior_avg_lpa": 21.5 },
+                          { "technology": "Kotlin", "fresher_avg_lpa": 5.8, "intermediate_avg_lpa": 11.8, "senior_avg_lpa": 21.5 },
+                          { "technology": "Flutter", "fresher_avg_lpa": 5.5, "intermediate_avg_lpa": 11.0, "senior_avg_lpa": 20.0 },
+                          { "technology": "Hadoop", "fresher_avg_lpa": 6.5, "intermediate_avg_lpa": 13.5, "senior_avg_lpa": 24.0 },
+                          { "technology": "Spark", "fresher_avg_lpa": 6.8, "intermediate_avg_lpa": 14.0, "senior_avg_lpa": 25.0 },
+                          { "technology": "Databricks", "fresher_avg_lpa": 7.5, "intermediate_avg_lpa": 15.5, "senior_avg_lpa": 27.0 },
+                          { "technology": "Airflow", "fresher_avg_lpa": 6.5, "intermediate_avg_lpa": 13.5, "senior_avg_lpa": 24.0 },
+                          { "technology": "Snowflake", "fresher_avg_lpa": 7.0, "intermediate_avg_lpa": 15.0, "senior_avg_lpa": 26.0 },
+                          { "technology": "Redshift", "fresher_avg_lpa": 6.6, "intermediate_avg_lpa": 13.8, "senior_avg_lpa": 24.5 },
+                          { "technology": "BigQuery", "fresher_avg_lpa": 6.6, "intermediate_avg_lpa": 13.8, "senior_avg_lpa": 24.5 },
+                          { "technology": "Data Factory", "fresher_avg_lpa": 6.2, "intermediate_avg_lpa": 12.8, "senior_avg_lpa": 23.5 },
+                          { "technology": "Pandas", "fresher_avg_lpa": 6.2, "intermediate_avg_lpa": 12.8, "senior_avg_lpa": 23.5 },
+                          { "technology": "Scikit", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.5, "senior_avg_lpa": 23.0 },
+                          { "technology": "R Language", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.0, "senior_avg_lpa": 22.0 },
+                          { "technology": "Scala", "fresher_avg_lpa": 6.5, "intermediate_avg_lpa": 13.5, "senior_avg_lpa": 24.0 },
+                          { "technology": "TensorFlow", "fresher_avg_lpa": 6.8, "intermediate_avg_lpa": 14.0, "senior_avg_lpa": 25.0 },
+                          { "technology": "Pytorch", "fresher_avg_lpa": 6.8, "intermediate_avg_lpa": 14.0, "senior_avg_lpa": 25.0 },
+                          { "technology": "MongoDB", "fresher_avg_lpa": 5.8, "intermediate_avg_lpa": 11.8, "senior_avg_lpa": 21.5 },
+                          { "technology": "Cassandra", "fresher_avg_lpa": 6.2, "intermediate_avg_lpa": 12.5, "senior_avg_lpa": 23.0 },
+                          { "technology": "Neo4j", "fresher_avg_lpa": 6.2, "intermediate_avg_lpa": 12.8, "senior_avg_lpa": 23.5 },
+                          { "technology": "GraphQL", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.0, "senior_avg_lpa": 22.0 },
+                          { "technology": "Redis", "fresher_avg_lpa": 5.8, "intermediate_avg_lpa": 11.5, "senior_avg_lpa": 21.0 },
+                          { "technology": "Kubernetes", "fresher_avg_lpa": 6.8, "intermediate_avg_lpa": 14.0, "senior_avg_lpa": 25.0 },
+                          { "technology": "Docker", "fresher_avg_lpa": 6.2, "intermediate_avg_lpa": 12.8, "senior_avg_lpa": 23.5 },
+                          { "technology": "Jenkins", "fresher_avg_lpa": 5.8, "intermediate_avg_lpa": 11.5, "senior_avg_lpa": 21.0 },
+                          { "technology": "Terraform", "fresher_avg_lpa": 6.5, "intermediate_avg_lpa": 13.5, "senior_avg_lpa": 24.0 },
+                          { "technology": "Tableau", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.0, "senior_avg_lpa": 22.0 },
+                          { "technology": "PowerBI", "fresher_avg_lpa": 6.0, "intermediate_avg_lpa": 12.0, "senior_avg_lpa": 22.0 },
+                          { "technology": "Selenium", "fresher_avg_lpa": 5.5, "intermediate_avg_lpa": 10.8, "senior_avg_lpa": 19.5 },
+                          { "technology": "REST", "fresher_avg_lpa": 5.8, "intermediate_avg_lpa": 11.5, "senior_avg_lpa": 21.0 }
+                        ]
+                      }
+                    }
+                  }
