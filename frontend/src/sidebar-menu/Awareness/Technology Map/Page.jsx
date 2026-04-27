@@ -29,6 +29,7 @@ export default function AwarenessTechnologyMapPage() {
   const svgRef = useRef(null)
   const zoomStateRef = useRef({ x: 0, y: 0, k: 1 })
   const nodePositionsRef = useRef(new Map())
+  const pinnedTargetsRef = useRef(new Map())
   const [isD3Ready, setIsD3Ready] = useState(Boolean(window.d3))
   const [tipsPosition, setTipsPosition] = useState({ x: 14, y: 14 })
   const [isDraggingTips, setIsDraggingTips] = useState(false)
@@ -222,6 +223,14 @@ export default function AwarenessTechnologyMapPage() {
       .force('charge', d3.forceManyBody().strength(-680))
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('collision', d3.forceCollide().radius((d) => Math.max(34, d.width * 0.55)))
+      .force('anchor', (alpha) => {
+        nodes.forEach((nodeItem) => {
+          const pinnedTarget = pinnedTargetsRef.current.get(nodeItem.id)
+          if (!pinnedTarget || nodeItem.fx != null || nodeItem.fy != null) return
+          nodeItem.vx += (pinnedTarget.x - nodeItem.x) * 0.08 * alpha
+          nodeItem.vy += (pinnedTarget.y - nodeItem.y) * 0.08 * alpha
+        })
+      })
 
     const zoomBehavior = d3.zoom()
       .scaleExtent([0.45, 2.6])
@@ -279,8 +288,9 @@ export default function AwarenessTechnologyMapPage() {
           const clampedX = Math.max(d.width / 2 + 8, Math.min(width - d.width / 2 - 8, d.x))
           const clampedY = Math.max(d.height / 2 + 8, Math.min(height - d.height / 2 - 8, d.y))
 
-          d.fx = clampedX
-          d.fy = clampedY
+          pinnedTargetsRef.current.set(d.id, { x: clampedX, y: clampedY })
+          d.fx = null
+          d.fy = null
         }))
 
     node.append('rect')
