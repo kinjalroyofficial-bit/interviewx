@@ -900,12 +900,17 @@ body,
   }
 
   .dashboard-sidebar.is-collapsed {
-    width: var(--sidebar-width);
-    max-width: var(--sidebar-width);
+    width: 74px;
+    max-width: 74px;
   }
 
   .dashboard-shell.is-sidebar-collapsed {
     --sidebar-width: 74px;
+  }
+
+  .dashboard-shell.is-sidebar-collapsed .dashboard-sidebar {
+    width: 74px;
+    max-width: 74px;
   }
 
   .dashboard-sidebar.is-collapsed .sidebar-item {
@@ -941,6 +946,43 @@ body,
   .dashboard-main.is-interview-center {
     grid-template-columns: 1fr;
     overflow: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-shell {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .dashboard-shell.is-sidebar-collapsed {
+    --sidebar-width: 64px;
+  }
+
+  .dashboard-sidebar,
+  .dashboard-sidebar.is-collapsed,
+  .dashboard-shell.is-sidebar-collapsed .dashboard-sidebar {
+    width: 64px;
+    max-width: 64px;
+    padding-inline: 0.25rem;
+  }
+
+  .sidebar-profile {
+    padding-inline: 0;
+  }
+
+  .dashboard-main {
+    padding: 0.9rem 0.85rem;
+  }
+
+  .dashboard-top-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .dashboard-credit-pill {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 
