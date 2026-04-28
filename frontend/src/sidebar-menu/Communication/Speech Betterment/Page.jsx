@@ -18,7 +18,7 @@ const sectionsRowStyle = {
   gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
   gap: '1rem',
   alignItems: 'stretch',
-  height: 'calc(100dvh - 130px)',
+  height: '100%',
   minHeight: 0,
   marginTop: '0.5rem'
 }

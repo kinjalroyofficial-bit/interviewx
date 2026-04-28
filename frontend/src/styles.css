@@ -243,6 +243,14 @@ body,
   overflow: hidden;
 }
 
+.dashboard-main.is-speech-betterment {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 1rem;
+  align-items: stretch;
+  overflow: hidden;
+}
+
 .dashboard-main.is-interview-center .dashboard-workspace-column {
   display: none;
 }
