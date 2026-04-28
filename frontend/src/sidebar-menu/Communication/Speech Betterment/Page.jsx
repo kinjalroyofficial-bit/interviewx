@@ -95,15 +95,65 @@ const waveformBarBaseStyle = {
 function createSimilarityScore(sourceText, targetText) {
   if (!sourceText || !targetText) return 0
 
-  const source = sourceText.toLowerCase().replace(/[^\w\s]/g, '').trim()
-  const target = targetText.toLowerCase().replace(/[^\w\s]/g, '').trim()
+  const source = sourceText
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  const target = targetText
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
   if (!source || !target) return 0
 
   const sourceWords = source.split(/\s+/)
   const targetWords = target.split(/\s+/)
-  const matchedWords = sourceWords.filter((word, index) => targetWords[index] === word).length
+  const sourceWordCounts = sourceWords.reduce((acc, word) => {
+    acc[word] = (acc[word] || 0) + 1
+    return acc
+  }, {})
+  const matchedWords = targetWords.reduce((count, word) => {
+    if (sourceWordCounts[word]) {
+      sourceWordCounts[word] -= 1
+      return count + 1
+    }
+    return count
+  }, 0)
 
-  return Math.round((matchedWords / sourceWords.length) * 100)
+  const overlapScore = matchedWords / Math.max(sourceWords.length, targetWords.length)
+
+  const sourceJoined = sourceWords.join(' ')
+  const targetJoined = targetWords.join(' ')
+  const sourceLength = sourceJoined.length
+  const targetLength = targetJoined.length
+  const cols = targetLength + 1
+  const matrix = new Array((sourceLength + 1) * cols)
+
+  for (let i = 0; i <= sourceLength; i += 1) {
+    matrix[i * cols] = i
+  }
+  for (let j = 0; j <= targetLength; j += 1) {
+    matrix[j] = j
+  }
+
+  for (let i = 1; i <= sourceLength; i += 1) {
+    for (let j = 1; j <= targetLength; j += 1) {
+      const substitutionCost = sourceJoined[i - 1] === targetJoined[j - 1] ? 0 : 1
+      const deletion = matrix[(i - 1) * cols + j] + 1
+      const insertion = matrix[i * cols + (j - 1)] + 1
+      const substitution = matrix[(i - 1) * cols + (j - 1)] + substitutionCost
+
+      matrix[i * cols + j] = Math.min(deletion, insertion, substitution)
+    }
+  }
+
+  const editDistance = matrix[sourceLength * cols + targetLength]
+  const editSimilarity = 1 - (editDistance / Math.max(sourceLength, targetLength, 1))
+
+  const combinedScore = (overlapScore * 0.65) + (Math.max(0, editSimilarity) * 0.35)
+
+  return Math.max(0, Math.min(100, Math.round(combinedScore * 100)))
 }
 
 function getRandomPromptIndex(length, currentIndex = -1) {
