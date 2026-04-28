@@ -13,6 +13,12 @@ const panelStyle = {
   flexDirection: 'column'
 }
 
+const sectionTitleStyle = {
+  fontSize: '1.6rem',
+  margin: 0,
+  lineHeight: 1.15
+}
+
 function getSectionsRowStyle(sidebarCollapsed) {
   return {
     display: 'grid',
@@ -175,7 +181,7 @@ function SpeechPracticePanel({ title, prompts }) {
 
   return (
     <section style={panelStyle}>
-      <h3 style={{ fontSize: '2rem', marginBottom: '0.65rem' }}>{title}</h3>
+      <h3 style={sectionTitleStyle}>{title}</h3>
 
       <div style={{ display: 'grid', gap: '1rem' }}>
         <div style={sentenceCardStyle}>
@@ -220,13 +226,13 @@ export default function CommunicationSpeechBettermentPage({ sidebarCollapsed = f
       <SpeechPracticePanel title="Punctuation" prompts={punctuationPrompts} />
 
       <section style={panelStyle}>
-        <h3>Audio</h3>
+        <h3 style={sectionTitleStyle}>Audio</h3>
         <p>Placeholder content for audio-based pronunciation and speaking feedback.</p>
       </section>
 
       {sidebarCollapsed ? (
         <section style={panelStyle}>
-          <h3>Analytics</h3>
+          <h3 style={sectionTitleStyle}>Analytics</h3>
           <p>Response analytics placeholder.</p>
           <p>Answer quality insights placeholder.</p>
         </section>

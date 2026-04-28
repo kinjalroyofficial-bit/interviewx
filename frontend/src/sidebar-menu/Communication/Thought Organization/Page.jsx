@@ -8,7 +8,13 @@ const sectionStyle = {
   display: 'flex',
   flexDirection: 'column',
   gap: '0.75rem',
-  maxHeight: 'calc(100dvh - 220px)'
+  maxHeight: 'calc(100dvh - 260px)'
+}
+
+const sectionTitleStyle = {
+  fontSize: '1.6rem',
+  margin: 0,
+  lineHeight: 1.15
 }
 
 function getSectionsRowStyle(sidebarCollapsed) {
@@ -33,14 +39,13 @@ const cardStyle = {
 }
 
 const analyticsSectionStyle = {
-  alignSelf: 'start',
-  maxHeight: '260px'
+  alignSelf: 'stretch'
 }
 
 function PlaceholderSection({ title, description }) {
   return (
     <section style={sectionStyle}>
-      <h3 style={{ fontSize: '2rem', marginBottom: '0.3rem' }}>{title}</h3>
+      <h3 style={sectionTitleStyle}>{title}</h3>
       <div style={cardStyle}>{description}</div>
     </section>
   )
@@ -55,7 +60,7 @@ export default function CommunicationThoughtOrganizationPage({ sidebarCollapsed 
 
       {sidebarCollapsed ? (
         <section style={{ ...sectionStyle, ...analyticsSectionStyle }}>
-          <h3 style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}>Analytics</h3>
+          <h3 style={sectionTitleStyle}>Analytics</h3>
           <div style={cardStyle}>Thought organization analytics placeholder.</div>
         </section>
       ) : null}

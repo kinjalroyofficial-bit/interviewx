@@ -11,6 +11,7 @@ import JobAnalyticsPage from '../sidebar-menu/Awareness/Job Analytics/Page'
 import CommunicationSpeechBettermentPage from '../sidebar-menu/Communication/Speech Betterment/Page'
 import CommunicationThoughtOrganizationPage from '../sidebar-menu/Communication/Thought Organization/Page'
 import CommunicationLatencyReductionPage from '../sidebar-menu/Communication/Latency Reduction/Page'
+import CommunicationVocabularyPage from '../sidebar-menu/Communication/Vocabulary/Page'
 
 export default function Dashboard() {
   const CREDIT_PURCHASE_OPTIONS = [5, 10, 1000, 2000, 3000, 4000, 5000]
@@ -73,6 +74,7 @@ export default function Dashboard() {
   const isSpeechBettermentActive = activeLeafLabel === 'Speech Betterment'
   const isThoughtOrganizationActive = activeLeafLabel === 'Thought Organization'
   const isLatencyReductionActive = activeLeafLabel === 'Latency Reduction'
+  const isVocabularyActive = activeLeafLabel === 'Vocabulary'
   const workspaceTitle = activeLeafLabel || 'My Workspace'
 
   useEffect(() => {
@@ -174,7 +176,7 @@ export default function Dashboard() {
       />
 
       <section
-        className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''} ${isQuantumQuestActive ? 'is-quantum-quest' : ''} ${isTechnologyMapActive ? 'is-technology-map' : ''} ${isSpeechBettermentActive ? 'is-speech-betterment' : ''}`}
+        className={`dashboard-main ${isInterviewCenterActive ? 'is-interview-center' : ''} ${isQuantumQuestActive ? 'is-quantum-quest' : ''} ${isTechnologyMapActive ? 'is-technology-map' : ''} ${(isSpeechBettermentActive || isThoughtOrganizationActive || isLatencyReductionActive || isVocabularyActive) ? 'is-speech-betterment' : ''}`}
       >
         <PageBackgroundCanvas theme={theme} />
         <header className="dashboard-topbar">
@@ -215,8 +217,9 @@ export default function Dashboard() {
         {isSpeechBettermentActive ? <CommunicationSpeechBettermentPage sidebarCollapsed={isSidebarCollapsed} /> : null}
         {isThoughtOrganizationActive ? <CommunicationThoughtOrganizationPage sidebarCollapsed={isSidebarCollapsed} /> : null}
         {isLatencyReductionActive ? <CommunicationLatencyReductionPage sidebarCollapsed={isSidebarCollapsed} /> : null}
+        {isVocabularyActive ? <CommunicationVocabularyPage sidebarCollapsed={isSidebarCollapsed} /> : null}
 
-        {!isInterviewCenterActive && !isQuantumQuestActive && !isTechnologyMapActive && !isCareerCounsellingActive && !isJobAnalyticsActive && !isSpeechBettermentActive && !isThoughtOrganizationActive && !isLatencyReductionActive ? (
+        {!isInterviewCenterActive && !isQuantumQuestActive && !isTechnologyMapActive && !isCareerCounsellingActive && !isJobAnalyticsActive && !isSpeechBettermentActive && !isThoughtOrganizationActive && !isLatencyReductionActive && !isVocabularyActive ? (
           <div className="dashboard-workspace-column">
             <section className="dashboard-content-card">
               <h2>{activeLeafLabel ? `Welcome to the ${activeLeafLabel} module` : 'Interview Center Overview'}</h2>

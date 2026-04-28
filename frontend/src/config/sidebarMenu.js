@@ -32,13 +32,7 @@ export const sidebarMenu = [
       {
         id: 'vocabulary',
         label: 'Vocabulary',
-        icon: 'vocabulary',
-        children: [
-          { id: 'words', label: 'Words', icon: 'words' },
-          { id: 'synonyms', label: 'Synonyms', icon: 'synonyms' },
-          { id: 'phrases', label: 'Phrases', icon: 'phrases' },
-          { id: 'grammar', label: 'Grammar', icon: 'grammar' }
-        ]
+        icon: 'vocabulary'
       }
     ]
   },
