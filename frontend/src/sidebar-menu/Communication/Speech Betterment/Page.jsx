@@ -99,7 +99,7 @@ function SpeechPracticePanel({ title, prompts }) {
 
     recognition.lang = 'en-US'
     recognition.continuous = false
-    recognition.interimResults = true
+    recognition.interimResults = false
 
     recognition.onstart = () => {
       setIsRecording(true)
@@ -117,6 +117,8 @@ function SpeechPracticePanel({ title, prompts }) {
     recognition.onerror = (event) => {
       if (event.error === 'not-allowed') {
         setRecognitionError('Microphone permission was denied. Please allow access and retry.')
+      } else if (event.error === 'aborted' || event.error === 'no-speech') {
+        setRecognitionError('')
       } else {
         setRecognitionError('Could not process speech input. Please try again.')
       }
@@ -141,7 +143,7 @@ function SpeechPracticePanel({ title, prompts }) {
     setTranscript('')
     setRecognitionError('')
 
-    if (recognitionRef.current) recognitionRef.current.stop()
+    if (isRecording && recognitionRef.current) recognitionRef.current.stop()
 
     setIsRecording(false)
   }
@@ -188,7 +190,7 @@ function SpeechPracticePanel({ title, prompts }) {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={scoreCardStyle}>
             <span style={{ opacity: 0.8, fontSize: '0.92rem' }}>Percent Comparison</span>
-            <strong style={{ fontSize: '1.2rem' }}>{similarityScore}% match</strong>
+            <strong style={{ fontSize: '1.2rem' }}>{similarityScore}%</strong>
           </div>
 
           <button type="button" style={secondaryButtonStyle} onClick={handleNextPrompt}>
