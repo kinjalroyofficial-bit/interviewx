@@ -1,0 +1,1810 @@
+{
+  "Beginner": [
+  {
+    "word": "Achieve",
+    "meaning": "To successfully reach a goal by working for it.",
+    "example": "Our engineering team worked hard to achieve a faster app load time.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Adapt",
+    "meaning": "To change your behavior or plans to fit new conditions.",
+    "example": "In tech companies, employees must adapt quickly to new tools and processes.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Admire",
+    "meaning": "To respect and appreciate someone or something.",
+    "example": "Many juniors admire leaders who stay calm during busy deadlines.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Afford",
+    "meaning": "To be able to pay for something or have the ability to do something.",
+    "example": "The company can't afford another delay in the product launch.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Analyze",
+    "meaning": "To study something carefully in order to understand it better.",
+    "example": "Data scientists analyze large datasets to find useful business insights.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Announce",
+    "meaning": "To formally tell people something important.",
+    "example": "The CTO will announce the new AI platform next week.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Appreciate",
+    "meaning": "To feel grateful for something.",
+    "example": "Employees appreciate managers who listen to their ideas.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Approve",
+    "meaning": "To officially agree with something or accept it.",
+    "example": "The product design must be approved before development starts.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Argue",
+    "meaning": "To discuss different opinions, often with strong emotions.",
+    "example": "Developers sometimes argue about the best programming framework to use.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Arrange",
+    "meaning": "To plan or organize something in advance.",
+    "example": "HR will arrange onboarding sessions for new employees.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Assume",
+    "meaning": "To believe something is true without proof.",
+    "example": "Don’t assume the user understands the interface; always design clearly.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Attract",
+    "meaning": "To draw attention or interest.",
+    "example": "Competitive salaries help attract skilled engineering talent.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Avoid",
+    "meaning": "To stay away from something or prevent it from happening.",
+    "example": "We should avoid shipping untested code to production.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Balance",
+    "meaning": "To manage different tasks or responsibilities fairly.",
+    "example": "Remote employees must balance work tasks with personal routines.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Behave",
+    "meaning": "To act in a particular or acceptable way.",
+    "example": "Employees are expected to behave professionally during meetings.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Borrow",
+    "meaning": "To take something temporarily and return it later.",
+    "example": "Can I borrow your laptop charger for the presentation?",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Cancel",
+    "meaning": "To decide something will not happen anymore.",
+    "example": "The stand-up meeting was canceled due to a server outage.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Capture",
+    "meaning": "To take hold of something, or record information clearly.",
+    "example": "UX researchers capture user feedback to improve the product.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Celebrate",
+    "meaning": "To mark a happy event with joy or appreciation.",
+    "example": "The team celebrated after successfully closing the funding round.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Challenge",
+    "meaning": "To test someone's ability or push them to do better.",
+    "example": "Startups challenge employees to think creatively and move fast.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Choose",
+    "meaning": "To select one option from many.",
+    "example": "Developers choose frameworks based on project needs and performance.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Clarify",
+    "meaning": "To make something easier to understand.",
+    "example": "Always clarify requirements before starting development.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Compete",
+    "meaning": "To try to win or be better than others.",
+    "example": "Tech companies compete to build the fastest AI models.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Concentrate",
+    "meaning": "To focus your attention on something.",
+    "example": "Engineers need quiet time to concentrate on solving complex bugs.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Confirm",
+    "meaning": "To check and make sure something is true.",
+    "example": "Please confirm the deployment schedule before notifying the clients.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Connect",
+    "meaning": "To join two things or help people communicate.",
+    "example": "Networking events help people connect with industry professionals.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Convince",
+    "meaning": "To make someone believe or agree with you.",
+    "example": "Product managers convince stakeholders to support new features.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Create",
+    "meaning": "To make or build something new.",
+    "example": "Designers create UI mockups before developers write code.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Criticize",
+    "meaning": "To point out problems or mistakes in something.",
+    "example": "During code review, teammates may criticize poor logic to help improve it.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Debate",
+    "meaning": "To discuss different opinions about a topic.",
+    "example": "Teams often debate whether to build a feature in-house or use an existing tool.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Decorate",
+    "meaning": "To make something look more attractive.",
+    "example": "Employees decorated the office for the annual tech celebration.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Define",
+    "meaning": "To explain the meaning or details of something.",
+    "example": "The product team must define clear user requirements before development begins.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Delay",
+    "meaning": "To make something happen later than planned.",
+    "example": "Server issues may delay software deployment.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Deliver",
+    "meaning": "To provide something promised or expected.",
+    "example": "Our team aims to deliver features on schedule every sprint.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Demand",
+    "meaning": "To ask for something firmly or require it.",
+    "example": "High-performance apps demand strong server capacity.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Deny",
+    "meaning": "To say something is not true or refuse a request.",
+    "example": "Security systems deny access to unauthorized users.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Depend",
+    "meaning": "To rely on something or someone.",
+    "example": "Project success depends on clear communication and planning.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Deserve",
+    "meaning": "To earn something because of your actions.",
+    "example": "Hard-working employees deserve recognition and growth opportunities.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Develop",
+    "meaning": "To build or improve something over time.",
+    "example": "Software engineers develop applications that solve business problems.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Discover",
+    "meaning": "To find or learn something new.",
+    "example": "QA testers discover bugs before the product goes live.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Display",
+    "meaning": "To show something clearly for others to see.",
+    "example": "The dashboard displays real-time metrics for the product team.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Divide",
+    "meaning": "To separate something into parts.",
+    "example": "We divide tasks among team members based on skills.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Encourage",
+    "meaning": "To support or give confidence to someone.",
+    "example": "Good leaders encourage new ideas from their team.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Engage",
+    "meaning": "To participate or become involved in something.",
+    "example": "Employees should engage in team discussions to share insights.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Entertain",
+    "meaning": "To amuse or interest someone.",
+    "example": "Company events are organized to entertain and motivate employees.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Establish",
+    "meaning": "To create or start something for long-term use.",
+    "example": "We need to establish a clear workflow for QA testing.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Examine",
+    "meaning": "To look closely at something to understand it.",
+    "example": "Developers examine error logs to find the root cause of issues.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Exchange",
+    "meaning": "To give something and receive something in return.",
+    "example": "Team members exchange ideas during brainstorming sessions.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Expand",
+    "meaning": "To increase or grow in size or number.",
+    "example": "The company plans to expand its data engineering team.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Expect",
+    "meaning": "To believe something will happen.",
+    "example": "Clients expect prompt support and reliable software.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Explain",
+    "meaning": "To make something easy to understand.",
+    "example": "Engineers must explain technical details to non-technical teams clearly.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Explore",
+    "meaning": "To look into something new or unknown.",
+    "example": "Product teams explore user behavior before designing features.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Express",
+    "meaning": "To share your thoughts or feelings.",
+    "example": "Employees are encouraged to express ideas during planning meetings.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Face",
+    "meaning": "To deal with a difficult situation.",
+    "example": "We often face tight deadlines in startup environments.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Fail",
+    "meaning": "To not succeed at something.",
+    "example": "A few ideas may fail before we find the right product direction.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Forgive",
+    "meaning": "To stop being upset with someone for a mistake.",
+    "example": "In healthy teams, people forgive small errors and focus on solutions.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Handle",
+    "meaning": "To manage or take care of something.",
+    "example": "Customer support teams handle user complaints professionally.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Imagine",
+    "meaning": "To picture something in your mind.",
+    "example": "Great designers imagine how users will feel when using a product.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Include",
+    "meaning": "To contain or involve something as part of a whole.",
+    "example": "The training program will include hands-on coding workshops.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Increase",
+    "meaning": "To make something bigger or more.",
+    "example": "We need to increase system capacity to handle more users.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Influence",
+    "meaning": "To affect someone's decisions or actions.",
+    "example": "Good leadership can influence a team's motivation and productivity.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Inspire",
+    "meaning": "To motivate someone to do something positive or creative.",
+    "example": "Successful startups inspire young engineers to build new solutions.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Introduce",
+    "meaning": "To present something or someone for the first time.",
+    "example": "The manager will introduce the new feature in tomorrow's demo.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Invest",
+    "meaning": "To put time, effort, or money into something expecting results.",
+    "example": "Many companies invest in employee training programs.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Invite",
+    "meaning": "To ask someone to join or participate.",
+    "example": "We invited industry experts to speak at our tech event.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Involve",
+    "meaning": "To include someone or something in an activity or situation.",
+    "example": "Product development involves designers, engineers, and testers.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Judge",
+    "meaning": "To form an opinion about something or someone.",
+    "example": "We should not judge ideas too early during brainstorming.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Maintain",
+    "meaning": "To keep something in good condition or continue doing something.",
+    "example": "Developers must maintain clean and readable code.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Manage",
+    "meaning": "To control or organize tasks, people, or resources.",
+    "example": "Project managers manage timelines and communication between teams.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Measure",
+    "meaning": "To find the size, amount, or effect of something.",
+    "example": "We measure system performance before rolling out updates.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Mention",
+    "meaning": "To say or refer to something briefly.",
+    "example": "Please mention any blockers during the daily stand-up.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Notice",
+    "meaning": "To see, hear, or become aware of something.",
+    "example": "Users noticed a delay in page loading after the update.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Offer",
+    "meaning": "To present or provide something.",
+    "example": "The company offers flexible working hours for employees.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Order",
+    "meaning": "To request or arrange something.",
+    "example": "We need to order new laptops for the incoming interns.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Participate",
+    "meaning": "To take part in something.",
+    "example": "Employees are encouraged to participate in team-building activities.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Perform",
+    "meaning": "To do a task or action well.",
+    "example": "Developers must perform tests before pushing code to production.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Persuade",
+    "meaning": "To convince someone to do or believe something.",
+    "example": "Product managers persuade leadership to prioritize key features.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Prevent",
+    "meaning": "To stop something from happening.",
+    "example": "Security teams work to prevent data breaches.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Produce",
+    "meaning": "To create or make something.",
+    "example": "Our AI models produce accurate predictions for clients.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Promise",
+    "meaning": "To commit to doing something in the future.",
+    "example": "The vendor promised to resolve the issue by tomorrow.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Protect",
+    "meaning": "To keep someone or something safe from harm.",
+    "example": "Cybersecurity tools protect company data from hackers.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Provide",
+    "meaning": "To give or supply something.",
+    "example": "The platform provides real-time analytics for users.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Recommend",
+    "meaning": "To suggest something as the best option.",
+    "example": "Engineers recommend upgrading the server to improve performance.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Reduce",
+    "meaning": "To make something smaller or less.",
+    "example": "We aim to reduce load times by optimizing images.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Refuse",
+    "meaning": "To say no to something.",
+    "example": "The system will refuse login attempts after multiple failures.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Require",
+    "meaning": "To need something.",
+    "example": "This project will require collaboration between multiple teams.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Respect",
+    "meaning": "To treat someone with care and fairness.",
+    "example": "It's important to respect coworkers' opinions during meetings.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Responsible",
+    "meaning": "Having a duty to look after something or make decisions.",
+    "example": "He is responsible for managing the cloud infrastructure.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Share",
+    "meaning": "To give part of something to others.",
+    "example": "Team members share knowledge to help each other grow.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Solve",
+    "meaning": "To find an answer to a problem.",
+    "example": "Developers solve bugs before releasing updates.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Suggest",
+    "meaning": "To mention an idea for someone to think about.",
+    "example": "Designers suggest changes to improve user experience.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Survive",
+    "meaning": "To continue to live or exist despite challenges.",
+    "example": "Startups survive by adapting quickly to market changes.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Support",
+    "meaning": "To help or assist someone.",
+    "example": "Our IT team supports employees with technical issues.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Surprise",
+    "meaning": "To make someone feel something unexpected.",
+    "example": "The new UI update surprised users with its simplicity.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Trust",
+    "meaning": "To believe that someone or something is reliable.",
+    "example": "Clients trust us to protect their data and privacy.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Value",
+    "meaning": "To think something is important or useful.",
+    "example": "Companies value employees who learn continuously.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Warn",
+    "meaning": "To tell someone about a possible danger or problem.",
+    "example": "System alerts warn users before servers reach capacity.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Waste",
+    "meaning": "To use something in a careless way, causing loss.",
+    "example": "Avoid waste of computing resources by optimizing queries.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Wonder",
+    "meaning": "To think about something and feel curious.",
+    "example": "Many beginners wonder how machine learning models work.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Worry",
+    "meaning": "To feel anxious or think something bad might happen.",
+    "example": "Don't worry about mistakes; learning in tech takes time.",
+    "part_of_speech": "verb"
+  }
+
+]
+,
+  "Intermediate": [
+    {
+    "word": "Abolish",
+    "meaning": "To officially end or stop something.",
+    "example": "The company decided to abolish outdated policies to support flexible work.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Accommodate",
+    "meaning": "To provide what is needed, or adjust to fit new needs.",
+    "example": "Our platform must accommodate thousands of new users as we scale.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Accumulate",
+    "meaning": "To collect or gather something over time.",
+    "example": "Engineers accumulate feedback from users to plan improvements.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Advocate",
+    "meaning": "To publicly support an idea or cause.",
+    "example": "Leaders should advocate for employee well-being and diversity.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Alleviate",
+    "meaning": "To reduce or relieve a problem or pain.",
+    "example": "Automation helps alleviate repetitive manual tasks.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Amend",
+    "meaning": "To change or improve something, especially a document or plan.",
+    "example": "The legal team will amend the contract before signing.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Anticipate",
+    "meaning": "To expect something and prepare for it.",
+    "example": "We anticipate higher traffic after the product launch.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Articulate",
+    "meaning": "To express ideas clearly and effectively.",
+    "example": "A good manager must articulate the project vision to the team.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Assess",
+    "meaning": "To evaluate or judge something.",
+    "example": "We assess user feedback before making UI changes.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Attribute",
+    "meaning": "To say that something is the result of a specific cause.",
+    "example": "We attribute the performance improvement to code optimization.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Authorize",
+    "meaning": "To give official permission for something.",
+    "example": "Only admins can authorize system access for new employees.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Collaborate",
+    "meaning": "To work together with others to achieve a goal.",
+    "example": "Designers and developers collaborate to build seamless user experiences.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Commence",
+    "meaning": "To begin something formally.",
+    "example": "Development will commence once final approval is received.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Compile",
+    "meaning": "To collect and organize information or resources.",
+    "example": "The data team will compile a report on usage trends.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Comprehend",
+    "meaning": "To fully understand something.",
+    "example": "Engineers must comprehend the system architecture before contributing.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Concede",
+    "meaning": "To admit something is true after initially denying it.",
+    "example": "He conceded that the original design approach needed changes.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Conceive",
+    "meaning": "To imagine or create an idea in your mind.",
+    "example": "The founder conceived the product vision during his college project.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Conclude",
+    "meaning": "To reach a final decision or judgment.",
+    "example": "After testing, we concluded that the new server configuration works better.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Condense",
+    "meaning": "To make something shorter or more compact without losing meaning.",
+    "example": "She condensed the 20-page report into a one-page summary for executives.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Conduct",
+    "meaning": "To organize and carry out an activity.",
+    "example": "We conduct weekly reviews to track project progress.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Conform",
+    "meaning": "To follow rules, standards, or expectations.",
+    "example": "All internal tools must conform to the company's security guidelines.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Confront",
+    "meaning": "To deal with a problem or challenge directly.",
+    "example": "Managers must confront conflicts early before they affect productivity.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Consolidate",
+    "meaning": "To combine multiple things into one stronger system.",
+    "example": "We plan to consolidate duplicated databases into a single platform.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Contemplate",
+    "meaning": "To think deeply about something.",
+    "example": "Before switching cloud providers, the team contemplated long-term cost impacts.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Contradict",
+    "meaning": "To say or do the opposite of what someone else says.",
+    "example": "The new data contradicts our previous assumptions about user behavior.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Convert",
+    "meaning": "To change something into a different form.",
+    "example": "Our script converts raw logs into structured analytics data.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Coordinate",
+    "meaning": "To organize people or tasks so things work smoothly.",
+    "example": "Project leads coordinate between engineering and design teams.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Correlate",
+    "meaning": "To have a relationship or connection with something.",
+    "example": "System crashes often correlate with traffic spikes during peak hours.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Cultivate",
+    "meaning": "To develop something through care and effort.",
+    "example": "Leaders cultivate a culture of learning and innovation.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Deduce",
+    "meaning": "To figure something out using logic.",
+    "example": "Engineers deduce system failures by analyzing logs and metrics.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Deliberate",
+    "meaning": "To think carefully before making a decision.",
+    "example": "The team deliberated on whether to rewrite the legacy system.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Demonstrate",
+    "meaning": "To show or explain how something works.",
+    "example": "Developers demonstrate new features during sprint reviews.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Derive",
+    "meaning": "To obtain something from a source.",
+    "example": "We derive insights by analyzing customer behavior data.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Designate",
+    "meaning": "To officially assign someone or something to a task.",
+    "example": "A senior engineer was designated as the technical lead for the project.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Diminish",
+    "meaning": "To reduce or decrease.",
+    "example": "Good documentation diminishes confusion among new team members.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Disclose",
+    "meaning": "To reveal or make information public.",
+    "example": "Companies must disclose security breaches to users quickly.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Discriminate",
+    "meaning": "To treat people unfairly based on differences, or to recognize distinctions.",
+    "example": "AI systems must be trained carefully to avoid discriminating against users.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Dispatch",
+    "meaning": "To send something or someone to a place quickly.",
+    "example": "Support teams dispatch technicians to handle urgent client issues.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Disseminate",
+    "meaning": "To spread information widely.",
+    "example": "We disseminate product updates to all employees via internal newsletters.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Elaborate",
+    "meaning": "To add more detail or explain further.",
+    "example": "During meetings, engineers elaborate on technical decisions to build clarity.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Emerge",
+    "meaning": "To become visible or known, especially after being hidden or developing gradually.",
+    "example": "New security concerns often emerge when scaling systems to millions of users.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Emphasize",
+    "meaning": "To give special importance or attention to something.",
+    "example": "Product leaders emphasize user feedback during feature planning.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Empower",
+    "meaning": "To give someone the confidence or authority to do something.",
+    "example": "Good managers empower team members to make decisions independently.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Enable",
+    "meaning": "To make something possible.",
+    "example": "APIs enable developers to connect applications seamlessly.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Enhance",
+    "meaning": "To improve something and make it better.",
+    "example": "We enhance the user experience by optimizing UI load time.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Enlighten",
+    "meaning": "To give someone more knowledge or understanding.",
+    "example": "Internal workshops enlighten employees about emerging AI trends.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Enrich",
+    "meaning": "To improve the value or quality of something.",
+    "example": "Online learning platforms enrich education by offering practical tech courses.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Envision",
+    "meaning": "To imagine a future possibility or outcome.",
+    "example": "Founders envision how their product will shape the industry.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Escalate",
+    "meaning": "To increase in intensity or seriousness; or to move a problem to a higher authority.",
+    "example": "If the issue persists, please escalate it to the DevOps team.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Establish",
+    "meaning": "To set up or create something that will last.",
+    "example": "The startup aims to establish itself as a leader in cloud automation.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Evaluate",
+    "meaning": "To assess or judge the value or quality of something.",
+    "example": "We evaluate different machine-learning models before deployment.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Exceed",
+    "meaning": "To go beyond a limit or expectation.",
+    "example": "Our infrastructure must exceed performance benchmarks during peak hours.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Execute",
+    "meaning": "To carry out a plan or action.",
+    "example": "The engineering team will execute the release plan tonight.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Exemplify",
+    "meaning": "To show or be a clear example of something.",
+    "example": "Her leadership exemplifies our company’s culture of innovation.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Facilitate",
+    "meaning": "To make a task or process easier or smoother.",
+    "example": "Collaborative tools facilitate seamless remote teamwork.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Formulate",
+    "meaning": "To create or develop a systematic plan or idea.",
+    "example": "Analysts formulate strategies based on customer behavior data.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Foster",
+    "meaning": "To encourage the development of something.",
+    "example": "Hackathons foster creativity and rapid problem-solving.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Hinder",
+    "meaning": "To make progress difficult or slow.",
+    "example": "Poor documentation can hinder developer onboarding.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Identify",
+    "meaning": "To recognize or find something.",
+    "example": "Monitoring tools help identify system bottlenecks quickly.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Illustrate",
+    "meaning": "To explain something clearly with examples or visuals.",
+    "example": "Diagrams illustrate the architecture of our microservices.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Implement",
+    "meaning": "To put a plan, system, or idea into action.",
+    "example": "The engineering team will implement the new API in the next sprint.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Imply",
+    "meaning": "To suggest something without saying it directly.",
+    "example": "The bug report implied that the issue may be related to caching.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Impose",
+    "meaning": "To force something to be accepted or put in place.",
+    "example": "The platform will impose restrictions on suspicious logins.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Incentivize",
+    "meaning": "To motivate someone by offering rewards.",
+    "example": "Companies incentivize employees with bonuses for high performance.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Incorporate",
+    "meaning": "To include something as part of a whole.",
+    "example": "The new model will incorporate user feedback to improve accuracy.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Infer",
+    "meaning": "To reach a conclusion based on evidence or reasoning.",
+    "example": "From error logs, we can infer that the service crashed due to memory leaks.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Inhibit",
+    "meaning": "To prevent or slow down a process.",
+    "example": "Too many approvals can inhibit innovation in fast-growing teams.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Innovate",
+    "meaning": "To introduce new ideas, products, or methods.",
+    "example": "Startups must innovate continuously to stay competitive.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Integrate",
+    "meaning": "To connect parts into a unified system.",
+    "example": "We need to integrate the payment gateway with our platform.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Interpret",
+    "meaning": "To understand the meaning of something.",
+    "example": "Data analysts interpret business trends to guide strategy.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Intervene",
+    "meaning": "To step in to stop or change something.",
+    "example": "Admins intervene when users violate platform policies.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Invalidate",
+    "meaning": "To prove something wrong or make it not valid.",
+    "example": "New results may invalidate earlier research assumptions.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Investigate",
+    "meaning": "To examine something carefully to discover the truth.",
+    "example": "Engineers will investigate the cause of the sudden outage.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Justify",
+    "meaning": "To give reasons that show something is right or reasonable.",
+    "example": "Product managers must justify resource requests with data.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Legislate",
+    "meaning": "To create or enforce laws or rules.",
+    "example": "Governments legislate data privacy policies like GDPR.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Manipulate",
+    "meaning": "To control something in a skillful or unfair way.",
+    "example": "Developers manipulate large data sets to train AI models.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Mediate",
+    "meaning": "To help settle a disagreement between people or groups.",
+    "example": "Team leads mediate conflicts to keep collaboration smooth.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Mitigate",
+    "meaning": "To reduce the impact of something bad.",
+    "example": "DevOps teams mitigate security risks with regular audits.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Monitor",
+    "meaning": "To observe or check something regularly.",
+    "example": "We monitor system performance using real-time dashboards.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Negotiate",
+    "meaning": "To discuss and reach an agreement.",
+    "example": "Vendors and companies negotiate contracts before onboarding tools.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Optimize",
+    "meaning": "To make something as effective or efficient as possible.",
+    "example": "Engineers optimize code to reduce load time and server costs.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Originate",
+    "meaning": "To come from or start in a particular place or situation.",
+    "example": "Most reported bugs originate from outdated browser versions.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Perceive",
+    "meaning": "To notice or understand something using your senses or mind.",
+    "example": "Users often perceive a fast UI as a sign of high-quality software.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Persist",
+    "meaning": "To continue to exist or keep doing something despite difficulties.",
+    "example": "If performance issues persist, we will scale the infrastructure.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Precede",
+    "meaning": "To come before something in time or order.",
+    "example": "Quality checks must precede every production deployment.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Prohibit",
+    "meaning": "To officially not allow something.",
+    "example": "Company policies prohibit sharing confidential data externally.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Provoke",
+    "meaning": "To cause a reaction, often a strong one.",
+    "example": "Unexpected UI changes can provoke negative user feedback.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Reinforce",
+    "meaning": "To strengthen or support something.",
+    "example": "Security updates reinforce protection against cyber threats.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Regulate",
+    "meaning": "To control or manage something by rules or systems.",
+    "example": "Firewalls regulate network access to protect internal systems.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Replicate",
+    "meaning": "To copy or reproduce something exactly.",
+    "example": "Developers replicate bugs in test environments before fixing them.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Scrutinize",
+    "meaning": "To examine something very carefully.",
+    "example": "Auditors scrutinize financial data to ensure accuracy.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Simulate",
+    "meaning": "To imitate or recreate conditions for testing or training.",
+    "example": "We simulate heavy traffic to test system resilience.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Stimulate",
+    "meaning": "To encourage activity or growth.",
+    "example": "Hackathons stimulate creativity and rapid prototyping.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Substantiate",
+    "meaning": "To prove something is true with evidence.",
+    "example": "Engineers substantiate performance claims with benchmark results.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Substitute",
+    "meaning": "To replace one thing with another.",
+    "example": "We substituted the old database with a cloud-based solution.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Suspend",
+    "meaning": "To temporarily stop something.",
+    "example": "We had to suspend access to the feature while fixing the bug.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Sustain",
+    "meaning": "To keep something going over time.",
+    "example": "Startups must sustain growth by balancing innovation with stability.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Synthesize",
+    "meaning": "To combine different ideas or information to create something new.",
+    "example": "Data analysts synthesize multiple reports to form insights.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Transform",
+    "meaning": "To change something significantly into something better or different.",
+    "example": "AI tools transform how businesses automate tasks.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Validate",
+    "meaning": "To confirm something is correct or acceptable.",
+    "example": "QA teams validate new features before releasing them to users.",
+    "part_of_speech": "verb"
+  }
+  ],
+  "Advanced": [
+    {
+    "word": "Abysmal",
+    "meaning": "Extremely bad or poor in quality.",
+    "example": "The initial system uptime was abysmal, forcing us to redesign our infrastructure.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Acumen",
+    "meaning": "Strong ability to make good decisions and judge situations effectively.",
+    "example": "Her business acumen helped the startup secure major enterprise clients.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Adversarial",
+    "meaning": "Involving conflict or opposition.",
+    "example": "Cybersecurity teams use adversarial testing to find system weaknesses.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Altruism",
+    "meaning": "Selfless concern for others’ well-being.",
+    "example": "Open-source contributions often come from a place of altruism and community spirit.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Ambivalence",
+    "meaning": "Having mixed or uncertain feelings about something.",
+    "example": "The board showed ambivalence about entering a risky emerging market.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Anomaly",
+    "meaning": "Something that deviates from what is normal or expected.",
+    "example": "We detected a traffic anomaly that indicated a bot attack.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Apathy",
+    "meaning": "Lack of interest, enthusiasm, or concern.",
+    "example": "Employee apathy often signals deeper cultural or leadership issues.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Archaic",
+    "meaning": "Old-fashioned or outdated.",
+    "example": "The legacy billing system is archaic and urgently needs modernization.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Austerity",
+    "meaning": "Strict financial discipline or reduced spending.",
+    "example": "During economic downturns, tech firms often adopt austerity measures.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Benevolent",
+    "meaning": "Kind, generous, and helpful.",
+    "example": "A benevolent leadership style builds trust and loyalty across teams.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Brazen",
+    "meaning": "Bold and without shame, often in a shocking way.",
+    "example": "The brazen security breach exposed thousands of user accounts.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Candid",
+    "meaning": "Honest and direct, even when the truth is difficult.",
+    "example": "The founder gave a candid update on the company's challenges during the town hall.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Cathartic",
+    "meaning": "Providing emotional relief through open expression.",
+    "example": "Team retrospectives can be cathartic when handled respectfully.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Clandestine",
+    "meaning": "Secret or hidden, especially due to being unauthorized.",
+    "example": "Clandestine product leaks can damage company trust and valuation.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Coherent",
+    "meaning": "Logical, consistent, and easy to understand.",
+    "example": "We need a coherent strategy across departments to execute the roadmap.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Complacent",
+    "meaning": "Satisfied with the status quo, often without awareness of risks.",
+    "example": "Complacent teams fall behind in fast-moving technology markets.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Complicit",
+    "meaning": "Involved with others in wrongdoing, even indirectly.",
+    "example": "Leadership becomes complicit if they ignore unethical practices.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Conjecture",
+    "meaning": "A guess or conclusion based on incomplete information.",
+    "example": "Early revenue forecasts were mostly conjecture without market data.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Conundrum",
+    "meaning": "A confusing or difficult problem.",
+    "example": "Balancing security with user convenience is a constant conundrum in tech.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Copious",
+       "meaning": "Large in quantity; abundant.",
+    "example": "The research team collected copious user feedback before redesigning the UI.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Credible",
+    "meaning": "Able to be believed or trusted.",
+    "example": "Investors expect credible financial forecasts backed by real data.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Cryptic",
+    "meaning": "Hidden or mysterious in meaning.",
+    "example": "The error logs were cryptic, making the debugging process difficult.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Culpable",
+    "meaning": "Deserving blame or responsibility for something wrong.",
+    "example": "The vendor was found culpable for the data leak due to poor encryption.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Cumbersome",
+    "meaning": "Difficult to handle due to heaviness or complexity.",
+    "example": "The old approval workflow was cumbersome and slowed product releases.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Debacle",
+    "meaning": "A complete failure or disaster.",
+    "example": "The rushed product launch turned into a public relations debacle.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Debunk",
+    "meaning": "To show that an idea or belief is false.",
+    "example": "Analysts debunked the rumor about the company shutting down.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Decorum",
+    "meaning": "Proper and polite behavior.",
+    "example": "Even during heated debates, maintaining professional decorum is crucial.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Delusion",
+    "meaning": "A false belief held despite evidence.",
+    "example": "Believing growth will come without marketing is a dangerous delusion.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Demure",
+    "meaning": "Quiet, modest, and reserved.",
+    "example": "Despite her demure nature, she impressed the board with her strategy.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Deprive",
+    "meaning": "To take something away or prevent access to it.",
+    "example": "Cutting training budgets deprives employees of skill growth opportunities.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Derivative",
+    "meaning": "Not original; copied from something else.",
+    "example": "The UI design felt derivative, lacking innovation compared to competitors.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Diligent",
+    "meaning": "Careful and persistent in work or effort.",
+    "example": "Diligent testers catch edge-case bugs others miss.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Disingenuous",
+    "meaning": "Not sincere or honest.",
+    "example": "The marketing message felt disingenuous and customers noticed.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Disparity",
+    "meaning": "A large difference between things.",
+    "example": "There is often a disparity between engineering estimates and business expectations.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Divulge",
+    "meaning": "To make private information known.",
+    "example": "Employees must not divulge confidential company information.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Dubious",
+    "meaning": "Doubtful or questionable.",
+    "example": "The vendor’s promises sounded dubious without performance metrics.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Egregious",
+    "meaning": "Extremely bad and noticeable.",
+    "example": "The platform suffered an egregious security flaw affecting thousands.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Elusive",
+    "meaning": "Difficult to find, achieve, or understand.",
+    "example": "The memory leak proved elusive even after days of debugging.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Empirical",
+    "meaning": "Based on observation or experience, not theory.",
+    "example": "Product decisions should rely on empirical data from real users.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Enigmatic",
+    "meaning": "Mysterious or difficult to understand.",
+    "example": "The founder's enigmatic announcement puzzled the entire team.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Epitome",
+    "meaning": "A perfect example of something.",
+    "example": "Her calm leadership during crisis was the epitome of professionalism.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Erroneous",
+    "meaning": "Incorrect or based on mistaken information.",
+    "example": "The report contained erroneous data due to a syncing issue.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Esoteric",
+    "meaning": "Understood by only a small number of people with special knowledge.",
+    "example": "The encryption algorithm explanations were too esoteric for new engineers.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Euphoric",
+    "meaning": "Extremely happy or excited.",
+    "example": "The team felt euphoric after closing their first million-dollar client deal.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Excruciating",
+    "meaning": "Extremely painful or difficult to experience.",
+    "example": "Debugging intermittent production crashes can be an excruciating task.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Exorbitant",
+    "meaning": "Unreasonably high in price or cost.",
+    "example": "The vendor quoted an exorbitant price for cloud migration support.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Exude",
+    "meaning": "To display a quality strongly and openly.",
+    "example": "She exudes confidence during investor presentations.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Fallacy",
+    "meaning": "A false belief or mistaken idea.",
+    "example": "It's a fallacy to think rapid releases always compromise quality.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Feasible",
+    "meaning": "Possible and practical to do.",
+    "example": "The team assessed whether the real-time processing feature was feasible at scale.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Fervent",
+    "meaning": "Having strong passion or enthusiasm.",
+    "example": "She is a fervent supporter of open-source development.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Fleeting",
+    "meaning": "Lasting for only a short time.",
+    "example": "The spike in user traffic was fleeting and returned to normal by evening.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Formidable",
+    "meaning": "Impressively large, powerful, or challenging.",
+    "example": "Building a global-scale platform is a formidable engineering challenge.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Frivolous",
+    "meaning": "Not serious or having little importance.",
+    "example": "We avoid frivolous features and focus on what truly benefits customers.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Futile",
+    "meaning": "Not capable of producing useful results; pointless.",
+    "example": "It was futile to keep optimizing code without fixing the architecture.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Heinous",
+    "meaning": "Shockingly bad or evil.",
+    "example": "Data theft is considered a heinous violation of trust and privacy.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Hypothetical",
+    "meaning": "Based on possible ideas or situations rather than actual events.",
+    "example": "We ran hypothetical security breach drills to test our response plan.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Impartial",
+    "meaning": "Treating all sides fairly, without bias.",
+    "example": "Hiring decisions must be impartial and free from personal preference.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Impeccable",
+    "meaning": "Flawless and perfect.",
+    "example": "Her presentation was impeccable, leaving no questions unanswered.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Implausible",
+    "meaning": "Difficult to believe or unlikely to be true.",
+    "example": "The vendor’s claim of zero-downtime migration sounded implausible.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Inadvertent",
+    "meaning": "Not done on purpose; accidental.",
+    "example": "An inadvertent database update caused system-wide outages.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Incite",
+    "meaning": "To encourage or stir up negative behavior or strong emotions.",
+    "example": "Leaders must communicate responsibly so they don’t incite panic during outages.",
+    "part_of_speech": "verb"
+  },
+  {
+    "word": "Inconspicuous",
+    "meaning": "Not easily noticed or seen.",
+    "example": "A good security system often remains inconspicuous until it’s needed.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Indignant",
+    "meaning": "Feeling anger because something seems unfair.",
+    "example": "Employees felt indignant when the promotion policy lacked transparency.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Inevitable",
+    "meaning": "Certain to happen; unavoidable.",
+    "example": "With rapid growth, scaling challenges are inevitable.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Infernal",
+    "meaning": "Extremely annoying or frustrating.",
+    "example": "The infernal pop-up notifications disrupted our testing environment.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Inherent",
+    "meaning": "Existing as a natural or permanent part of something.",
+    "example": "Risk is inherent in every innovative tech project.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Inhibition",
+    "meaning": "A feeling that restrains someone from acting freely.",
+    "example": "Workshops help new hires overcome inhibition when sharing ideas.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Innate",
+       "meaning": "Existing naturally; built-in rather than learned.",
+    "example": "Some engineers have an innate curiosity for automation and system design.",
+      "part_of_speech": "adjective"
+  },
+  {
+    "word": "Insatiable",
+    "meaning": "Never satisfied; always wanting more.",
+    "example": "Modern users have an insatiable demand for faster, smarter apps.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Inquisitive",
+    "meaning": "Curious and eager to learn.",
+    "example": "Inquisitive analysts dig deeper into patterns others overlook.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Intangible",
+    "meaning": "Unable to be touched or physically measured.",
+    "example": "Brand trust is an intangible asset that drives long-term revenue.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Integral",
+    "meaning": "Essential and necessary.",
+    "example": "Cybersecurity is an integral part of product development.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Intermittent",
+    "meaning": "Happening at irregular intervals; not continuous.",
+    "example": "Users reported intermittent connectivity issues during peak hours.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Introspective",
+    "meaning": "Examining your own thoughts and feelings.",
+    "example": "Introspective leaders learn from mistakes and improve team culture.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Intuitive",
+    "meaning": "Easy to understand or use without needing instructions.",
+    "example": "A successful UI feels intuitive even to first-time users.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Irrevocable",
+    "meaning": "Impossible to reverse or undo.",
+    "example": "Once blockchain transactions are verified, they are irrevocable.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Lethargic",
+    "meaning": "Feeling tired or lacking energy.",
+    "example": "A poorly motivated team can become lethargic and unproductive.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Lucrative",
+    "meaning": "Producing a lot of profit or value.",
+    "example": "Cloud security has become a lucrative field due to rising threats.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Magnanimous",
+    "meaning": "Very generous and forgiving, especially toward rivals or critics.",
+    "example": "He was magnanimous in victory, crediting his competitors’ hard work.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Meticulous",
+    "meaning": "Showing great attention to detail.",
+    "example": "A meticulous QA engineer can prevent critical production failures.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Notorious",
+    "meaning": "Famous for a bad reason.",
+    "example": "The company was once notorious for poor customer support, but it has improved dramatically.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Oblivious",
+    "meaning": "Not aware of what is happening around you.",
+    "example": "He was oblivious to the internal security risks until the audit report came out.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Obscure",
+    "meaning": "Not well-known; difficult to understand.",
+    "example": "The documentation was obscure, making it hard for new developers to onboard.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Ominous",
+    "meaning": "Suggesting that something bad is going to happen.",
+    "example": "The sudden drop in system performance felt ominous before the outage.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Opulent",
+    "meaning": "Extremely luxurious or wealthy.",
+    "example": "The CEO's office looked opulent compared to the open workspace.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Paradox",
+    "meaning": "A situation that seems contradictory but may be true.",
+    "example": "It's a paradox that automation can both create and eliminate jobs.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Paramount",
+    "meaning": "More important than anything else.",
+    "example": "Data security is paramount when building financial applications.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Perplexing",
+    "meaning": "Confusing and difficult to understand.",
+    "example": "The authentication failure was a perplexing issue for engineers.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Pragmatic",
+    "meaning": "Dealing with things realistically instead of theoretically.",
+    "example": "We take a pragmatic approach by launching MVPs before full builds.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Pretentious",
+    "meaning": "Trying to appear more important or smart than you really are.",
+    "example": "The overly complex slide deck came across as pretentious rather than insightful.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Prolific",
+    "meaning": "Producing a lot of work, results, or ideas.",
+    "example": "He is a prolific coder, shipping multiple tools every quarter.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Rebuttal",
+    "meaning": "A response that proves an argument wrong.",
+    "example": "The CTO prepared a strong rebuttal to counter competitor claims.",
+    "part_of_speech": "noun"
+  },
+  {
+    "word": "Redundant",
+    "meaning": "Unnecessary because it is more than needed.",
+    "example": "Redundant code slows performance and increases maintenance work.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Resilient",
+    "meaning": "Able to recover quickly from difficulties.",
+    "example": "A resilient system can handle failures without impacting users.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Rigorous",
+    "meaning": "Careful, detailed, and thorough.",
+    "example": "Banking software requires rigorous testing before release.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Scrupulous",
+    "meaning": "Very careful about doing the right thing; extremely honest.",
+    "example": "Scrupulous data handling is mandatory in healthcare tech.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Tangible",
+    "meaning": "Clear and definite; able to be touched or measured.",
+    "example": "We focus on tangible product benefits like speed and reliability.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Transient",
+    "meaning": "Temporary; lasting only a short time.",
+    "example": "The traffic spike was transient and returned to normal levels soon.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Zealous",
+    "meaning": "Showing strong passion or enthusiasm for a cause.",
+    "example": "Zealous advocates for open-source drive innovation across the industry.",
+    "part_of_speech": "adjective"
+  },
+  {
+    "word": "Sustain",
+    "meaning": "To continue something over time without weakening.",
+    "example": "We must sustain product performance even as usage scales rapidly.",
+    "part_of_speech": "verb"
+  }
+  ]
+}

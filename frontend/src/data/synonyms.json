@@ -1,0 +1,401 @@
+{
+  "Beginner": [
+    {
+      "base_word": "Important",
+      "meaning": "Something that has a great effect or value.",
+      "synonyms": [
+        { "word": "Significant", "example": "This was a significant discovery in medical science that changed how doctors treat infections." },
+        { "word": "Essential", "example": "Confidence is essential during an interview when explaining your experience." },
+        { "word": "Vital", "example": "Drinking water regularly is vital for staying healthy and focused throughout the day." },
+        { "word": "Critical", "example": "It's critical to submit your project before the deadline to avoid penalties." },
+        { "word": "Crucial", "example": "Understanding client requirements is crucial for building effective software." },
+        { "word": "Meaningful", "example": "Volunteering for social causes makes your weekends more meaningful." }
+      ],
+      "difference_note": "‘Significant’ refers to measurable importance, ‘Essential’ to necessity, ‘Vital’ to life-sustaining value, ‘Critical’ to urgency, ‘Crucial’ to key impact, and ‘Meaningful’ to emotional importance."
+    },
+    {
+      "base_word": "Difficult",
+      "meaning": "Something that requires effort or skill to complete or understand.",
+      "synonyms": [
+        { "word": "Tough", "example": "He faced a tough decision after graduation, unsure of which career path to take." },
+        { "word": "Challenging", "example": "Learning a new programming language can be challenging but rewarding in the long term." },
+        { "word": "Complex", "example": "The new tax laws are complex and need careful analysis before filing." },
+        { "word": "Demanding", "example": "This job is demanding and requires multitasking under pressure." },
+        { "word": "Strenuous", "example": "Running a marathon is strenuous but builds incredible endurance." }
+      ],
+      "difference_note": "‘Tough’ is informal and emotional, ‘Challenging’ is positive, ‘Complex’ means intellectually complicated, ‘Demanding’ implies heavy workload, and ‘Strenuous’ focuses on physical effort."
+    },
+    {
+      "base_word": "Fast",
+      "meaning": "Able to move or work quickly.",
+      "synonyms": [
+        { "word": "Quick", "example": "A quick response to emails shows professionalism at work." },
+        { "word": "Rapid", "example": "Startups grow rapidly when they solve real customer problems." },
+        { "word": "Swift", "example": "She gave a swift update during the daily Scrum meeting." },
+        { "word": "Speedy", "example": "The team provided speedy tech support to users during launch day." }
+      ],
+      "difference_note": "‘Quick’ is everyday speed, ‘Rapid’ suggests measurable speed, ‘Swift’ implies smooth and efficient movement, and ‘Speedy’ often emphasizes urgency."
+    },
+    {
+      "base_word": "Happy",
+      "meaning": "Feeling pleasure or satisfaction.",
+      "synonyms": [
+        { "word": "Glad", "example": "I am glad we completed the sprint ahead of time." },
+        { "word": "Pleased", "example": "The manager was pleased with the quality of the project demo." },
+        { "word": "Delighted", "example": "Clients were delighted with the final product design." },
+        { "word": "Joyful", "example": "The team felt joyful after receiving positive customer feedback." }
+      ],
+      "difference_note": "‘Glad’ is simple satisfaction, ‘Pleased’ is polite and professional, ‘Delighted’ expresses high happiness, and ‘Joyful’ relates to emotional celebration."
+    },
+    {
+    "base_word": "Start",
+    "meaning": "To begin doing something.",
+    "synonyms": [
+      { "word": "Begin", "example": "We will begin the training session at 10 AM." },
+      { "word": "Launch", "example": "The company will launch the updated app next month." },
+      { "word": "Initiate", "example": "The team initiated the onboarding process for new hires." },
+      { "word": "Commence", "example": "The event will commence after the CEO’s welcome speech." }
+    ],
+    "difference_note": "‘Begin’ is general, ‘Launch’ implies releasing something new, ‘Initiate’ feels official, and ‘Commence’ is formal."
+  },
+  {
+    "base_word": "Need",
+    "meaning": "To require something because it is important or necessary.",
+    "synonyms": [
+      { "word": "Require", "example": "This task requires attention to detail." },
+      { "word": "Expect", "example": "We expect employees to meet deadlines." },
+      { "word": "Depend on", "example": "Project success depends on good planning." },
+      { "word": "Demand", "example": "This project demands extra time and effort." }
+    ],
+    "difference_note": "‘Require’ is necessary, ‘Expect’ is planned need, ‘Depend on’ links to conditions, and ‘Demand’ means strong necessity."
+  },
+  {
+    "base_word": "Buy",
+    "meaning": "To get something by paying for it.",
+    "synonyms": [
+      { "word": "Purchase", "example": "The company purchased new laptops for the tech team." },
+      { "word": "Order", "example": "We ordered office supplies online." },
+      { "word": "Acquire", "example": "The startup acquired new software licenses." },
+      { "word": "Pay for", "example": "You must pay for your certification exam in advance." }
+    ],
+    "difference_note": "‘Purchase’ is formal, ‘Order’ means request for delivery, ‘Acquire’ means get something valuable, ‘Pay for’ focuses on spending money."
+  },
+  {
+    "base_word": "Use",
+    "meaning": "To apply something for a purpose.",
+    "synonyms": [
+      { "word": "Apply", "example": "Developers apply new techniques to improve performance." },
+      { "word": "Utilize", "example": "We utilize cloud services for data storage." },
+      { "word": "Operate", "example": "She learned to operate the new system easily." },
+      { "word": "Take advantage of", "example": "We take advantage of automation to save time." }
+    ],
+    "difference_note": "‘Apply’ means put into practice, ‘Utilize’ feels technical, ‘Operate’ means run equipment or software, ‘Take advantage of’ means use for benefit."
+  },
+  {
+    "base_word": "Ask",
+    "meaning": "To request information or help.",
+    "synonyms": [
+      { "word": "Request", "example": "He requested access to the development server." },
+      { "word": "Query", "example": "She queried the database for user records." },
+      { "word": "Seek", "example": "Employees seek guidance from mentors when unsure." },
+      { "word": "Inquire", "example": "You can inquire about course details at the reception." }
+    ],
+    "difference_note": "‘Request’ is formal asking, ‘Query’ is technical questioning, ‘Seek’ is searching for help or info, ‘Inquire’ is polite or professional asking."
+  },
+  {
+    "base_word": "Fix",
+    "meaning": "To repair or make something work again.",
+    "synonyms": [
+      { "word": "Repair", "example": "The IT team repaired the broken Wi-Fi connection." },
+      { "word": "Solve", "example": "Developers solved the login bug quickly." },
+      { "word": "Resolve", "example": "The support team resolved all pending customer issues." },
+      { "word": "Correct", "example": "He corrected the spelling mistakes in the report." }
+    ],
+    "difference_note": "‘Repair’ is mechanical/equipment, ‘Solve’ is problem-solving, ‘Resolve’ is formal business issue fixing, ‘Correct’ fixes mistakes."
+  },
+  {
+    "base_word": "Talk",
+    "meaning": "To speak or communicate with someone.",
+    "synonyms": [
+      { "word": "Speak", "example": "She spoke confidently during the team meeting." },
+      { "word": "Communicate", "example": "Leaders communicate clearly during transitions." },
+      { "word": "Discuss", "example": "Let's discuss the project timeline tomorrow." },
+      { "word": "Converse", "example": "Teams converse regularly to avoid misunderstandings." }
+    ],
+    "difference_note": "‘Speak’ is formal, ‘Communicate’ covers all forms of expression, ‘Discuss’ means talk in detail, ‘Converse’ is polite conversation."
+  },
+  {
+    "base_word": "Win",
+    "meaning": "To succeed or be the best in a competition or situation.",
+    "synonyms": [
+      { "word": "Succeed", "example": "You need strong preparation to succeed in tech interviews." },
+      { "word": "Achieve", "example": "She achieved her goal of becoming a software developer." },
+      { "word": "Earn", "example": "He earned a high performance bonus this year." },
+      { "word": "Gain", "example": "The startup gained recognition after the product launch." }
+    ],
+    "difference_note": "‘Succeed’ means reach goals, ‘Achieve’ means accomplish effort-based goals, ‘Earn’ relates to rewards, ‘Gain’ means receive or acquire benefits."
+  }
+  ],
+  "Intermediate": [
+    {
+      "base_word": "Help",
+      "meaning": "To make it easier for someone to achieve something.",
+      "synonyms": [
+        { "word": "Assist", "example": "The trainer assisted the team with new software tools and technical setup." },
+        { "word": "Support", "example": "Good leaders support their employees emotionally during stressful deadlines." },
+        { "word": "Aid", "example": "The foundation aids underprivileged students through free education programs." },
+        { "word": "Facilitate", "example": "The coordinator facilitated the meeting to ensure everyone’s voice was heard." },
+        { "word": "Encourage", "example": "Mentors encourage learners to push their limits without fear of failure." }
+      ],
+      "difference_note": "‘Assist’ is neutral and formal, ‘Support’ conveys emotional help, ‘Aid’ fits humanitarian contexts, ‘Facilitate’ involves coordination, and ‘Encourage’ emphasizes motivation."
+    },
+    {
+      "base_word": "Show",
+      "meaning": "To make something visible or clear.",
+      "synonyms": [
+        { "word": "Demonstrate", "example": "She demonstrated her presentation skills during the annual review." },
+        { "word": "Display", "example": "The analytics dashboard displays key performance metrics." },
+        { "word": "Reveal", "example": "The investigation revealed inconsistencies in the financial reports." },
+        { "word": "Exhibit", "example": "The artist exhibited her collection at the National Art Gallery." },
+        { "word": "Present", "example": "He presented the quarterly findings to the board members." }
+      ],
+      "difference_note": "‘Demonstrate’ means to prove through action, ‘Display’ to make visible, ‘Reveal’ to uncover hidden information, ‘Exhibit’ in a public or formal setting, and ‘Present’ in an organized or official manner."
+    },
+    {
+      "base_word": "Improve",
+      "meaning": "To make something better.",
+      "synonyms": [
+        { "word": "Enhance", "example": "We enhanced the UI to improve user experience and retention." },
+        { "word": "Upgrade", "example": "They upgraded the server for faster processing speeds." },
+        { "word": "Refine", "example": "The team refined the onboarding flow for new users." },
+        { "word": "Optimize", "example": "Developers optimized the code to reduce loading time." }
+      ],
+      "difference_note": "‘Enhance’ means adding value, ‘Upgrade’ implies replacing with a better version, ‘Refine’ improves small details, and ‘Optimize’ focuses on efficiency."
+    },
+    {
+      "base_word": "Explain",
+      "meaning": "To make something clear or easy to understand.",
+      "synonyms": [
+        { "word": "Clarify", "example": "The coach clarified the interview expectations for the candidates." },
+        { "word": "Illustrate", "example": "The presenter illustrated the concept using real project examples." },
+        { "word": "Elaborate", "example": "She elaborated on the steps involved in the deployment pipeline." },
+        { "word": "Break down", "example": "He broke down a complex algorithm into simple steps during training." }
+      ],
+      "difference_note": "‘Clarify’ removes confusion, ‘Illustrate’ uses examples, ‘Elaborate’ adds more detail, and ‘Break down’ simplifies complexity."
+    },
+    {
+    "base_word": "Plan",
+    "meaning": "To think ahead and prepare for future actions.",
+    "synonyms": [
+      { "word": "Organize", "example": "We organized tasks in the sprint backlog for clarity." },
+      { "word": "Strategize", "example": "Leaders strategize before entering new markets." },
+      { "word": "Schedule", "example": "The team scheduled interviews throughout the week." },
+      { "word": "Map out", "example": "He mapped out the product roadmap for the next quarter." }
+    ],
+    "difference_note": "‘Organize’ deals with arranging, ‘Strategize’ focuses on long-term success, ‘Schedule’ assigns time slots, and ‘Map out’ visualizes steps clearly."
+  },
+  {
+    "base_word": "Change",
+    "meaning": "To make something different from before.",
+    "synonyms": [
+      { "word": "Adjust", "example": "We adjusted the timeline after getting client feedback." },
+      { "word": "Modify", "example": "The engineer modified the UI to improve usability." },
+      { "word": "Revise", "example": "They revised the policy to include remote work." },
+      { "word": "Adapt", "example": "Teams adapt quickly in fast-moving tech environments." }
+    ],
+    "difference_note": "‘Adjust’ is small tweaks, ‘Modify’ alters structure, ‘Revise’ re-writes or updates documents, and ‘Adapt’ means change behavior to new situations."
+  },
+  {
+    "base_word": "Check",
+    "meaning": "To look at something carefully to make sure it is correct.",
+    "synonyms": [
+      { "word": "Review", "example": "Managers review performance reports monthly." },
+      { "word": "Inspect", "example": "QA engineers inspect code for bugs." },
+      { "word": "Verify", "example": "Users must verify their email before logging in." },
+      { "word": "Audit", "example": "The finance team audits expenses every quarter." }
+    ],
+    "difference_note": "‘Review’ is general evaluation, ‘Inspect’ is close examination, ‘Verify’ confirms accuracy, ‘Audit’ is formal official checking."
+  },
+  {
+    "base_word": "Choose",
+    "meaning": "To select something from different options.",
+    "synonyms": [
+      { "word": "Select", "example": "Select your preferred time slot for the interview." },
+      { "word": "Pick", "example": "He picked a cloud provider that suits the business scale." },
+      { "word": "Decide on", "example": "We decided on the new logo design after internal polls." },
+      { "word": "Opt for", "example": "Many startups opt for open-source tools initially." }
+    ],
+    "difference_note": "‘Select’ is formal, ‘Pick’ is casual, ‘Decide on’ highlights choice process, ‘Opt for’ implies preference."
+  },
+  {
+    "base_word": "Improve",
+    "meaning": "To make something better than before.",
+    "synonyms": [
+      { "word": "Enhance", "example": "We enhanced onboarding to reduce user drop-offs." },
+      { "word": "Refine", "example": "The team refined the design after customer trials." },
+      { "word": "Upgrade", "example": "They upgraded the servers for better performance." },
+      { "word": "Boost", "example": "Marketing efforts boosted website traffic." }
+    ],
+    "difference_note": "‘Enhance’ increases value, ‘Refine’ polishes details, ‘Upgrade’ replaces with better, ‘Boost’ gives a sudden measurable rise."
+  },
+  {
+    "base_word": "Argue",
+    "meaning": "To express different opinions or disagree.",
+    "synonyms": [
+      { "word": "Debate", "example": "Teams debated whether to scale horizontally or vertically." },
+      { "word": "Dispute", "example": "The stakeholders disputed the cost projections." },
+      { "word": "Challenge", "example": "Engineers challenged the assumptions behind the design." },
+      { "word": "Contend", "example": "Experts contend that AI will reshape most job roles." }
+    ],
+    "difference_note": "‘Debate’ is structured discussion, ‘Dispute’ implies conflict, ‘Challenge’ questions correctness, ‘Contend’ argues a strong opinion confidently."
+  },
+  {
+    "base_word": "Grow",
+    "meaning": "To increase in size, ability, or value.",
+    "synonyms": [
+      { "word": "Expand", "example": "The company plans to expand into Southeast Asia." },
+      { "word": "Develop", "example": "Fresh graduates develop leadership skills over time." },
+      { "word": "Scale", "example": "We need to scale our systems to support global traffic." },
+      { "word": "Advance", "example": "He advanced rapidly to a senior engineering role." }
+    ],
+    "difference_note": "‘Expand’ increases size/coverage, ‘Develop’ improves skills, ‘Scale’ grows efficiently without breaking, ‘Advance’ implies career or progress steps."
+  },
+  {
+    "base_word": "Reduce",
+    "meaning": "To make something smaller or less.",
+    "synonyms": [
+      { "word": "Lower", "example": "They lowered server costs using auto-scaling." },
+      { "word": "Cut down", "example": "The team cut down meeting time to stay focused." },
+      { "word": "Minimize", "example": "Our goal is to minimize downtime during upgrades." },
+      { "word": "Limit", "example": "We limit access to sensitive data for security reasons." }
+    ],
+    "difference_note": "‘Lower’ is decrease amount, ‘Cut down’ is remove excess, ‘Minimize’ aims for the smallest possible level, ‘Limit’ caps or restricts something."
+  }
+  ],
+  "Advanced": [
+    {
+      "base_word": "Think",
+      "meaning": "To use the mind to form ideas, judgments, or decisions.",
+      "synonyms": [
+        { "word": "Consider", "example": "Consider the pros and cons carefully before accepting the job offer." },
+        { "word": "Reflect", "example": "He reflected deeply on how his actions affected the outcome of the project." },
+        { "word": "Ponder", "example": "She pondered the meaning of success and how it relates to happiness." },
+        { "word": "Contemplate", "example": "He contemplated whether to move abroad for better career growth." },
+        { "word": "Deliberate", "example": "The committee deliberated for hours before announcing the final decision." },
+        { "word": "Speculate", "example": "Experts speculated that the rise in demand would continue next quarter." },
+        { "word": "Envision", "example": "Entrepreneurs often envision a future that others cannot yet see." }
+      ],
+      "difference_note": "‘Consider’ is practical and quick, ‘Reflect’ is thoughtful, ‘Ponder’ is slow reasoning, ‘Contemplate’ is deep and philosophical, ‘Deliberate’ is analytical, ‘Speculate’ implies guessing based on limited info, and ‘Envision’ involves imagining the future."
+    },
+    {
+      "base_word": "Analyze",
+      "meaning": "To study something in detail to understand it better.",
+      "synonyms": [
+        { "word": "Evaluate", "example": "Engineers evaluate multiple solutions before finalizing the design." },
+        { "word": "Scrutinize", "example": "Security experts scrutinize code for vulnerabilities before release." },
+        { "word": "Dissect", "example": "The product team dissected user feedback to identify improvement areas." },
+        { "word": "Interpret", "example": "Analysts interpret trends to suggest business strategy changes." }
+      ],
+      "difference_note": "‘Evaluate’ means judge value, ‘Scrutinize’ means examine extremely closely, ‘Dissect’ breaks something into parts to study, and ‘Interpret’ finds meaning in data."
+    },
+    {
+      "base_word": "Persuade",
+      "meaning": "To cause someone to do or believe something through reasoning.",
+      "synonyms": [
+        { "word": "Convince", "example": "She convinced the board to invest in AI research." },
+        { "word": "Influence", "example": "Strong testimonials influence customers to choose a product." },
+        { "word": "Motivate", "example": "Leaders motivate employees to achieve ambitious goals." },
+        { "word": "Sway", "example": "Market trends can sway investors' decisions quickly." }
+      ],
+      "difference_note": "‘Convince’ focuses on belief, ‘Influence’ focuses on effects on decisions, ‘Motivate’ inspires action, and ‘Sway’ subtly shifts opinions emotionally or socially."
+    },
+    {
+    "base_word": "Criticize",
+    "meaning": "To judge something negatively or point out faults.",
+    "synonyms": [
+      { "word": "Condemn", "example": "Industry leaders condemned the unethical data practices." },
+      { "word": "Reprimand", "example": "The manager reprimanded the team for violating security rules." },
+      { "word": "Disparage", "example": "He disparaged the competitor’s product without valid data." },
+      { "word": "Denounce", "example": "Experts publicly denounced the flawed AI model." }
+    ],
+    "difference_note": "‘Condemn’ expresses moral judgment, ‘Reprimand’ implies official scolding, ‘Disparage’ belittles unfairly, ‘Denounce’ is strong public criticism."
+  },
+  {
+    "base_word": "Persuade",
+    "meaning": "To influence someone’s opinion or decision.",
+    "synonyms": [
+      { "word": "Coax", "example": "He coaxed clients into trying the beta product by offering bonus credits." },
+      { "word": "Convince", "example": "She convinced the investors with a strong revenue projection." },
+      { "word": "Sway", "example": "Public reviews can sway purchasing decisions quickly." },
+      { "word": "Influence", "example": "Thought leaders influence hiring trends in the tech industry." }
+    ],
+    "difference_note": "‘Coax’ is gentle persuasion, ‘Convince’ uses logic, ‘Sway’ emotionally shifts opinion, ‘Influence’ covers broader social or strategic persuasion."
+  },
+  {
+    "base_word": "Explain deeply",
+    "meaning": "To provide detailed clarity and reasoning on a topic.",
+    "synonyms": [
+      { "word": "Expound", "example": "The CTO expounded on the company's AI-first architecture." },
+      { "word": "Elucidate", "example": "She elucidated the research findings with clear visual charts." },
+      { "word": "Illuminate", "example": "The speaker illuminated how blockchain secures transactions." },
+      { "word": "Delineate", "example": "The engineer delineated each step of the deployment pipeline." }
+    ],
+    "difference_note": "‘Expound’ explains systematically, ‘Elucidate’ makes complex things clear, ‘Illuminate’ reveals understanding, ‘Delineate’ defines boundaries or steps."
+  },
+  {
+    "base_word": "Challenge",
+    "meaning": "To question, confront, or push beyond norms.",
+    "synonyms": [
+      { "word": "Contest", "example": "The analyst contested the accuracy of the forecast model." },
+      { "word": "Question", "example": "He questioned the validity of the security assumptions." },
+      { "word": "Defy", "example": "Innovators defy conventional thinking to build disruption." },
+      { "word": "Rebut", "example": "The founder rebutted criticism with proof from user data." }
+    ],
+    "difference_note": "‘Contest’ disputes formally, ‘Question’ seeks clarity or doubt, ‘Defy’ rebels against norms, ‘Rebut’ argues with evidence."
+  },
+  {
+    "base_word": "Praise strongly",
+    "meaning": "To speak highly of someone or something.",
+    "synonyms": [
+      { "word": "Commend", "example": "The CEO commended the engineering team after the flawless launch." },
+      { "word": "Acclaim", "example": "The UX redesign was acclaimed in industry blogs." },
+      { "word": "Exalt", "example": "The press exalted the founder as a rising tech visionary." },
+      { "word": "Applaud", "example": "Customers applauded the company's transparent communication." }
+    ],
+    "difference_note": "‘Commend’ is formal recognition, ‘Acclaim’ is public praise, ‘Exalt’ elevates admiration, ‘Applaud’ is enthusiastic approval."
+  },
+  {
+    "base_word": "Avoid",
+    "meaning": "To stay away from something or prevent involvement.",
+    "synonyms": [
+      { "word": "Evade", "example": "He evaded answering tough questions about security breaches." },
+      { "word": "Circumvent", "example": "Hackers attempted to circumvent the firewall system." },
+      { "word": "Sidestep", "example": "The spokesperson sidestepped the controversy skillfully." },
+      { "word": "Dodge", "example": "The vendor tried to dodge responsibility for the outage." }
+    ],
+    "difference_note": "‘Evade’ suggests deliberate hiding, ‘Circumvent’ bypasses obstacles, ‘Sidestep’ avoids directly addressing, ‘Dodge’ avoids responsibility."
+  },
+  {
+    "base_word": "Strong belief",
+    "meaning": "A deeply held conviction or principle.",
+    "synonyms": [
+      { "word": "Conviction", "example": "His conviction in ethical tech shaped company policy." },
+      { "word": "Doctrine", "example": "The organization followed a growth-first doctrine." },
+      { "word": "Credo", "example": "Her leadership credo emphasized empathy and innovation." },
+      { "word": "Philosophy", "example": "Their product philosophy prioritizes user privacy." }
+    ],
+    "difference_note": "‘Conviction’ is personal certainty, ‘Doctrine’ is official belief system, ‘Credo’ is guiding internal value, ‘Philosophy’ shapes approach and mindset."
+  },
+  {
+    "base_word": "Reduce importance of",
+    "meaning": "To make something seem less important or serious.",
+    "synonyms": [
+      { "word": "Downplay", "example": "The spokesperson downplayed the impact of the bug." },
+      { "word": "Minimize", "example": "He minimized his role in the failed rollout." },
+      { "word": "Dismiss", "example": "Executives dismissed the rumor as speculation." },
+      { "word": "Belittle", "example": "Critics belittled the innovation until it became widely adopted." }
+    ],
+    "difference_note": "‘Downplay’ softens seriousness, ‘Minimize’ reduces perceived scale, ‘Dismiss’ rejects relevance, ‘Belittle’ insults or undermines value."
+  }
+  ]
+}
