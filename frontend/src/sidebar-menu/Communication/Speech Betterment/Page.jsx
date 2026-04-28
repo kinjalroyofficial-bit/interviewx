@@ -92,38 +92,7 @@ function SpeechPracticePanel({ title, prompts }) {
   const similarityScore = useMemo(() => createSimilarityScore(activePrompt, transcript), [activePrompt, transcript])
 
   useEffect(() => {
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop()
-      }
-    }
-  }, [])
-
-  function handleNextPrompt() {
-    setPromptIndex((prev) => (prev + 1) % prompts.length)
-    setTranscript('')
-    setRecognitionError('')
-
-    if (recognitionRef.current) {
-      recognitionRef.current.stop()
-      recognitionRef.current = null
-    }
-
-    setIsRecording(false)
-  }
-
-  function handleRecordResponse() {
-    setRecognitionError('')
-
-    if (!isSpeechRecognitionSupported) {
-      setRecognitionError('Speech recognition is not supported in this browser.')
-      return
-    }
-
-    if (isRecording && recognitionRef.current) {
-      recognitionRef.current.stop()
-      return
-    }
+    if (!isSpeechRecognitionSupported) return () => {}
 
     const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition
     const recognition = new SpeechRecognitionApi()
@@ -151,6 +120,7 @@ function SpeechPracticePanel({ title, prompts }) {
       } else {
         setRecognitionError('Could not process speech input. Please try again.')
       }
+      setIsRecording(false)
     }
 
     recognition.onend = () => {
@@ -158,7 +128,42 @@ function SpeechPracticePanel({ title, prompts }) {
     }
 
     recognitionRef.current = recognition
-    recognition.start()
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop()
+      }
+    }
+  }, [isSpeechRecognitionSupported])
+
+  function handleNextPrompt() {
+    setPromptIndex((prev) => (prev + 1) % prompts.length)
+    setTranscript('')
+    setRecognitionError('')
+
+    if (recognitionRef.current) recognitionRef.current.stop()
+
+    setIsRecording(false)
+  }
+
+  function handleRecordResponse() {
+    setRecognitionError('')
+
+    if (!isSpeechRecognitionSupported) {
+      setRecognitionError('Speech recognition is not supported in this browser.')
+      return
+    }
+
+    if (isRecording && recognitionRef.current) {
+      recognitionRef.current.stop()
+      return
+    }
+
+    try {
+      recognitionRef.current.start()
+    } catch (error) {
+      setRecognitionError('Microphone is still resetting. Please try again in a second.')
+    }
   }
 
   return (
