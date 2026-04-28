@@ -13,7 +13,7 @@ const sectionStyle = {
 function getSectionsRowStyle(sidebarCollapsed) {
   return {
     display: 'grid',
-    gridTemplateColumns: sidebarCollapsed ? 'repeat(3, minmax(0, 1fr)) minmax(220px, 0.92fr)' : 'repeat(3, minmax(0, 1fr))',
+    gridTemplateColumns: sidebarCollapsed ? 'repeat(4, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))',
     gap: '1rem',
     alignItems: 'stretch',
     height: '100%',
