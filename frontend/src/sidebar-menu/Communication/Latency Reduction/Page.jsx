@@ -7,7 +7,8 @@ const sectionStyle = {
   overflowY: 'auto',
   display: 'flex',
   flexDirection: 'column',
-  gap: '0.75rem'
+  gap: '0.75rem',
+  maxHeight: 'calc(100dvh - 220px)'
 }
 
 function getSectionsRowStyle(sidebarCollapsed) {
@@ -15,7 +16,7 @@ function getSectionsRowStyle(sidebarCollapsed) {
     display: 'grid',
     gridTemplateColumns: sidebarCollapsed ? 'repeat(4, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))',
     gap: '1rem',
-    alignItems: 'stretch',
+    alignItems: 'start',
     height: '100%',
     minHeight: 0,
     marginTop: '0.5rem'
