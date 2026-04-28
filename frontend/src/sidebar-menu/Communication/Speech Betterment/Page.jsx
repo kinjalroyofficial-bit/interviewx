@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import sentencesData from '../../../data/sentences.json'
 import punctuationData from '../../../data/punctuation.json'
+import audioData from '../../../data/audio.json'
 
 const panelStyle = {
   border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -76,6 +77,21 @@ const scoreCardStyle = {
   justifyContent: 'center'
 }
 
+const waveformStyle = {
+  ...sentenceCardStyle,
+  justifyContent: 'space-between',
+  minHeight: '84px',
+  padding: '0.75rem 0.95rem'
+}
+
+const waveformBarBaseStyle = {
+  width: '6px',
+  borderRadius: '6px',
+  background: 'rgba(165, 198, 255, 0.8)',
+  transition: 'height 0.2s ease',
+  alignSelf: 'center'
+}
+
 function createSimilarityScore(sourceText, targetText) {
   if (!sourceText || !targetText) return 0
 
@@ -102,17 +118,12 @@ function getRandomPromptIndex(length, currentIndex = -1) {
   return nextIndex
 }
 
-function SpeechPracticePanel({ title, prompts }) {
-  const [promptIndex, setPromptIndex] = useState(() => getRandomPromptIndex(prompts.length))
+function useSpeechRecognitionTranscriber() {
   const [transcript, setTranscript] = useState('')
   const [isRecording, setIsRecording] = useState(false)
   const [recognitionError, setRecognitionError] = useState('')
   const recognitionRef = useRef(null)
-
-  const activePrompt = prompts[promptIndex] || 'No sentence available.'
   const isSpeechRecognitionSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
-
-  const similarityScore = useMemo(() => createSimilarityScore(activePrompt, transcript), [activePrompt, transcript])
 
   useEffect(() => {
     if (!isSpeechRecognitionSupported) return () => {}
@@ -161,17 +172,7 @@ function SpeechPracticePanel({ title, prompts }) {
     }
   }, [isSpeechRecognitionSupported])
 
-  function handleNextPrompt() {
-    setPromptIndex((prev) => getRandomPromptIndex(prompts.length, prev))
-    setTranscript('')
-    setRecognitionError('')
-
-    if (isRecording && recognitionRef.current) recognitionRef.current.stop()
-
-    setIsRecording(false)
-  }
-
-  function handleRecordResponse() {
+  function startOrStopRecording() {
     setRecognitionError('')
 
     if (!isSpeechRecognitionSupported) {
@@ -191,6 +192,40 @@ function SpeechPracticePanel({ title, prompts }) {
     }
   }
 
+  function resetTranscriptionState() {
+    setTranscript('')
+    setRecognitionError('')
+    if (isRecording && recognitionRef.current) recognitionRef.current.stop()
+    setIsRecording(false)
+  }
+
+  return {
+    transcript,
+    isRecording,
+    recognitionError,
+    startOrStopRecording,
+    resetTranscriptionState
+  }
+}
+
+function SpeechPracticePanel({ title, prompts }) {
+  const [promptIndex, setPromptIndex] = useState(() => getRandomPromptIndex(prompts.length))
+  const {
+    transcript,
+    isRecording,
+    recognitionError,
+    startOrStopRecording,
+    resetTranscriptionState
+  } = useSpeechRecognitionTranscriber()
+
+  const activePrompt = prompts[promptIndex] || 'No sentence available.'
+  const similarityScore = useMemo(() => createSimilarityScore(activePrompt, transcript), [activePrompt, transcript])
+
+  function handleNextPrompt() {
+    setPromptIndex((prev) => getRandomPromptIndex(prompts.length, prev))
+    resetTranscriptionState()
+  }
+
   return (
     <section style={panelStyle}>
       <h3 style={sectionTitleStyle}>{title}</h3>
@@ -200,7 +235,7 @@ function SpeechPracticePanel({ title, prompts }) {
           <p style={{ margin: 0 }}>{activePrompt}</p>
         </div>
 
-        <button type="button" style={primaryButtonStyle} onClick={handleRecordResponse}>
+        <button type="button" style={primaryButtonStyle} onClick={startOrStopRecording}>
           {isRecording ? 'Stop Recording' : 'Record my Response'}
         </button>
 
@@ -228,19 +263,133 @@ function SpeechPracticePanel({ title, prompts }) {
   )
 }
 
+function AudioPracticePanel({ prompts }) {
+  const [promptIndex, setPromptIndex] = useState(() => getRandomPromptIndex(prompts.length))
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const [audioError, setAudioError] = useState('')
+  const {
+    transcript,
+    isRecording,
+    recognitionError,
+    startOrStopRecording,
+    resetTranscriptionState
+  } = useSpeechRecognitionTranscriber()
+
+  const activePrompt = prompts[promptIndex] || 'No sentence available.'
+  const similarityScore = useMemo(() => createSimilarityScore(activePrompt, transcript), [activePrompt, transcript])
+  const isSpeechSynthesisSupported = typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window
+
+  useEffect(() => () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
+  }, [])
+
+  function handlePlayAudio() {
+    setAudioError('')
+
+    if (!isSpeechSynthesisSupported) {
+      setAudioError('Speech playback is not supported in this browser.')
+      return
+    }
+
+    if (!activePrompt || activePrompt === 'No sentence available.') {
+      setAudioError('No audio sentence is available right now.')
+      return
+    }
+
+    const utterance = new window.SpeechSynthesisUtterance(activePrompt)
+    utterance.lang = 'en-US'
+    utterance.rate = 0.96
+    utterance.pitch = 1
+
+    utterance.onstart = () => {
+      setIsPlayingAudio(true)
+    }
+    utterance.onend = () => {
+      setIsPlayingAudio(false)
+    }
+    utterance.onerror = () => {
+      setIsPlayingAudio(false)
+      setAudioError('Could not play audio. Please try again.')
+    }
+
+    window.speechSynthesis.cancel()
+    window.speechSynthesis.speak(utterance)
+  }
+
+  function handleNextPrompt() {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
+    setIsPlayingAudio(false)
+    setPromptIndex((prev) => getRandomPromptIndex(prompts.length, prev))
+    resetTranscriptionState()
+    setAudioError('')
+  }
+
+  return (
+    <section style={panelStyle}>
+      <h3 style={sectionTitleStyle}>Audio</h3>
+
+      <div style={{ display: 'grid', gap: '1rem' }}>
+        <div style={waveformStyle} aria-label="Audio waveform preview">
+          {[18, 36, 25, 44, 30, 52, 30, 44, 25, 36, 18].map((height, index) => (
+            <span
+              key={`wave-${height}-${index}`}
+              style={{
+                ...waveformBarBaseStyle,
+                height: `${isPlayingAudio ? Math.min(56, height + ((index % 3) * 7)) : height}px`
+              }}
+            />
+          ))}
+        </div>
+
+        <button type="button" style={secondaryButtonStyle} onClick={handlePlayAudio}>
+          {isPlayingAudio ? 'Playing Audio…' : 'Play Audio'}
+        </button>
+
+        <button type="button" style={primaryButtonStyle} onClick={startOrStopRecording}>
+          {isRecording ? 'Stop Recording' : 'Record my Response'}
+        </button>
+
+        <div style={transcriptCardStyle}>
+          <p style={{ margin: 0 }}>
+            {transcript || 'Show the Transcript of what was Recorded'}
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={scoreCardStyle}>
+            <strong style={{ fontSize: '0.95rem', lineHeight: 1.1 }}>{similarityScore}% matched</strong>
+          </div>
+
+          <button type="button" style={secondaryButtonStyle} onClick={handleNextPrompt}>
+            Next Sentence
+          </button>
+        </div>
+
+        {audioError ? (
+          <p style={{ margin: 0, color: '#ffb4b4', fontSize: '0.88rem' }}>{audioError}</p>
+        ) : null}
+        {recognitionError ? (
+          <p style={{ margin: 0, color: '#ffb4b4', fontSize: '0.88rem' }}>{recognitionError}</p>
+        ) : null}
+      </div>
+    </section>
+  )
+}
+
 export default function CommunicationSpeechBettermentPage({ sidebarCollapsed = false }) {
   const sentencePrompts = useMemo(() => sentencesData.sentences || [], [])
   const punctuationPrompts = useMemo(() => punctuationData.sentences || [], [])
+  const audioPrompts = useMemo(() => audioData.paragraphs || [], [])
 
   return (
     <div style={getSectionsRowStyle(sidebarCollapsed)}>
       <SpeechPracticePanel title="Sentence" prompts={sentencePrompts} />
       <SpeechPracticePanel title="Punctuation" prompts={punctuationPrompts} />
-
-      <section style={panelStyle}>
-        <h3 style={sectionTitleStyle}>Audio</h3>
-        <p>Placeholder content for audio-based pronunciation and speaking feedback.</p>
-      </section>
+      <AudioPracticePanel prompts={audioPrompts} />
 
       {sidebarCollapsed ? (
         <section style={panelStyle}>
