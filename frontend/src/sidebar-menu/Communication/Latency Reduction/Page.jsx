@@ -31,6 +31,11 @@ const cardStyle = {
   lineHeight: 1.35
 }
 
+const analyticsSectionStyle = {
+  alignSelf: 'start',
+  maxHeight: '260px'
+}
+
 function PlaceholderSection({ title, description }) {
   return (
     <section style={sectionStyle}>
@@ -47,7 +52,12 @@ export default function CommunicationLatencyReductionPage({ sidebarCollapsed = f
       <PlaceholderSection title="Drive" description="Latency drive exercises placeholder." />
       <PlaceholderSection title="Turn Tests" description="Turn-based timing test placeholder." />
 
-      {sidebarCollapsed ? <PlaceholderSection title="Analytics" description="Latency analytics placeholder." /> : null}
+      {sidebarCollapsed ? (
+        <section style={{ ...sectionStyle, ...analyticsSectionStyle }}>
+          <h3 style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}>Analytics</h3>
+          <div style={cardStyle}>Latency analytics placeholder.</div>
+        </section>
+      ) : null}
     </div>
   )
 }

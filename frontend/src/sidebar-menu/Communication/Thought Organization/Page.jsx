@@ -31,6 +31,11 @@ const cardStyle = {
   lineHeight: 1.35
 }
 
+const analyticsSectionStyle = {
+  alignSelf: 'start',
+  maxHeight: '260px'
+}
+
 function PlaceholderSection({ title, description }) {
   return (
     <section style={sectionStyle}>
@@ -47,7 +52,12 @@ export default function CommunicationThoughtOrganizationPage({ sidebarCollapsed 
       <PlaceholderSection title="Situation" description="Situation-based thought structure practice placeholder." />
       <PlaceholderSection title="Paraphrasing" description="Paraphrasing practice workspace placeholder." />
 
-      {sidebarCollapsed ? <PlaceholderSection title="Analytics" description="Thought organization analytics placeholder." /> : null}
+      {sidebarCollapsed ? (
+        <section style={{ ...sectionStyle, ...analyticsSectionStyle }}>
+          <h3 style={{ fontSize: '1.6rem', marginBottom: '0.25rem' }}>Analytics</h3>
+          <div style={cardStyle}>Thought organization analytics placeholder.</div>
+        </section>
+      ) : null}
     </div>
   )
 }
