@@ -5,7 +5,7 @@ import punctuationData from '../../../data/punctuation.json'
 const panelStyle = {
   border: '1px solid rgba(255, 255, 255, 0.12)',
   borderRadius: '12px',
-  padding: '1rem',
+  padding: '0.85rem',
   background: 'rgba(18, 27, 45, 0.55)',
   minHeight: 0,
   overflowY: 'auto',
@@ -28,18 +28,19 @@ function getSectionsRowStyle(sidebarCollapsed) {
 const sentenceCardStyle = {
   border: '1px solid rgba(255, 255, 255, 0.22)',
   borderRadius: '8px',
-  padding: '1.25rem',
+  padding: '0.95rem',
   background: 'rgba(5, 14, 29, 0.45)',
   display: 'flex',
   alignItems: 'center',
-  fontSize: '1.15rem',
-  lineHeight: 1.5,
-  minHeight: '140px'
+  fontSize: '0.92rem',
+  lineHeight: 1.35,
+  minHeight: '118px',
+  wordBreak: 'break-word'
 }
 
 const transcriptCardStyle = {
   ...sentenceCardStyle,
-  minHeight: '120px'
+  minHeight: '104px'
 }
 
 const primaryButtonStyle = {
@@ -48,8 +49,9 @@ const primaryButtonStyle = {
   border: '1px solid rgba(255, 255, 255, 0.38)',
   background: 'rgba(9, 24, 48, 0.8)',
   color: '#f5f7ff',
-  padding: '0.9rem 1rem',
-  fontWeight: 700,
+  padding: '0.62rem 0.9rem',
+  fontWeight: 600,
+  fontSize: '0.95rem',
   cursor: 'pointer'
 }
 
@@ -61,10 +63,11 @@ const secondaryButtonStyle = {
 const scoreCardStyle = {
   border: '1px solid rgba(255, 255, 255, 0.22)',
   borderRadius: '8px',
-  padding: '0.85rem 1rem',
+  padding: '0.62rem 0.9rem',
   background: 'rgba(5, 14, 29, 0.45)',
-  display: 'grid',
-  gap: '0.25rem'
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center'
 }
 
 function createSimilarityScore(sourceText, targetText) {
@@ -172,7 +175,7 @@ function SpeechPracticePanel({ title, prompts }) {
 
   return (
     <section style={panelStyle}>
-      <h3>{title}</h3>
+      <h3 style={{ fontSize: '2rem', marginBottom: '0.65rem' }}>{title}</h3>
 
       <div style={{ display: 'grid', gap: '1rem' }}>
         <div style={sentenceCardStyle}>
@@ -191,8 +194,7 @@ function SpeechPracticePanel({ title, prompts }) {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div style={scoreCardStyle}>
-            <span style={{ opacity: 0.8, fontSize: '0.92rem' }}>Percent Comparison</span>
-            <strong style={{ fontSize: '1.2rem' }}>{similarityScore}%</strong>
+            <strong style={{ fontSize: '0.95rem', lineHeight: 1.1 }}>{similarityScore}% matched</strong>
           </div>
 
           <button type="button" style={secondaryButtonStyle} onClick={handleNextPrompt}>
