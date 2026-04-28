@@ -14,7 +14,7 @@ const sentenceSectionStyle = {
   ...sectionStyle,
   display: 'flex',
   flexDirection: 'column',
-  overflow: 'hidden'
+  overflowY: 'auto'
 }
 
 const sectionsRowStyle = {
@@ -22,8 +22,8 @@ const sectionsRowStyle = {
   gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
   gap: '1rem',
   alignItems: 'stretch',
-  height: 'calc(100dvh - 155px)',
-  minHeight: '420px',
+  height: 'calc(100dvh - 130px)',
+  minHeight: 0,
   marginTop: '0.5rem'
 }
 
@@ -109,8 +109,8 @@ export default function CommunicationSpeechBettermentPage() {
       <section style={sentenceSectionStyle}>
         <h3>Sentence</h3>
 
-        <div style={{ display: 'grid', gap: '1rem', flex: 1, minHeight: 0 }}>
-          <div style={{ ...sentenceCardStyle, flex: 1 }}>
+        <div style={{ display: 'grid', gap: '1rem' }}>
+          <div style={sentenceCardStyle}>
             <p style={{ margin: 0 }}>{activeSentence}</p>
           </div>
 
@@ -118,7 +118,7 @@ export default function CommunicationSpeechBettermentPage() {
             {isRecording ? 'Stop Recording' : 'Record my Response'}
           </button>
 
-          <div style={{ ...transcriptCardStyle, flex: 1 }}>
+          <div style={transcriptCardStyle}>
             <p style={{ margin: 0 }}>
               {transcript || 'Show the Transcript of what was Recorded'}
             </p>
