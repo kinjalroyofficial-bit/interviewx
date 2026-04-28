@@ -91,7 +91,18 @@ export default function CommunicationSpeechBettermentPage() {
     setIsRecording(false)
   }
 
-  const similarityScore = transcript ? 100 : 0
+  const similarityScore = useMemo(() => {
+    if (!transcript) return 0
+
+    const source = activeSentence.toLowerCase().replace(/[^\w\s]/g, '').trim()
+    const target = transcript.toLowerCase().replace(/[^\w\s]/g, '').trim()
+    if (!source || !target) return 0
+
+    const sourceWords = source.split(/\s+/)
+    const targetWords = target.split(/\s+/)
+    const matchedWords = sourceWords.filter((word, index) => targetWords[index] === word).length
+    return Math.round((matchedWords / sourceWords.length) * 100)
+  }, [activeSentence, transcript])
 
   return (
     <div style={sectionsRowStyle}>
@@ -115,12 +126,14 @@ export default function CommunicationSpeechBettermentPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div style={scoreCardStyle}>
-              <span style={{ opacity: 0.8, fontSize: '0.92rem' }}>Score of Matching</span>
-              <strong style={{ fontSize: '1.2rem' }}>{similarityScore}%</strong>
+              <span style={{ opacity: 0.8, fontSize: '0.92rem' }}>Percent Comparison</span>
+              <strong style={{ fontSize: '1.2rem' }}>
+                {similarityScore}% match
+              </strong>
             </div>
 
             <button type="button" style={secondaryButtonStyle} onClick={handleNextSentence}>
-              Next Sentence
+              Refresh Sentence
             </button>
           </div>
         </div>
