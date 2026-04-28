@@ -1,3 +1,5 @@
+import sentencesData from '../../../data/sentences.json'
+
 const sectionStyle = {
   border: '1px solid rgba(255, 255, 255, 0.12)',
   borderRadius: '12px',
@@ -13,7 +15,16 @@ const sectionsRowStyle = {
   gap: '1rem',
   alignItems: 'stretch',
   height: 'calc(100vh - 170px)',
-  minHeight: '320px'
+  minHeight: '320px',
+  marginTop: '0.5rem'
+}
+
+const sentenceListStyle = {
+  margin: '0.75rem 0 0',
+  paddingLeft: '1.2rem',
+  display: 'grid',
+  gap: '0.65rem',
+  lineHeight: 1.5
 }
 
 export default function CommunicationSpeechBettermentPage() {
@@ -21,7 +32,12 @@ export default function CommunicationSpeechBettermentPage() {
     <div style={sectionsRowStyle}>
       <section style={sectionStyle}>
         <h3>Sentence</h3>
-        <p>Placeholder content for sentence structure practice and guided drills.</p>
+        <p>Practice sentence structure and delivery with real guided sentence prompts.</p>
+        <ol style={sentenceListStyle}>
+          {sentencesData.sentences.map((sentence, index) => (
+            <li key={`${sentence}-${index}`}>{sentence}</li>
+          ))}
+        </ol>
       </section>
 
       <section style={sectionStyle}>
