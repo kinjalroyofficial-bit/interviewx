@@ -3,36 +3,35 @@ const sectionStyle = {
   borderRadius: '12px',
   padding: '1rem',
   background: 'rgba(18, 27, 45, 0.55)',
-  minHeight: '220px'
+  minHeight: 0,
+  overflowY: 'auto'
 }
 
 const sectionsRowStyle = {
   display: 'grid',
   gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
   gap: '1rem',
-  alignItems: 'stretch'
+  alignItems: 'stretch',
+  height: 'calc(100vh - 170px)',
+  minHeight: '320px'
 }
 
 export default function CommunicationSpeechBettermentPage() {
   return (
-    <div className="dashboard-workspace-column">
-      <section className="dashboard-content-card">
-        <div style={sectionsRowStyle}>
-          <section style={sectionStyle}>
-            <h3>Sentence</h3>
-            <p>Placeholder content for sentence structure practice and guided drills.</p>
-          </section>
+    <div style={sectionsRowStyle}>
+      <section style={sectionStyle}>
+        <h3>Sentence</h3>
+        <p>Placeholder content for sentence structure practice and guided drills.</p>
+      </section>
 
-          <section style={sectionStyle}>
-            <h3>Punctuation</h3>
-            <p>Placeholder content for punctuation correction exercises and examples.</p>
-          </section>
+      <section style={sectionStyle}>
+        <h3>Punctuation</h3>
+        <p>Placeholder content for punctuation correction exercises and examples.</p>
+      </section>
 
-          <section style={sectionStyle}>
-            <h3>Audio</h3>
-            <p>Placeholder content for audio-based pronunciation and speaking feedback.</p>
-          </section>
-        </div>
+      <section style={sectionStyle}>
+        <h3>Audio</h3>
+        <p>Placeholder content for audio-based pronunciation and speaking feedback.</p>
       </section>
     </div>
   )
