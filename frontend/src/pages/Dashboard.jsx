@@ -71,8 +71,8 @@ export default function Dashboard() {
   const isCareerCounsellingActive = activeLeafLabel === 'Career Counselling'
   const isJobAnalyticsActive = activeLeafLabel === 'Job Analytics'
   const isSpeechBettermentActive = activeLeafLabel === 'Speech Betterment'
-  const isThoughtOrganizationActive = ['Thought Organization', 'Topic', 'Situation'].includes(activeLeafLabel)
-  const isLatencyReductionActive = ['Latency Reduction', 'Natural', 'Drive'].includes(activeLeafLabel)
+  const isThoughtOrganizationActive = activeLeafLabel === 'Thought Organization'
+  const isLatencyReductionActive = activeLeafLabel === 'Latency Reduction'
   const workspaceTitle = activeLeafLabel || 'My Workspace'
 
   useEffect(() => {

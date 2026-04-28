@@ -13,7 +13,7 @@ const sectionStyle = {
 function getSectionsRowStyle(sidebarCollapsed) {
   return {
     display: 'grid',
-    gridTemplateColumns: sidebarCollapsed ? 'repeat(2, minmax(0, 1fr)) minmax(220px, 0.92fr)' : 'repeat(2, minmax(0, 1fr))',
+    gridTemplateColumns: sidebarCollapsed ? 'repeat(3, minmax(0, 1fr)) minmax(220px, 0.92fr)' : 'repeat(3, minmax(0, 1fr))',
     gap: '1rem',
     alignItems: 'stretch',
     height: '100%',
@@ -43,6 +43,7 @@ function PlaceholderSection({ title, description }) {
 export default function CommunicationLatencyReductionPage({ sidebarCollapsed = false }) {
   return (
     <div style={getSectionsRowStyle(sidebarCollapsed)}>
+      <PlaceholderSection title="Normal" description="Natural flow latency baseline placeholder." />
       <PlaceholderSection title="Drive" description="Latency drive exercises placeholder." />
       <PlaceholderSection title="Turn Tests" description="Turn-based timing test placeholder." />
 

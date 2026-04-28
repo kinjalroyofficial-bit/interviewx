@@ -22,20 +22,12 @@ export const sidebarMenu = [
       {
         id: 'thought-organization',
         label: 'Thought Organization',
-        icon: 'thought',
-        children: [
-          { id: 'situation', label: 'Situation', icon: 'situation' },
-          { id: 'topic', label: 'Topic', icon: 'topic' }
-        ]
+        icon: 'thought'
       },
       {
         id: 'latency-reduction',
         label: 'Latency Reduction',
-        icon: 'latency',
-        children: [
-          { id: 'natural', label: 'Natural', icon: 'natural' },
-          { id: 'drive', label: 'Drive', icon: 'drive' }
-        ]
+        icon: 'latency'
       },
       {
         id: 'vocabulary',
