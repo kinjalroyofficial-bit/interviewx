@@ -90,8 +90,20 @@ function createSimilarityScore(sourceText, targetText) {
   return Math.round((matchedWords / sourceWords.length) * 100)
 }
 
+function getRandomPromptIndex(length, currentIndex = -1) {
+  if (!length || length <= 0) return 0
+  if (length === 1) return 0
+
+  let nextIndex = Math.floor(Math.random() * length)
+  while (nextIndex === currentIndex) {
+    nextIndex = Math.floor(Math.random() * length)
+  }
+
+  return nextIndex
+}
+
 function SpeechPracticePanel({ title, prompts }) {
-  const [promptIndex, setPromptIndex] = useState(0)
+  const [promptIndex, setPromptIndex] = useState(() => getRandomPromptIndex(prompts.length))
   const [transcript, setTranscript] = useState('')
   const [isRecording, setIsRecording] = useState(false)
   const [recognitionError, setRecognitionError] = useState('')
@@ -150,7 +162,7 @@ function SpeechPracticePanel({ title, prompts }) {
   }, [isSpeechRecognitionSupported])
 
   function handleNextPrompt() {
-    setPromptIndex((prev) => (prev + 1) % prompts.length)
+    setPromptIndex((prev) => getRandomPromptIndex(prompts.length, prev))
     setTranscript('')
     setRecognitionError('')
 
