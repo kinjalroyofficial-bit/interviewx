@@ -2,20 +2,22 @@ const sectionStyle = {
   border: '1px solid rgba(255, 255, 255, 0.12)',
   borderRadius: '12px',
   padding: '1rem',
-  background: 'rgba(18, 27, 45, 0.55)'
+  background: 'rgba(18, 27, 45, 0.55)',
+  minHeight: '220px'
 }
 
-const verticalSectionsStyle = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '1rem'
+const sectionsRowStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+  gap: '1rem',
+  alignItems: 'stretch'
 }
 
 export default function CommunicationSpeechBettermentPage() {
   return (
     <div className="dashboard-workspace-column">
       <section className="dashboard-content-card">
-        <div style={verticalSectionsStyle}>
+        <div style={sectionsRowStyle}>
           <section style={sectionStyle}>
             <h3>Sentence</h3>
             <p>Placeholder content for sentence structure practice and guided drills.</p>
