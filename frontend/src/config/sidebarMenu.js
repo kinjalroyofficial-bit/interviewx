@@ -17,12 +17,7 @@ export const sidebarMenu = [
       {
         id: 'speech-betterment',
         label: 'Speech Betterment',
-        icon: 'speech',
-        children: [
-          { id: 'sentence', label: 'Sentence', icon: 'sentence' },
-          { id: 'punctuation', label: 'Punctuation', icon: 'punctuation' },
-          { id: 'audio', label: 'Audio', icon: 'audio-leaf' }
-        ]
+        icon: 'speech'
       },
       {
         id: 'thought-organization',
