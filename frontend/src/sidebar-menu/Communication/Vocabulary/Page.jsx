@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 const sectionTitleStyle = {
   fontSize: '1.6rem',
   margin: 0,
@@ -32,13 +34,21 @@ const verticalColumnStyle = {
   minHeight: 0
 }
 
-function PlaceholderSection({ title, description }) {
-  return (
-    <section style={panelStyle}>
-      <h3 style={sectionTitleStyle}>{title}</h3>
-      <div style={cardStyle}>{description}</div>
-    </section>
-  )
+const toggleRowStyle = {
+  display: 'inline-flex',
+  border: '1px solid rgba(255, 255, 255, 0.22)',
+  borderRadius: '999px',
+  overflow: 'hidden',
+  background: 'rgba(5, 14, 29, 0.45)'
+}
+
+const toggleButtonStyle = {
+  border: 'none',
+  background: 'transparent',
+  color: '#d8e1ff',
+  padding: '0.32rem 0.62rem',
+  fontSize: '0.8rem',
+  cursor: 'pointer'
 }
 
 function getSectionsRowStyle(sidebarCollapsed) {
@@ -53,22 +63,119 @@ function getSectionsRowStyle(sidebarCollapsed) {
   }
 }
 
+function InlineToggle({ options, value, onChange }) {
+  return (
+    <div style={toggleRowStyle}>
+      {options.map((option) => (
+        <button
+          key={option}
+          type="button"
+          style={{
+            ...toggleButtonStyle,
+            background: value === option ? 'rgba(70, 123, 229, 0.35)' : 'transparent',
+            color: value === option ? '#ffffff' : '#d8e1ff'
+          }}
+          onClick={() => onChange(option)}
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function LearnTestToggle({ value, onChange }) {
+  return <InlineToggle options={['Learn', 'Test']} value={value} onChange={onChange} />
+}
+
+function TopicSection({ title, learnMode, onLearnModeChange, description, headerExtra = null, footerExtra = null }) {
+  return (
+    <section style={panelStyle}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <h3 style={sectionTitleStyle}>{title}</h3>
+        {headerExtra}
+      </div>
+
+      <LearnTestToggle value={learnMode} onChange={onLearnModeChange} />
+
+      {footerExtra}
+
+      <div style={cardStyle}>{description}</div>
+    </section>
+  )
+}
+
 export default function CommunicationVocabularyPage({ sidebarCollapsed = false }) {
+  const [wordsMode, setWordsMode] = useState('Learn')
+  const [phrasesType, setPhrasesType] = useState('Phrases')
+  const [phrasesMode, setPhrasesMode] = useState('Learn')
+  const [synonymType, setSynonymType] = useState('Synonym')
+  const [synonymMode, setSynonymMode] = useState('Learn')
+  const [partsMode, setPartsMode] = useState('Learn')
+  const [grammarMode, setGrammarMode] = useState('Learn')
+  const [voicesType, setVoicesType] = useState('Active')
+  const [voicesMode, setVoicesMode] = useState('Learn')
+
   return (
     <div style={getSectionsRowStyle(sidebarCollapsed)}>
       <div style={verticalColumnStyle}>
-        <PlaceholderSection title="Words" description="Words practice placeholder." />
-        <PlaceholderSection title="Synonyms" description="Synonyms practice placeholder." />
+        <TopicSection
+          title="Words"
+          learnMode={wordsMode}
+          onLearnModeChange={setWordsMode}
+          description="Core vocabulary builder placeholder."
+        />
+
+        <TopicSection
+          title="Phrases & Idioms"
+          learnMode={phrasesMode}
+          onLearnModeChange={setPhrasesMode}
+          headerExtra={<InlineToggle options={['Phrases', 'Idioms']} value={phrasesType} onChange={setPhrasesType} />}
+          description={`${phrasesType} practice placeholder.`}
+        />
       </div>
 
       <div style={verticalColumnStyle}>
-        <PlaceholderSection title="Phrases" description="Phrases practice placeholder." />
-        <PlaceholderSection title="Grammar" description="Grammar practice placeholder." />
+        <TopicSection
+          title="Synonym & Anonym"
+          learnMode={synonymMode}
+          onLearnModeChange={setSynonymMode}
+          headerExtra={<InlineToggle options={['Synonym', 'Anonym']} value={synonymType} onChange={setSynonymType} />}
+          description={`${synonymType} drills placeholder.`}
+        />
+
+        <TopicSection
+          title="Parts of Speeches"
+          learnMode={partsMode}
+          onLearnModeChange={setPartsMode}
+          headerExtra={(
+            <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+              {['Noun', 'Verb', 'Adj'].map((item) => (
+                <span key={item} style={{ fontSize: '0.72rem', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '999px', padding: '0.14rem 0.45rem' }}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          )}
+          description="Parts of speech practice placeholder."
+        />
       </div>
 
       <div style={verticalColumnStyle}>
-        <PlaceholderSection title="Usage" description="Contextual usage drills placeholder." />
-        <PlaceholderSection title="Fluency" description="Vocabulary fluency drills placeholder." />
+        <TopicSection
+          title="Grammar"
+          learnMode={grammarMode}
+          onLearnModeChange={setGrammarMode}
+          description="Grammar training placeholder."
+        />
+
+        <TopicSection
+          title="Voices"
+          learnMode={voicesMode}
+          onLearnModeChange={setVoicesMode}
+          headerExtra={<InlineToggle options={['Active', 'Passive']} value={voicesType} onChange={setVoicesType} />}
+          description={`${voicesType} voice conversion drills placeholder.`}
+        />
       </div>
 
       {sidebarCollapsed ? (
