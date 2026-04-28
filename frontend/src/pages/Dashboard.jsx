@@ -208,7 +208,7 @@ export default function Dashboard() {
           />
         ) : null}
         {isJobAnalyticsActive ? <JobAnalyticsPage /> : null}
-        {isSpeechBettermentActive ? <CommunicationSpeechBettermentPage /> : null}
+        {isSpeechBettermentActive ? <CommunicationSpeechBettermentPage sidebarCollapsed={isSidebarCollapsed} /> : null}
 
         {!isInterviewCenterActive && !isQuantumQuestActive && !isTechnologyMapActive && !isCareerCounsellingActive && !isJobAnalyticsActive && !isSpeechBettermentActive ? (
           <div className="dashboard-workspace-column">

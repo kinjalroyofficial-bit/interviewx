@@ -13,14 +13,16 @@ const panelStyle = {
   flexDirection: 'column'
 }
 
-const sectionsRowStyle = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-  gap: '1rem',
-  alignItems: 'stretch',
-  height: '100%',
-  minHeight: 0,
-  marginTop: '0.5rem'
+function getSectionsRowStyle(sidebarCollapsed) {
+  return {
+    display: 'grid',
+    gridTemplateColumns: sidebarCollapsed ? 'repeat(3, minmax(0, 1fr)) minmax(220px, 0.92fr)' : 'repeat(3, minmax(0, 1fr))',
+    gap: '1rem',
+    alignItems: 'stretch',
+    height: '100%',
+    minHeight: 0,
+    marginTop: '0.5rem'
+  }
 }
 
 const sentenceCardStyle = {
@@ -206,12 +208,12 @@ function SpeechPracticePanel({ title, prompts }) {
   )
 }
 
-export default function CommunicationSpeechBettermentPage() {
+export default function CommunicationSpeechBettermentPage({ sidebarCollapsed = false }) {
   const sentencePrompts = useMemo(() => sentencesData.sentences || [], [])
   const punctuationPrompts = useMemo(() => punctuationData.sentences || [], [])
 
   return (
-    <div style={sectionsRowStyle}>
+    <div style={getSectionsRowStyle(sidebarCollapsed)}>
       <SpeechPracticePanel title="Sentence" prompts={sentencePrompts} />
       <SpeechPracticePanel title="Punctuation" prompts={punctuationPrompts} />
 
@@ -219,6 +221,14 @@ export default function CommunicationSpeechBettermentPage() {
         <h3>Audio</h3>
         <p>Placeholder content for audio-based pronunciation and speaking feedback.</p>
       </section>
+
+      {sidebarCollapsed ? (
+        <section style={panelStyle}>
+          <h3>Analytics</h3>
+          <p>Response analytics placeholder.</p>
+          <p>Answer quality insights placeholder.</p>
+        </section>
+      ) : null}
     </div>
   )
 }
