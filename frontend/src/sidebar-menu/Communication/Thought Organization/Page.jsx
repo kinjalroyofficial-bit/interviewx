@@ -104,22 +104,33 @@ function useSpeechRecognitionTranscriber() {
         setIsRecording(false)
         return
       }
-      try {
-        isStartingRef.current = true
-        recognition.start()
-      } catch {
-        isStartingRef.current = false
-        setIsRecording(false)
-      }
+
+      window.setTimeout(() => {
+        if (manualStopRef.current || !recognitionRef.current || isStartingRef.current) return
+        try {
+          isStartingRef.current = true
+          recognition.start()
+        } catch {
+          isStartingRef.current = false
+          setIsRecording(false)
+        }
+      }, 250)
     }
 
     recognition.onerror = (event) => {
       isStartingRef.current = false
-      if (event.error === 'not-allowed') {
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         setRecognitionError('Microphone permission was denied.')
-      } else if (event.error !== 'aborted') {
-        setRecognitionError('Speech recognition failed. Please try again.')
+        setIsRecording(false)
+        manualStopRef.current = true
+        return
       }
+
+      if (event.error === 'aborted' || event.error === 'no-speech' || event.error === 'network' || event.error === 'audio-capture') {
+        return
+      }
+
+      setRecognitionError('Speech recognition failed. Please try again.')
     }
 
     recognitionRef.current = recognition
