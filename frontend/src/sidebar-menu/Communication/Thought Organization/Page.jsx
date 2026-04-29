@@ -12,81 +12,131 @@ const secondaryButtonStyle = { background: 'rgba(255, 255, 255, 0.08)', color: '
 
 function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
   const recognitionRef = useRef(null)
-  const manualStopRef = useRef(false)
-  const isStartingRef = useRef(false)
+  const restartTimerRef = useRef(null)
   const [transcript, setTranscript] = useState('')
-  const [isRecording, setIsRecording] = useState(false)
+  const [isListening, setIsListening] = useState(false)
+  const [isStarting, setIsStarting] = useState(false)
+  const [manualStop, setManualStop] = useState(false)
   const [recognitionError, setRecognitionError] = useState('')
   const [language, setLanguage] = useState(defaultLanguage)
+  const finalTextRef = useRef('')
 
   const isSpeechRecognitionSupported = useMemo(() => typeof window !== 'undefined' && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition), [])
+
+  function clearRestartTimer() {
+    if (restartTimerRef.current) {
+      window.clearTimeout(restartTimerRef.current)
+      restartTimerRef.current = null
+    }
+  }
+
+  function safeStart(recognition) {
+    if (!recognition || isStarting) return
+
+    try {
+      recognition.lang = language
+      setIsStarting(true)
+      setManualStop(false)
+      recognition.start()
+    } catch {
+      setIsStarting(false)
+      clearRestartTimer()
+      restartTimerRef.current = window.setTimeout(() => {
+        try {
+          recognition.start()
+        } catch {}
+      }, 500)
+    }
+  }
 
   useEffect(() => {
     if (!isSpeechRecognitionSupported || typeof window === 'undefined') return undefined
     const RecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition
     const recognition = new RecognitionCtor()
+
     recognition.continuous = true
     recognition.interimResults = true
     recognition.maxAlternatives = 1
     recognition.lang = language
 
-    recognition.onstart = () => { isStartingRef.current = false; setIsRecording(true) }
+    recognition.onstart = () => {
+      setIsStarting(false)
+      setIsListening(true)
+      setRecognitionError('')
+    }
+
     recognition.onresult = (event) => {
-      let text = ''
-      for (let i = 0; i < event.results.length; i += 1) text += `${event.results[i][0].transcript} `
-      setTranscript(text.trim())
+      let interimText = ''
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const result = event.results[i]
+        const text = result[0].transcript
+        if (result.isFinal) {
+          finalTextRef.current += `${text.trim()} `
+        } else {
+          interimText += text
+        }
+      }
+      setTranscript(`${finalTextRef.current}${interimText}`.trim())
     }
-    recognition.onend = () => {
-      isStartingRef.current = false
-      if (manualStopRef.current) { manualStopRef.current = false; setIsRecording(false); return }
-      setTimeout(() => {
-        if (!recognitionRef.current || manualStopRef.current || isStartingRef.current) return
-        try { isStartingRef.current = true; recognition.start() } catch { isStartingRef.current = false; setIsRecording(false) }
-      }, 80)
-    }
+
     recognition.onerror = (event) => {
-      isStartingRef.current = false
+      if (event.error === 'no-speech' || event.error === 'network' || event.error === 'aborted') return
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         setRecognitionError('Microphone permission was denied.')
-        manualStopRef.current = true
-        setIsRecording(false)
+        setIsListening(false)
+        setIsStarting(false)
+        setManualStop(true)
         return
       }
-      if (event.error === 'aborted' || event.error === 'no-speech') return
       setRecognitionError('Speech recognition failed. Please try again.')
     }
+
+    recognition.onend = () => {
+      setIsStarting(false)
+      if (manualStop) {
+        setIsListening(false)
+        return
+      }
+      if (isListening) {
+        clearRestartTimer()
+        restartTimerRef.current = window.setTimeout(() => safeStart(recognition), 350)
+      }
+    }
+
     recognitionRef.current = recognition
-    return () => { manualStopRef.current = true; try { recognition.abort() } catch {} recognitionRef.current = null }
-  }, [isSpeechRecognitionSupported, language])
+
+    return () => {
+      clearRestartTimer()
+      try { recognition.stop() } catch {}
+      recognitionRef.current = null
+    }
+  }, [isSpeechRecognitionSupported, language, isListening, isStarting, manualStop])
 
   function startOrStopRecording() {
     setRecognitionError('')
-    if (!isSpeechRecognitionSupported || !recognitionRef.current || isStartingRef.current) return
+    const recognition = recognitionRef.current
+    if (!isSpeechRecognitionSupported || !recognition) return
 
-    if (isRecording) {
-      manualStopRef.current = true
-      try { recognitionRef.current.abort() } catch {}
-      setIsRecording(false)
+    if (isListening || isStarting) {
+      setManualStop(true)
+      setIsListening(false)
+      setIsStarting(false)
+      clearRestartTimer()
+      try { recognition.stop() } catch {}
       return
     }
 
-    if (typeof window !== 'undefined' && window.__activeSpeechRecognition && window.__activeSpeechRecognition !== recognitionRef.current) {
-      try { window.__activeSpeechRecognition.abort() } catch {}
-    }
-
-    manualStopRef.current = false
-    isStartingRef.current = true
-    recognitionRef.current.lang = language
-    try {
-      window.__activeSpeechRecognition = recognitionRef.current
-      recognitionRef.current.start()
-    } catch {
-      isStartingRef.current = false
-      setRecognitionError('Could not start recording. Please try again.')
-    }
+    setManualStop(false)
+    setIsListening(true)
+    safeStart(recognition)
   }
 
-  return { transcript, isRecording, recognitionError, startOrStopRecording, setTranscript, language, setLanguage }
+  function resetTranscript() {
+    finalTextRef.current = ''
+    setTranscript('')
+  }
+
+  return { transcript, isRecording: isListening || isStarting, recognitionError, startOrStopRecording, setTranscript: resetTranscript, language, setLanguage }
 }
 
 function ThoughtPromptSection({ title, prompts }) {
