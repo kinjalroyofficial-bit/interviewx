@@ -221,7 +221,7 @@ function ParaphrasingSection({ sentences }) {
       <div style={cardStyle}>{active.sentence}</div>
       <div style={{ display: 'grid', gap: '0.55rem' }}>
         {(active.target_intonations || []).slice(0, 4).map((intonation) => (
-          <div key={intonation} style={{ ...cardStyle, padding: '0.55rem' }}>
+          <div key={intonation} style={{ padding: '0.2rem 0' }}>
             <div style={{ fontWeight: 700, marginBottom: '0.35rem' }}>{intonation}</div>
             <input
               type="text"
