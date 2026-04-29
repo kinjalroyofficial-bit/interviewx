@@ -92,6 +92,17 @@ const waveformBarBaseStyle = {
   alignSelf: 'center'
 }
 
+const listeningStatusStyle = {
+  margin: 0,
+  fontSize: '0.82rem',
+  color: '#e6efff',
+  background: 'rgba(77, 163, 255, 0.2)',
+  border: '1px solid rgba(77, 163, 255, 0.5)',
+  borderRadius: '8px',
+  padding: '0.45rem 0.6rem',
+  fontWeight: 600
+}
+
 function createSimilarityScore(sourceText, targetText) {
   if (!sourceText || !targetText) return 0
 
@@ -173,13 +184,16 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
   const restartTimerRef = useRef(null)
   const finalTextRef = useRef('')
   const [transcript, setTranscript] = useState('')
-  const [isRecording, setIsRecording] = useState(false)
+  const [isListening, setIsListening] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
-  const [manualStop, setManualStop] = useState(false)
+  const isListeningRef = useRef(false)
+  const isStartingRef = useRef(false)
+  const manualStopRef = useRef(false)
   const [recognitionError, setRecognitionError] = useState('')
   const [language, setLanguage] = useState(defaultLanguage)
+  const languageRef = useRef(defaultLanguage)
 
-  const isSpeechRecognitionSupported = typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)
+  const isSpeechRecognitionSupported = useMemo(() => typeof window !== 'undefined' && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition), [])
 
   function clearRestartTimer() {
     if (restartTimerRef.current) {
@@ -191,7 +205,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
   function safeStart(recognition) {
     if (!recognition || isStartingRef.current) return
     try {
-      recognition.lang = language
+      recognition.lang = languageRef.current
       setIsStarting(true)
       isStartingRef.current = true
       manualStopRef.current = false
@@ -207,6 +221,13 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
   }
 
   useEffect(() => {
+    languageRef.current = language
+    if (recognitionRef.current && !isListeningRef.current && !isStartingRef.current) {
+      recognitionRef.current.lang = language
+    }
+  }, [language])
+
+  useEffect(() => {
     if (!isSpeechRecognitionSupported) return () => {}
     const SpeechRecognitionApi = window.SpeechRecognition || window.webkitSpeechRecognition
     const recognition = new SpeechRecognitionApi()
@@ -214,12 +235,13 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
     recognition.continuous = true
     recognition.interimResults = true
     recognition.maxAlternatives = 1
-    recognition.lang = language
+    recognition.lang = languageRef.current
 
     recognition.onstart = () => {
       setIsStarting(false)
       isStartingRef.current = false
-      setIsRecording(true)
+      setIsListening(true)
+      isListeningRef.current = true
       setRecognitionError('')
     }
 
@@ -241,10 +263,11 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
       if (event.error === 'no-speech' || event.error === 'network' || event.error === 'aborted') return
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         setRecognitionError('Microphone permission denied. Please allow access and retry.')
-        setIsRecording(false)
+        setIsListening(false)
+        isListeningRef.current = false
         setIsStarting(false)
-      isStartingRef.current = false
-        setManualStop(true)
+        isStartingRef.current = false
+        manualStopRef.current = true
         return
       }
       setRecognitionError('Unable to transcribe right now. Please try again.')
@@ -253,11 +276,12 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
     recognition.onend = () => {
       setIsStarting(false)
       isStartingRef.current = false
-      if (manualStop) {
-        setIsRecording(false)
+      if (manualStopRef.current) {
+        setIsListening(false)
+        isListeningRef.current = false
         return
       }
-      if (isRecording) {
+      if (isListeningRef.current) {
         clearRestartTimer()
         restartTimerRef.current = window.setTimeout(() => safeStart(recognition), 350)
       }
@@ -270,7 +294,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
       try { recognition.stop() } catch {}
       recognitionRef.current = null
     }
-  }, [isSpeechRecognitionSupported, language, isRecording, isStarting, manualStop])
+  }, [isSpeechRecognitionSupported])
 
   function startOrStopRecording() {
     setRecognitionError('')
@@ -283,9 +307,10 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
 
     if (!recognition) return
 
-    if (isRecording || isStarting) {
-      setManualStop(true)
-      setIsRecording(false)
+    if (isListeningRef.current || isStartingRef.current) {
+      manualStopRef.current = true
+      setIsListening(false)
+      isListeningRef.current = false
       setIsStarting(false)
       isStartingRef.current = false
       clearRestartTimer()
@@ -293,8 +318,9 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
       return
     }
 
-    setManualStop(false)
-    setIsRecording(true)
+    manualStopRef.current = false
+    setIsListening(true)
+    isListeningRef.current = true
     safeStart(recognition)
   }
 
@@ -307,13 +333,17 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
       manualStopRef.current = true
       try { recognitionRef.current.stop() } catch {}
     }
-    setIsRecording(false)
+    setIsListening(false)
+    isListeningRef.current = false
     setIsStarting(false)
+    isStartingRef.current = false
   }
 
   return {
     transcript,
-    isRecording: isRecording || isStarting,
+    isRecording: isListening || isStarting,
+    isPreparing: isStarting,
+    isReadyToListen: isListening && !isStarting,
     recognitionError,
     startOrStopRecording,
     resetTranscriptionState,
@@ -327,6 +357,8 @@ function SpeechPracticePanel({ title, prompts }) {
   const {
     transcript,
     isRecording,
+    isPreparing,
+    isReadyToListen,
     recognitionError,
     startOrStopRecording,
     resetTranscriptionState
@@ -352,6 +384,10 @@ function SpeechPracticePanel({ title, prompts }) {
         <button type="button" style={primaryButtonStyle} onClick={startOrStopRecording}>
           {isRecording ? 'Stop Recording' : 'Record my Response'}
         </button>
+
+        <p style={listeningStatusStyle}>
+          {isPreparing ? 'Preparing microphone…' : isReadyToListen ? '🎤 Ready to listen. Please start speaking.' : 'Microphone is idle.'}
+        </p>
 
         <div style={transcriptCardStyle}>
           <p style={{ margin: 0 }}>
@@ -384,6 +420,8 @@ function AudioPracticePanel({ prompts }) {
   const {
     transcript,
     isRecording,
+    isPreparing,
+    isReadyToListen,
     recognitionError,
     startOrStopRecording,
     resetTranscriptionState
@@ -466,6 +504,10 @@ function AudioPracticePanel({ prompts }) {
         <button type="button" style={primaryButtonStyle} onClick={startOrStopRecording}>
           {isRecording ? 'Stop Recording' : 'Record my Response'}
         </button>
+
+        <p style={listeningStatusStyle}>
+          {isPreparing ? 'Preparing microphone…' : isReadyToListen ? '🎤 Ready to listen. Please start speaking.' : 'Microphone is idle.'}
+        </p>
 
         <div style={transcriptCardStyle}>
           <p style={{ margin: 0 }}>
