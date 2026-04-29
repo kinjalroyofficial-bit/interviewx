@@ -8,11 +8,11 @@ const sectionStyle = {
   padding: '0.85rem',
   background: 'rgba(18, 27, 45, 0.55)',
   minHeight: 0,
-  overflowY: 'auto',
+  overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
   gap: '0.75rem',
-  height: '100%',
+  height: '100%'
 }
 
 const sectionTitleStyle = {
@@ -27,7 +27,7 @@ function getSectionsRowStyle(sidebarCollapsed) {
     gridTemplateColumns: sidebarCollapsed ? 'repeat(4, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))',
     gap: '1rem',
     alignItems: 'stretch',
-    height: 'calc(100dvh - 190px)',
+    height: 'calc(100dvh - 115px)',
     minHeight: 0,
     marginTop: '0.5rem'
   }
@@ -64,6 +64,8 @@ const secondaryButtonStyle = {
 
 function useSpeechRecognitionTranscriber() {
   const recognitionRef = useRef(null)
+  const manualStopRef = useRef(false)
+  const isStartingRef = useRef(false)
   const [transcript, setTranscript] = useState('')
   const [isRecording, setIsRecording] = useState(false)
   const [recognitionError, setRecognitionError] = useState('')
@@ -81,6 +83,11 @@ function useSpeechRecognitionTranscriber() {
     recognition.interimResults = true
     recognition.lang = 'en-US'
 
+    recognition.onstart = () => {
+      isStartingRef.current = false
+      setIsRecording(true)
+    }
+
     recognition.onresult = (event) => {
       let next = ''
       for (let i = 0; i < event.results.length; i += 1) {
@@ -89,19 +96,35 @@ function useSpeechRecognitionTranscriber() {
       setTranscript(next.trim())
     }
 
-    recognition.onend = () => setIsRecording(false)
+    recognition.onend = () => {
+      isStartingRef.current = false
+      if (manualStopRef.current) {
+        manualStopRef.current = false
+        setIsRecording(false)
+        return
+      }
+      try {
+        isStartingRef.current = true
+        recognition.start()
+      } catch {
+        isStartingRef.current = false
+        setIsRecording(false)
+      }
+    }
+
     recognition.onerror = (event) => {
+      isStartingRef.current = false
       if (event.error === 'not-allowed') {
         setRecognitionError('Microphone permission was denied.')
-      } else {
+      } else if (event.error !== 'aborted') {
         setRecognitionError('Speech recognition failed. Please try again.')
       }
-      setIsRecording(false)
     }
 
     recognitionRef.current = recognition
 
     return () => {
+      manualStopRef.current = true
       recognition.stop()
       recognitionRef.current = null
     }
@@ -113,14 +136,22 @@ function useSpeechRecognitionTranscriber() {
       setRecognitionError('Speech recognition is not supported in this browser.')
       return
     }
-    if (!recognitionRef.current) return
+    if (!recognitionRef.current || isStartingRef.current) return
+
     if (isRecording) {
+      manualStopRef.current = true
       recognitionRef.current.stop()
-      setIsRecording(false)
       return
     }
-    recognitionRef.current.start()
-    setIsRecording(true)
+
+    manualStopRef.current = false
+    isStartingRef.current = true
+    try {
+      recognitionRef.current.start()
+    } catch {
+      isStartingRef.current = false
+      setRecognitionError('Could not start recording. Please try again.')
+    }
   }
 
   return { transcript, isRecording, recognitionError, startOrStopRecording, setTranscript }
@@ -143,10 +174,10 @@ function ThoughtPromptSection({ title, prompts }) {
       <div style={cardStyle}>{activePrompt}</div>
 
       <button type="button" style={primaryButtonStyle} onClick={startOrStopRecording}>
-        {isRecording ? 'Stop Recording' : 'Record my Response'}
+        {isRecording ? 'Stop my Recording' : 'Record my Response'}
       </button>
 
-      <div style={{ ...cardStyle, minHeight: '130px' }}>
+      <div style={{ ...cardStyle, minHeight: '130px', flex: 1, overflowY: 'auto' }}>
         {transcript || 'Show the Transcript of what was Recorded'}
       </div>
 
@@ -162,7 +193,7 @@ function ThoughtPromptSection({ title, prompts }) {
 
 export default function CommunicationThoughtOrganizationPage({ sidebarCollapsed = false }) {
   const topics = useMemo(() => topicData.topics || [], [])
-  const situations = useMemo(() => situationData.situations || [], [])
+  const situations = useMemo(() => situationData.questions || [], [])
 
   return (
     <div style={getSectionsRowStyle(sidebarCollapsed)}>
