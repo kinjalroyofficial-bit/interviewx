@@ -11,6 +11,17 @@ const primaryButtonStyle = { background: 'linear-gradient(135deg, #4da3ff, #2f6b
 const secondaryButtonStyle = { background: 'rgba(255, 255, 255, 0.08)', color: '#e9f2ff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '10px', padding: '0.7rem 0.9rem', fontWeight: 600, cursor: 'pointer' }
 const listeningStatusStyle = { margin: 0, fontSize: '0.82rem', color: '#e6efff', background: 'rgba(77, 163, 255, 0.2)', border: '1px solid rgba(77, 163, 255, 0.5)', borderRadius: '8px', padding: '0.45rem 0.6rem', fontWeight: 600 }
 
+function getDeepgramProxyWebSocketUrl(language) {
+  const apiBase = import.meta.env.VITE_API_BASE_URL || '/api'
+  const origin = window.location.origin
+  let baseUrl = apiBase
+  if (baseUrl.startsWith('/')) baseUrl = `${origin}${baseUrl}`
+  const httpUrl = new URL(baseUrl)
+  const wsProtocol = httpUrl.protocol === 'https:' ? 'wss:' : 'ws:'
+  const wsPath = '/ws/deepgram-proxy'
+  return `${wsProtocol}//${httpUrl.host}${wsPath}?language=${encodeURIComponent(language)}`
+}
+
 function useDeepgramTranscriber(defaultLanguage = 'en-US') {
   const [transcript, setTranscript] = useState('')
   const [isRecording, setIsRecording] = useState(false)
@@ -39,8 +50,7 @@ function useDeepgramTranscriber(defaultLanguage = 'en-US') {
       setStatus('Preparing microphone…')
       const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
       mediaStreamRef.current = mediaStream
-      const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-      const ws = new WebSocket(`${wsProtocol}://localhost:8000/ws/deepgram-proxy?language=${encodeURIComponent(language)}`)
+      const ws = new WebSocket(getDeepgramProxyWebSocketUrl(language))
       ws.onopen = () => {
         const recorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm;codecs=opus' })
         recorderRef.current = recorder
@@ -56,7 +66,7 @@ function useDeepgramTranscriber(defaultLanguage = 'en-US') {
         if (payload.type === 'transcript' && payload.text) setTranscript((prev) => `${prev} ${payload.text}`.trim())
         if (payload.type === 'error') setRecognitionError(payload.message || 'Transcription error.')
       }
-      ws.onerror = () => setRecognitionError('Unable to connect to Deepgram transcription proxy.')
+      ws.onerror = () => setRecognitionError('Unable to connect to Deepgram transcription proxy. Verify backend URL and DEEPGRAM_API_KEY.')
       ws.onclose = () => { if (isRecording) stopEverything() }
       socketRef.current = ws
     } catch {
