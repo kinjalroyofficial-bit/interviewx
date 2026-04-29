@@ -232,8 +232,10 @@ function ParaphrasingSection({ sentences }) {
           </div>
         ))}
       </div>
-      <button type="button" style={primaryButtonStyle} onClick={handleSubmit}>Submit</button>
-      <button type="button" style={secondaryButtonStyle} onClick={() => setIndex((prev) => (sentences.length ? (prev + 1) % sentences.length : 0))}>Next</button>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
+        <button type="button" style={primaryButtonStyle} onClick={handleSubmit}>Submit</button>
+        <button type="button" style={secondaryButtonStyle} onClick={() => setIndex((prev) => (sentences.length ? (prev + 1) % sentences.length : 0))}>Next</button>
+      </div>
     </section>
   )
 }
