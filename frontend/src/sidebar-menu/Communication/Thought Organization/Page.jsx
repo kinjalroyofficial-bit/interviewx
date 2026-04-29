@@ -9,6 +9,7 @@ function getSectionsRowStyle(sidebarCollapsed) { return { display: 'grid', gridT
 const cardStyle = { border: '1px solid rgba(255, 255, 255, 0.22)', borderRadius: '8px', background: 'rgba(5, 14, 29, 0.45)', padding: '0.8rem', fontSize: '0.92rem', lineHeight: 1.35 }
 const primaryButtonStyle = { background: 'linear-gradient(135deg, #4da3ff, #2f6bff)', color: '#fff', border: 'none', borderRadius: '10px', padding: '0.7rem 0.9rem', fontWeight: 700, cursor: 'pointer' }
 const secondaryButtonStyle = { background: 'rgba(255, 255, 255, 0.08)', color: '#e9f2ff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '10px', padding: '0.7rem 0.9rem', fontWeight: 600, cursor: 'pointer' }
+const listeningStatusStyle = { margin: 0, fontSize: '0.82rem', color: '#e6efff', background: 'rgba(77, 163, 255, 0.2)', border: '1px solid rgba(77, 163, 255, 0.5)', borderRadius: '8px', padding: '0.45rem 0.6rem', fontWeight: 600 }
 
 function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
   const recognitionRef = useRef(null)
@@ -22,6 +23,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
   const [recognitionError, setRecognitionError] = useState('')
   const [language, setLanguage] = useState(defaultLanguage)
   const finalTextRef = useRef('')
+  const languageRef = useRef(defaultLanguage)
 
   const isSpeechRecognitionSupported = useMemo(() => typeof window !== 'undefined' && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition), [])
 
@@ -36,7 +38,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
     if (!recognition || isStartingRef.current) return
 
     try {
-      recognition.lang = language
+      recognition.lang = languageRef.current
       setIsStarting(true)
       isStartingRef.current = true
       manualStopRef.current = false
@@ -54,6 +56,13 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
   }
 
   useEffect(() => {
+    languageRef.current = language
+    if (recognitionRef.current && !isListeningRef.current && !isStartingRef.current) {
+      recognitionRef.current.lang = language
+    }
+  }, [language])
+
+  useEffect(() => {
     if (!isSpeechRecognitionSupported || typeof window === 'undefined') return undefined
     const RecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition
     const recognition = new RecognitionCtor()
@@ -61,12 +70,13 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
     recognition.continuous = true
     recognition.interimResults = true
     recognition.maxAlternatives = 1
-    recognition.lang = language
+    recognition.lang = languageRef.current
 
     recognition.onstart = () => {
       setIsStarting(false)
       isStartingRef.current = false
       setIsListening(true)
+      isListeningRef.current = true
       setRecognitionError('')
     }
 
@@ -89,9 +99,10 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         setRecognitionError('Microphone permission was denied.')
         setIsListening(false)
+        isListeningRef.current = false
         setIsStarting(false)
-      isStartingRef.current = false
-        setManualStop(true)
+        isStartingRef.current = false
+        manualStopRef.current = true
         return
       }
       setRecognitionError('Speech recognition failed. Please try again.')
@@ -118,7 +129,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
       try { recognition.stop() } catch {}
       recognitionRef.current = null
     }
-  }, [isSpeechRecognitionSupported, language])
+  }, [isSpeechRecognitionSupported])
 
   function startOrStopRecording() {
     setRecognitionError('')
@@ -130,7 +141,6 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
       setIsListening(false)
       isListeningRef.current = false
       setIsStarting(false)
-      isStartingRef.current = false
       isStartingRef.current = false
       clearRestartTimer()
       try { recognition.stop() } catch {}
@@ -148,12 +158,12 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
     setTranscript('')
   }
 
-  return { transcript, isRecording: isListening || isStarting, recognitionError, startOrStopRecording, setTranscript: resetTranscript, language, setLanguage }
+  return { transcript, isRecording: isListening || isStarting, isPreparing: isStarting, isReadyToListen: isListening && !isStarting, recognitionError, startOrStopRecording, setTranscript: resetTranscript, language, setLanguage }
 }
 
 function ThoughtPromptSection({ title, prompts }) {
   const [promptIndex, setPromptIndex] = useState(0)
-  const { transcript, isRecording, recognitionError, startOrStopRecording, setTranscript, language, setLanguage } = useSpeechRecognitionTranscriber('en-US')
+  const { transcript, isRecording, isPreparing, isReadyToListen, recognitionError, startOrStopRecording, setTranscript, language, setLanguage } = useSpeechRecognitionTranscriber('en-US')
   const activePrompt = prompts[promptIndex] || 'No prompt available.'
 
   return (
@@ -169,6 +179,7 @@ function ThoughtPromptSection({ title, prompts }) {
         </select>
       </label>
       <button type="button" style={primaryButtonStyle} onClick={startOrStopRecording}>{isRecording ? 'Stop my Recording' : 'Record my Response'}</button>
+      <p style={listeningStatusStyle}>{isPreparing ? 'Preparing microphone…' : isReadyToListen ? '🎤 Ready to listen. Please start speaking.' : 'Microphone is idle.'}</p>
       <div style={{ ...cardStyle, minHeight: '130px', flex: 1, overflowY: 'auto' }}>{transcript || 'Show the Transcript of what was Recorded'}</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
         <button type="button" style={secondaryButtonStyle}>Review</button>
