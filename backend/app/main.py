@@ -26,6 +26,7 @@ import math
 import random
 import re
 import base64
+import asyncio
 import hashlib
 import httpx
 from urllib.parse import parse_qs
@@ -33,8 +34,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from time import perf_counter
 
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
+import websockets
 from fastapi.middleware.cors import CORSMiddleware
 from google.auth.transport import requests as google_requests
 from google.oauth2 import id_token as google_id_token
@@ -2877,3 +2879,57 @@ def get_interview_history(username: str, db: Session = Depends(get_db)) -> Inter
 @app.post("/interview/history", response_model=InterviewHistoryResponse)
 def get_interview_history_post(payload: InterviewHistoryRequest, db: Session = Depends(get_db)) -> InterviewHistoryResponse:
     return build_interview_history_response(username=payload.username, db=db)
+
+
+@app.websocket("/ws/deepgram-proxy")
+async def deepgram_proxy(websocket: WebSocket):
+    await websocket.accept()
+    deepgram_api_key = os.getenv("DEEPGRAM_API_KEY")
+    if not deepgram_api_key:
+        await websocket.send_json({"type": "error", "message": "DEEPGRAM_API_KEY is not configured on the server."})
+        await websocket.close(code=1011)
+        return
+
+    language = websocket.query_params.get("language", "en-US")
+    deepgram_language = "en" if language.startswith("en") else "hi" if language.startswith("hi") else "en"
+    deepgram_url = f"wss://api.deepgram.com/v1/listen?model=nova-2&language={deepgram_language}&encoding=opus&sample_rate=48000&interim_results=true&punctuate=true"
+
+    try:
+        async with websockets.connect(
+            deepgram_url,
+            additional_headers={"Authorization": f"Token {deepgram_api_key}"},
+            max_size=None,
+        ) as deepgram_ws:
+            async def client_to_deepgram():
+                try:
+                    while True:
+                        message = await websocket.receive()
+                        if message.get("bytes"):
+                            await deepgram_ws.send(message["bytes"])
+                        elif message.get("text") == "close":
+                            break
+                except WebSocketDisconnect:
+                    pass
+
+            async def deepgram_to_client():
+                async for payload in deepgram_ws:
+                    try:
+                        data = json.loads(payload)
+                    except json.JSONDecodeError:
+                        continue
+                    channel = data.get("channel", {})
+                    alternatives = channel.get("alternatives", [])
+                    if not alternatives:
+                        continue
+                    transcript = (alternatives[0].get("transcript") or "").strip()
+                    if transcript:
+                        await websocket.send_json({"type": "transcript", "text": transcript, "is_final": data.get("is_final", False)})
+
+            await asyncio.gather(client_to_deepgram(), deepgram_to_client())
+    except Exception as exc:
+        await websocket.send_json({"type": "error", "message": f"Deepgram proxy error: {str(exc)}"})
+    finally:
+        try:
+            await websocket.close()
+        except Exception:
+            pass

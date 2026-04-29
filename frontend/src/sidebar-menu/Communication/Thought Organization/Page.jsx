@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import situationData from '../../../data/thought_org_situation.json'
 import topicData from '../../../data/thought_org_topic.json'
 import paraphrasingData from '../../../data/paraphrasing.json'
@@ -11,159 +11,67 @@ const primaryButtonStyle = { background: 'linear-gradient(135deg, #4da3ff, #2f6b
 const secondaryButtonStyle = { background: 'rgba(255, 255, 255, 0.08)', color: '#e9f2ff', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '10px', padding: '0.7rem 0.9rem', fontWeight: 600, cursor: 'pointer' }
 const listeningStatusStyle = { margin: 0, fontSize: '0.82rem', color: '#e6efff', background: 'rgba(77, 163, 255, 0.2)', border: '1px solid rgba(77, 163, 255, 0.5)', borderRadius: '8px', padding: '0.45rem 0.6rem', fontWeight: 600 }
 
-function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
-  const recognitionRef = useRef(null)
-  const restartTimerRef = useRef(null)
+function useDeepgramTranscriber(defaultLanguage = 'en-US') {
   const [transcript, setTranscript] = useState('')
-  const [isListening, setIsListening] = useState(false)
-  const [isStarting, setIsStarting] = useState(false)
-  const isListeningRef = useRef(false)
-  const isStartingRef = useRef(false)
-  const manualStopRef = useRef(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [status, setStatus] = useState('Microphone is idle.')
   const [recognitionError, setRecognitionError] = useState('')
   const [language, setLanguage] = useState(defaultLanguage)
-  const finalTextRef = useRef('')
-  const languageRef = useRef(defaultLanguage)
+  const socketRef = useRef(null)
+  const recorderRef = useRef(null)
+  const mediaStreamRef = useRef(null)
 
-  const isSpeechRecognitionSupported = useMemo(() => typeof window !== 'undefined' && Boolean(window.SpeechRecognition || window.webkitSpeechRecognition), [])
-
-  function clearRestartTimer() {
-    if (restartTimerRef.current) {
-      window.clearTimeout(restartTimerRef.current)
-      restartTimerRef.current = null
-    }
+  const stopEverything = () => {
+    if (recorderRef.current && recorderRef.current.state !== 'inactive') recorderRef.current.stop()
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) socketRef.current.close()
+    if (mediaStreamRef.current) mediaStreamRef.current.getTracks().forEach((track) => track.stop())
+    recorderRef.current = null
+    socketRef.current = null
+    mediaStreamRef.current = null
+    setIsRecording(false)
+    setStatus('Microphone is idle.')
   }
 
-  function safeStart(recognition) {
-    if (!recognition || isStartingRef.current) return
-
-    try {
-      recognition.lang = languageRef.current
-      setIsStarting(true)
-      isStartingRef.current = true
-      manualStopRef.current = false
-      recognition.start()
-    } catch {
-      setIsStarting(false)
-      isStartingRef.current = false
-      clearRestartTimer()
-      restartTimerRef.current = window.setTimeout(() => {
-        try {
-          recognition.start()
-        } catch {}
-      }, 500)
-    }
-  }
-
-  useEffect(() => {
-    languageRef.current = language
-    if (recognitionRef.current && !isListeningRef.current && !isStartingRef.current) {
-      recognitionRef.current.lang = language
-    }
-  }, [language])
-
-  useEffect(() => {
-    if (!isSpeechRecognitionSupported || typeof window === 'undefined') return undefined
-    const RecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition
-    const recognition = new RecognitionCtor()
-
-    recognition.continuous = true
-    recognition.interimResults = true
-    recognition.maxAlternatives = 1
-    recognition.lang = languageRef.current
-
-    recognition.onstart = () => {
-      setIsStarting(false)
-      isStartingRef.current = false
-      setIsListening(true)
-      isListeningRef.current = true
-      setRecognitionError('')
-    }
-
-    recognition.onresult = (event) => {
-      let interimText = ''
-      for (let i = event.resultIndex; i < event.results.length; i += 1) {
-        const result = event.results[i]
-        const text = result[0].transcript
-        if (result.isFinal) {
-          finalTextRef.current += `${text.trim()} `
-        } else {
-          interimText += text
-        }
-      }
-      setTranscript(`${finalTextRef.current}${interimText}`.trim())
-    }
-
-    recognition.onerror = (event) => {
-      if (event.error === 'no-speech' || event.error === 'network' || event.error === 'aborted') return
-      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-        setRecognitionError('Microphone permission was denied.')
-        setIsListening(false)
-        isListeningRef.current = false
-        setIsStarting(false)
-        isStartingRef.current = false
-        manualStopRef.current = true
-        return
-      }
-      setRecognitionError('Speech recognition failed. Please try again.')
-    }
-
-    recognition.onend = () => {
-      setIsStarting(false)
-      isStartingRef.current = false
-      if (manualStopRef.current) {
-        setIsListening(false)
-        isListeningRef.current = false
-        return
-      }
-      if (isListeningRef.current) {
-        clearRestartTimer()
-        restartTimerRef.current = window.setTimeout(() => safeStart(recognition), 350)
-      }
-    }
-
-    recognitionRef.current = recognition
-
-    return () => {
-      clearRestartTimer()
-      try { recognition.stop() } catch {}
-      recognitionRef.current = null
-    }
-  }, [isSpeechRecognitionSupported])
-
-  function startOrStopRecording() {
+  const startOrStopRecording = async () => {
     setRecognitionError('')
-    const recognition = recognitionRef.current
-    if (!isSpeechRecognitionSupported || !recognition) return
-
-    if (isListeningRef.current || isStartingRef.current) {
-      manualStopRef.current = true
-      setIsListening(false)
-      isListeningRef.current = false
-      setIsStarting(false)
-      isStartingRef.current = false
-      clearRestartTimer()
-      try { recognition.stop() } catch {}
-      return
+    if (isRecording) { stopEverything(); return }
+    try {
+      setStatus('Preparing microphone…')
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaStreamRef.current = mediaStream
+      const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+      const ws = new WebSocket(`${wsProtocol}://localhost:8000/ws/deepgram-proxy?language=${encodeURIComponent(language)}`)
+      ws.onopen = () => {
+        const recorder = new MediaRecorder(mediaStream, { mimeType: 'audio/webm;codecs=opus' })
+        recorderRef.current = recorder
+        recorder.ondataavailable = async (event) => {
+          if (event.data?.size > 0 && ws.readyState === WebSocket.OPEN) ws.send(await event.data.arrayBuffer())
+        }
+        recorder.start(250)
+        setIsRecording(true)
+        setStatus('🎤 Microphone is ON. Listening live…')
+      }
+      ws.onmessage = (event) => {
+        const payload = JSON.parse(event.data)
+        if (payload.type === 'transcript' && payload.text) setTranscript((prev) => `${prev} ${payload.text}`.trim())
+        if (payload.type === 'error') setRecognitionError(payload.message || 'Transcription error.')
+      }
+      ws.onerror = () => setRecognitionError('Unable to connect to Deepgram transcription proxy.')
+      ws.onclose = () => { if (isRecording) stopEverything() }
+      socketRef.current = ws
+    } catch {
+      setRecognitionError('Microphone access failed. Please grant permission and retry.')
+      stopEverything()
     }
-
-    manualStopRef.current = false
-    setIsListening(true)
-    isListeningRef.current = true
-    safeStart(recognition)
   }
 
-  function resetTranscript() {
-    finalTextRef.current = ''
-    setTranscript('')
-  }
-
-  return { transcript, isRecording: isListening || isStarting, isPreparing: isStarting, isReadyToListen: isListening && !isStarting, recognitionError, startOrStopRecording, setTranscript: resetTranscript, language, setLanguage }
+  const resetTranscript = () => setTranscript('')
+  return { transcript, isRecording, recognitionError, startOrStopRecording, setTranscript: resetTranscript, language, setLanguage, status }
 }
 
 function ThoughtPromptSection({ title, prompts }) {
   const [promptIndex, setPromptIndex] = useState(0)
-  const { transcript, isRecording, isPreparing, isReadyToListen, recognitionError, startOrStopRecording, setTranscript, language, setLanguage } = useSpeechRecognitionTranscriber('en-US')
+  const { transcript, isRecording, recognitionError, startOrStopRecording, setTranscript, language, setLanguage, status } = useDeepgramTranscriber('en-US')
   const activePrompt = prompts[promptIndex] || 'No prompt available.'
 
   return (
@@ -173,13 +81,11 @@ function ThoughtPromptSection({ title, prompts }) {
       <label style={{ display: 'grid', gap: '0.25rem', fontSize: '0.82rem' }}>
         Language
         <select value={language} onChange={(event) => setLanguage(event.target.value)} style={{ ...cardStyle, padding: '0.4rem 0.5rem', color: '#fff' }}>
-          <option value="en-US">English (US)</option>
-          <option value="en-GB">English (UK)</option>
-          <option value="hi-IN">Hindi (India)</option>
+          <option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="hi-IN">Hindi (India)</option>
         </select>
       </label>
       <button type="button" style={primaryButtonStyle} onClick={startOrStopRecording}>{isRecording ? 'Stop my Recording' : 'Record my Response'}</button>
-      <p style={listeningStatusStyle}>{isPreparing ? 'Preparing microphone…' : isReadyToListen ? '🎤 Ready to listen. Please start speaking.' : 'Microphone is idle.'}</p>
+      <p style={listeningStatusStyle}>{status}</p>
       <div style={{ ...cardStyle, minHeight: '130px', flex: 1, overflowY: 'auto' }}>{transcript || 'Show the Transcript of what was Recorded'}</div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.6rem' }}>
         <button type="button" style={secondaryButtonStyle}>Review</button>
