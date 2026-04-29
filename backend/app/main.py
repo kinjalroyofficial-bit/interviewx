@@ -2892,7 +2892,7 @@ async def deepgram_proxy(websocket: WebSocket):
 
     language = websocket.query_params.get("language", "en-US")
     deepgram_language = "en" if language.startswith("en") else "hi" if language.startswith("hi") else "en"
-    deepgram_url = f"wss://api.deepgram.com/v1/listen?model=nova-2&language={deepgram_language}&encoding=opus&sample_rate=48000&interim_results=true&punctuate=true"
+    deepgram_url = f"wss://api.deepgram.com/v1/listen?model=nova-2&language={deepgram_language}&interim_results=true&punctuate=true"
 
     try:
         async with websockets.connect(
