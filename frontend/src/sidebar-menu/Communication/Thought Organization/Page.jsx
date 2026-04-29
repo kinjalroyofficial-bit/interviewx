@@ -12,7 +12,7 @@ const sectionStyle = {
   display: 'flex',
   flexDirection: 'column',
   gap: '0.75rem',
-  maxHeight: 'calc(100dvh - 260px)'
+  height: '100%',
 }
 
 const sectionTitleStyle = {
@@ -26,8 +26,8 @@ function getSectionsRowStyle(sidebarCollapsed) {
     display: 'grid',
     gridTemplateColumns: sidebarCollapsed ? 'repeat(4, minmax(0, 1fr))' : 'repeat(3, minmax(0, 1fr))',
     gap: '1rem',
-    alignItems: 'start',
-    height: '100%',
+    alignItems: 'stretch',
+    height: 'calc(100dvh - 190px)',
     minHeight: 0,
     marginTop: '0.5rem'
   }
