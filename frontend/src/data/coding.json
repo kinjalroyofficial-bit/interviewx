@@ -1,0 +1,44 @@
+{
+  "problems": [
+    {
+      "id": "reverse-string",
+      "title": "Reverse a String",
+      "difficulty": "Easy",
+      "tags": ["arrays", "strings"],
+      "languages": ["javascript", "typescript", "python", "java", "cpp", "csharp", "go"],
+      "statement": "Given a string s, return the reversed string.",
+      "sample_input": "InterviewX",
+      "sample_output": "XweivretnI"
+    },
+    {
+      "id": "palindrome-check",
+      "title": "Valid Palindrome",
+      "difficulty": "Easy",
+      "tags": ["strings", "two-pointers"],
+      "languages": ["javascript", "typescript", "python", "java", "cpp", "csharp", "go", "php"],
+      "statement": "Given a string, return true if it reads the same forward and backward after removing non-alphanumeric characters and lowercasing.",
+      "sample_input": "A man, a plan, a canal: Panama",
+      "sample_output": "true"
+    },
+    {
+      "id": "two-sum",
+      "title": "Two Sum",
+      "difficulty": "Medium",
+      "tags": ["arrays", "hashmap"],
+      "languages": ["javascript", "typescript", "python", "java", "cpp", "csharp", "go", "ruby"],
+      "statement": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
+      "sample_input": "nums = [2,7,11,15], target = 9",
+      "sample_output": "[0,1]"
+    },
+    {
+      "id": "fizz-buzz",
+      "title": "FizzBuzz",
+      "difficulty": "Easy",
+      "tags": ["math", "simulation"],
+      "languages": ["javascript", "typescript", "python", "java", "cpp", "csharp", "go", "rust", "kotlin"],
+      "statement": "Given an integer n, return a list of strings from 1 to n with Fizz/Buzz replacement rules.",
+      "sample_input": "15",
+      "sample_output": "[\"1\",\"2\",\"Fizz\",...,\"FizzBuzz\"]"
+    }
+  ]
+}
