@@ -12,6 +12,7 @@ import CommunicationSpeechBettermentPage from '../sidebar-menu/Communication/Spe
 import CommunicationThoughtOrganizationPage from '../sidebar-menu/Communication/Thought Organization/Page'
 import CommunicationLatencyReductionPage from '../sidebar-menu/Communication/Latency Reduction/Page'
 import CommunicationVocabularyPage from '../sidebar-menu/Communication/Vocabulary/Page'
+import StudyCenterCodeEditorPage from '../sidebar-menu/Study Center/Code Editor/Page'
 
 export default function Dashboard() {
   const CREDIT_PURCHASE_OPTIONS = [5, 10, 1000, 2000, 3000, 4000, 5000]
@@ -75,6 +76,7 @@ export default function Dashboard() {
   const isThoughtOrganizationActive = activeLeafLabel === 'Thought Organization'
   const isLatencyReductionActive = activeLeafLabel === 'Latency Reduction'
   const isVocabularyActive = activeLeafLabel === 'Vocabulary'
+  const isCodeEditorActive = activeLeafLabel === 'Code Editor'
   const workspaceTitle = activeLeafLabel || 'My Workspace'
 
   useEffect(() => {
@@ -218,6 +220,7 @@ export default function Dashboard() {
         {isThoughtOrganizationActive ? <CommunicationThoughtOrganizationPage sidebarCollapsed={isSidebarCollapsed} /> : null}
         {isLatencyReductionActive ? <CommunicationLatencyReductionPage sidebarCollapsed={isSidebarCollapsed} /> : null}
         {isVocabularyActive ? <CommunicationVocabularyPage sidebarCollapsed={isSidebarCollapsed} /> : null}
+        {isCodeEditorActive ? <StudyCenterCodeEditorPage /> : null}
 
         {!isInterviewCenterActive && !isQuantumQuestActive && !isTechnologyMapActive && !isCareerCounsellingActive && !isJobAnalyticsActive && !isSpeechBettermentActive && !isThoughtOrganizationActive && !isLatencyReductionActive && !isVocabularyActive ? (
           <div className="dashboard-workspace-column">
