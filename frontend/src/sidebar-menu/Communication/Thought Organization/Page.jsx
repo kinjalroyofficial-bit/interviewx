@@ -16,7 +16,9 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
   const [transcript, setTranscript] = useState('')
   const [isListening, setIsListening] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
-  const [manualStop, setManualStop] = useState(false)
+  const isListeningRef = useRef(false)
+  const isStartingRef = useRef(false)
+  const manualStopRef = useRef(false)
   const [recognitionError, setRecognitionError] = useState('')
   const [language, setLanguage] = useState(defaultLanguage)
   const finalTextRef = useRef('')
@@ -31,15 +33,17 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
   }
 
   function safeStart(recognition) {
-    if (!recognition || isStarting) return
+    if (!recognition || isStartingRef.current) return
 
     try {
       recognition.lang = language
       setIsStarting(true)
-      setManualStop(false)
+      isStartingRef.current = true
+      manualStopRef.current = false
       recognition.start()
     } catch {
       setIsStarting(false)
+      isStartingRef.current = false
       clearRestartTimer()
       restartTimerRef.current = window.setTimeout(() => {
         try {
@@ -61,6 +65,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
 
     recognition.onstart = () => {
       setIsStarting(false)
+      isStartingRef.current = false
       setIsListening(true)
       setRecognitionError('')
     }
@@ -85,6 +90,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
         setRecognitionError('Microphone permission was denied.')
         setIsListening(false)
         setIsStarting(false)
+      isStartingRef.current = false
         setManualStop(true)
         return
       }
@@ -93,11 +99,13 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
 
     recognition.onend = () => {
       setIsStarting(false)
-      if (manualStop) {
+      isStartingRef.current = false
+      if (manualStopRef.current) {
         setIsListening(false)
+        isListeningRef.current = false
         return
       }
-      if (isListening) {
+      if (isListeningRef.current) {
         clearRestartTimer()
         restartTimerRef.current = window.setTimeout(() => safeStart(recognition), 350)
       }
@@ -110,24 +118,28 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
       try { recognition.stop() } catch {}
       recognitionRef.current = null
     }
-  }, [isSpeechRecognitionSupported, language, isListening, isStarting, manualStop])
+  }, [isSpeechRecognitionSupported, language])
 
   function startOrStopRecording() {
     setRecognitionError('')
     const recognition = recognitionRef.current
     if (!isSpeechRecognitionSupported || !recognition) return
 
-    if (isListening || isStarting) {
-      setManualStop(true)
+    if (isListeningRef.current || isStartingRef.current) {
+      manualStopRef.current = true
       setIsListening(false)
+      isListeningRef.current = false
       setIsStarting(false)
+      isStartingRef.current = false
+      isStartingRef.current = false
       clearRestartTimer()
       try { recognition.stop() } catch {}
       return
     }
 
-    setManualStop(false)
+    manualStopRef.current = false
     setIsListening(true)
+    isListeningRef.current = true
     safeStart(recognition)
   }
 

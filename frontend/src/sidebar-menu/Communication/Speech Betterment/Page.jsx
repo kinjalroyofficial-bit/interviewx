@@ -189,14 +189,16 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
   }
 
   function safeStart(recognition) {
-    if (!recognition || isStarting) return
+    if (!recognition || isStartingRef.current) return
     try {
       recognition.lang = language
       setIsStarting(true)
-      setManualStop(false)
+      isStartingRef.current = true
+      manualStopRef.current = false
       recognition.start()
     } catch {
       setIsStarting(false)
+      isStartingRef.current = false
       clearRestartTimer()
       restartTimerRef.current = window.setTimeout(() => {
         try { recognition.start() } catch {}
@@ -216,6 +218,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
 
     recognition.onstart = () => {
       setIsStarting(false)
+      isStartingRef.current = false
       setIsRecording(true)
       setRecognitionError('')
     }
@@ -240,6 +243,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
         setRecognitionError('Microphone permission denied. Please allow access and retry.')
         setIsRecording(false)
         setIsStarting(false)
+      isStartingRef.current = false
         setManualStop(true)
         return
       }
@@ -248,6 +252,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
 
     recognition.onend = () => {
       setIsStarting(false)
+      isStartingRef.current = false
       if (manualStop) {
         setIsRecording(false)
         return
@@ -282,6 +287,7 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
       setManualStop(true)
       setIsRecording(false)
       setIsStarting(false)
+      isStartingRef.current = false
       clearRestartTimer()
       try { recognition.stop() } catch {}
       return
@@ -297,8 +303,8 @@ function useSpeechRecognitionTranscriber(defaultLanguage = 'en-US') {
     setTranscript('')
     setRecognitionError('')
     clearRestartTimer()
-    if ((isRecording || isStarting) && recognitionRef.current) {
-      setManualStop(true)
+    if ((isListeningRef.current || isStartingRef.current) && recognitionRef.current) {
+      manualStopRef.current = true
       try { recognitionRef.current.stop() } catch {}
     }
     setIsRecording(false)
