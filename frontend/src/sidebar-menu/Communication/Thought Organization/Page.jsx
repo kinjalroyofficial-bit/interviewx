@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import situationData from '../../../data/thought_org_situation.json'
 import topicData from '../../../data/thought_org_topic.json'
+import paraphrasingData from '../../../data/paraphrasing.json'
 
 const sectionStyle = {
   border: '1px solid rgba(255, 255, 255, 0.12)',
@@ -191,18 +192,51 @@ function ThoughtPromptSection({ title, prompts }) {
   )
 }
 
+
+function ParaphrasingSection({ sentences }) {
+  const [index, setIndex] = useState(0)
+  const [responses, setResponses] = useState({})
+  const active = sentences[index] || { sentence: 'No sentence available.', target_intonations: [] }
+
+  function handleChange(label, value) {
+    setResponses((prev) => ({ ...prev, [label]: value }))
+  }
+
+  function handleSubmit() {}
+
+  return (
+    <section style={sectionStyle}>
+      <h3 style={sectionTitleStyle}>Paraphrasing</h3>
+      <div style={cardStyle}>{active.sentence}</div>
+      <div style={{ display: 'grid', gap: '0.55rem' }}>
+        {(active.target_intonations || []).slice(0, 4).map((intonation) => (
+          <div key={intonation} style={{ ...cardStyle, padding: '0.55rem' }}>
+            <div style={{ fontWeight: 700, marginBottom: '0.35rem' }}>{intonation}</div>
+            <input
+              type="text"
+              value={responses[intonation] || ''}
+              onChange={(event) => handleChange(intonation, event.target.value)}
+              style={{ width: '100%', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.3)', padding: '0.5rem', background: 'rgba(0,0,0,0.22)', color: '#fff' }}
+            />
+          </div>
+        ))}
+      </div>
+      <button type="button" style={primaryButtonStyle} onClick={handleSubmit}>Submit</button>
+      <button type="button" style={secondaryButtonStyle} onClick={() => setIndex((prev) => (sentences.length ? (prev + 1) % sentences.length : 0))}>Next</button>
+    </section>
+  )
+}
+
 export default function CommunicationThoughtOrganizationPage({ sidebarCollapsed = false }) {
   const topics = useMemo(() => topicData.topics || [], [])
   const situations = useMemo(() => situationData.questions || [], [])
+  const paraphrasingSentences = useMemo(() => paraphrasingData.sentences || [], [])
 
   return (
     <div style={getSectionsRowStyle(sidebarCollapsed)}>
       <ThoughtPromptSection title="Topic" prompts={topics} />
       <ThoughtPromptSection title="Situation" prompts={situations} />
-      <section style={sectionStyle}>
-        <h3 style={sectionTitleStyle}>Paraphrasing</h3>
-        <div style={cardStyle}>Paraphrasing practice workspace placeholder.</div>
-      </section>
+      <ParaphrasingSection sentences={paraphrasingSentences} />
     </div>
   )
 }

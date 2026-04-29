@@ -1,0 +1,34 @@
+{
+  "sentences": [
+    {
+      "id": 1,
+      "sentence": "Please send the report today.",
+      "base_intonation": "Polite",
+      "target_intonations": ["Assertive", "Urgent", "Aggressive", "Casual"]
+    },
+    {
+      "id": 2,
+      "sentence": "I did not understand your point.",
+      "base_intonation": "Neutral",
+      "target_intonations": ["Curious", "Skeptical", "Aggressive", "Diplomatic"]
+    },
+    {
+      "id": 3,
+      "sentence": "We need to talk about this issue.",
+      "base_intonation": "Serious",
+      "target_intonations": ["Calm", "Aggressive", "Diplomatic", "Friendly"]
+    },
+    {
+      "id": 4,
+      "sentence": "You arrived late again.",
+      "base_intonation": "Assertive",
+      "target_intonations": ["Aggressive", "Humorous", "Diplomatic", "Polite"]
+    },
+    {
+      "id": 5,
+      "sentence": "I need your help with this task.",
+      "base_intonation": "Professional",
+      "target_intonations": ["Friendly", "Urgent", "Hesitant", "Aggressive"]
+    }
+  ]
+}
